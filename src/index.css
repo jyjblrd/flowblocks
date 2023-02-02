@@ -1,3 +1,33 @@
 body {
-  margin: 0
+  margin: 0;
+  font-family: Inter;
+  font-size: 16px;
+}
+
+.App {
+  width: 100vw;
+  height: 100vh;
+}
+
+.Toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 16px;
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  gap: 8px;
+}
+
+.BlockNode {
+  border: black 1px solid;
+  padding: 16px;
+  background-color: #0c0910;
+  color: white;
+}
+
+button {
+  font: Inter;
+  font-size: 13px;
 }
