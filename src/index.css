@@ -20,6 +20,17 @@ body {
   gap: 8px;
 }
 
+.Palette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  gap: 8px;
+}
+
 .BlockNode {
   border: black 1px solid;
   padding: 16px;

@@ -30,7 +30,6 @@ export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
 
   return (
     <>
-      <Handle type="target" position={Position.Right} />
       {
         targets.map((targetID, index) => <Handle type="target" position={Position.Right} id={targetID} style={{ top: (index + 0.5) * (size.height / targets.length) }} />)
       }

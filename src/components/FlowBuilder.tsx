@@ -11,6 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import BlockNode, { BlockNodeData } from './BlockNode';
+import Palette from './Palette';
 
 const initialNodes: Node<BlockNodeData>[] = [
   {
@@ -64,6 +65,7 @@ function FlowBuilder() {
         <Background />
         <Controls />
       </ReactFlow>
+      <Palette setNodes={setNodes} />
     </div>
   );
 }
