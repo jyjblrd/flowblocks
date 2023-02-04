@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, {
+  useState, useCallback, useMemo, useRef,
+} from 'react';
 import ReactFlow, {
   Controls,
   Background,
@@ -13,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
-  DndContext, DragEndEvent, useDroppable,
+  DndContext, DragEndEvent,
 } from '@dnd-kit/core';
 import BlockNode, { BlockNodeData } from './BlockNode';
 import Palette from './Palette';
@@ -27,10 +29,7 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 };
 
 function FlowBuilder() {
-  const { setNodeRef } = useDroppable({
-    id: 'flow-builder',
-  });
-
+  const reactFlowRef = useRef<HTMLDivElement>(null);
   const nodeTypes = useMemo(() => ({ block: BlockNode }), []);
 
   const [nodes, setNodes] = useState(initialNodes);
@@ -59,8 +58,8 @@ function FlowBuilder() {
         type: 'block',
         id: newID,
         position: project({
-          x: event.active.rect.current.translated.left,
-          y: event.active.rect.current.translated.top,
+          x: event.active.rect.current.translated.left - (reactFlowRef.current?.offsetLeft ?? 0),
+          y: event.active.rect.current.translated.top - (reactFlowRef.current?.offsetTop ?? 0),
         }),
         data: newNodeData,
       };
@@ -70,11 +69,12 @@ function FlowBuilder() {
 
   return (
     <DndContext
-      onDragEnd={(event) => handleDragEnd(event)}
+      onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
     >
-      <Droppable label="flow-builder" />
-      <div ref={setNodeRef} style={{ height: '100%' }}>
+      <div style={{ height: '100%' }}>
+        <Droppable label="flow-builder" />
         <ReactFlow
+          ref={reactFlowRef}
           nodeTypes={nodeTypes}
           nodes={nodes}
           onNodesChange={onNodesChange}

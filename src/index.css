@@ -16,7 +16,6 @@ body {
   margin: 16px;
   display: flex;
   flex-direction: row;
-  background-color: white;
   gap: 8px;
 }
 
@@ -27,7 +26,6 @@ body {
   margin: 16px;
   display: flex;
   flex-direction: column;
-  background-color: white;
   gap: 8px;
 }
 

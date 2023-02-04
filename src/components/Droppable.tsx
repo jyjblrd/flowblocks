@@ -7,6 +7,6 @@ export default function Droppable({ label }: { label: string }) {
   });
 
   return (
-    <div ref={setNodeRef} style={{ width: '100vw', height: '100vh', position: 'absolute' }} />
+    <div ref={setNodeRef} style={{ width: '100%', height: '100%', position: 'fixed' }} />
   );
 }
