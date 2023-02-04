@@ -1,4 +1,5 @@
 #include <emscripten/bind.h>
+#include "emscripten_extensions.hh"
 
 auto greet(std::string const &input) noexcept -> std::string {
 	std::string output {"Salut, "};

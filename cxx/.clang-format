@@ -1,6 +1,5 @@
 ---
 AccessModifierOffset: -3
-AlignConsecutiveDeclarations: true
 AllowShortBlocksOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
