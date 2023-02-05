@@ -21,6 +21,7 @@ import BlockNode, { BlockNodeData } from './BlockNode';
 import Palette from './Palette';
 import { BlockKind, blockKindData } from '../blocks';
 import Droppable from './Droppable';
+import Toolbar from './Toolbar';
 
 const initialNodes: Node<BlockNodeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -48,21 +49,22 @@ function FlowBuilder() {
 
   const { project } = useReactFlow();
 
+  const [nextID, setNextID] = useState(0);
+
   function handleDragEnd(event: DragEndEvent) {
     if (event.active.data.current && event.over && event.over.id === 'flow-builder' && event.active.rect.current.translated) {
-      const newID = Math.random().toString();
-
       const newNodeData = blockKindData[event.active.data.current.kind as BlockKind];
 
       const newNode = {
         type: 'block',
-        id: newID,
+        id: nextID.toString(),
         position: project({
           x: event.active.rect.current.translated.left - (reactFlowRef.current?.offsetLeft ?? 0),
           y: event.active.rect.current.translated.top - (reactFlowRef.current?.offsetTop ?? 0),
         }),
         data: newNodeData,
       };
+      setNextID((id) => id + 1);
       setNodes((nodes) => nodes.concat([newNode]));
     }
   }
@@ -89,6 +91,7 @@ function FlowBuilder() {
         </ReactFlow>
       </div>
       <Palette />
+      <Toolbar nodes={nodes} edges={edges} />
     </DndContext>
   );
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import Toolbar from './components/Toolbar';
 import FlowBuilder from './components/FlowBuilder';
 
 export default function App() {
@@ -9,7 +8,6 @@ export default function App() {
       <ReactFlowProvider>
         <FlowBuilder />
       </ReactFlowProvider>
-      <Toolbar />
     </div>
   );
 }

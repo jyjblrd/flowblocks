@@ -5,6 +5,7 @@ AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 BasedOnStyle: WebKit
 BreakBeforeBraces: Attach
+ContinuationIndentWidth: 3
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 IndentExternBlock: Indent
@@ -15,4 +16,4 @@ QualifierAlignment: Right
 SortIncludes: false
 Standard: Cpp11
 TabWidth: 3
-UseTab: ForIndentation
+UseTab: ForContinuationAndIndentation
