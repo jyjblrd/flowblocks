@@ -7,8 +7,8 @@ import {
 
 export type BlockNodeData = {
   label: string,
-  sources: Array<string>,
   targets: Array<string>,
+  sources: Array<string>,
 };
 
 export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
@@ -20,8 +20,8 @@ export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
     };
   });
 
-  const [sources, ,] = useState(data.sources);
   const [targets, ,] = useState(data.targets);
+  const [sources, ,] = useState(data.sources);
 
   const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => {
@@ -31,13 +31,13 @@ export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
   return (
     <>
       {
-        targets.map((targetID, index) => <Handle type="target" position={Position.Right} id={targetID} style={{ top: (index + 0.5) * (size.height / targets.length) }} />)
+        targets.map((targetID, index) => <Handle type="target" position={Position.Left} id={targetID} key={targetID} style={{ top: (index + 0.5) * (size.height / targets.length) }} />)
       }
       <div className="BlockNode">
         {data.label}
       </div>
       {
-        sources.map((sourceID, index) => <Handle type="source" position={Position.Left} id={sourceID} style={{ top: (index + 0.5) * (size.height / sources.length) }} />)
+        sources.map((sourceID, index) => <Handle type="source" position={Position.Right} id={sourceID} key={sourceID} style={{ top: (index + 0.5) * (size.height / sources.length) }} />)
       }
     </>
   );

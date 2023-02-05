@@ -6,24 +6,24 @@ export enum BlockKind {
 
 export type BlockKindData = {
   label: string,
-  sources: Array<string>,
   targets: Array<string>,
+  sources: Array<string>,
 };
 
 export const blockKindData: Record<BlockKind, BlockKindData> = {
   [BlockKind.Button]: {
     label: 'Button',
-    sources: [],
-    targets: ['output'],
+    targets: [],
+    sources: ['output'],
   },
   [BlockKind.Conjunction]: {
     label: 'And',
-    sources: ['left', 'right'],
-    targets: ['output'],
+    targets: ['left', 'right'],
+    sources: ['output'],
   },
   [BlockKind.LED]: {
     label: 'LED',
-    sources: ['input'],
-    targets: [],
+    targets: ['input'],
+    sources: [],
   },
 };
