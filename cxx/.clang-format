@@ -3,6 +3,7 @@ AccessModifierOffset: -3
 AllowShortBlocksOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
+AlwaysBreakBeforeMultilineStrings: true
 BasedOnStyle: WebKit
 BreakBeforeBraces: Attach
 ContinuationIndentWidth: 3
