@@ -14,17 +14,15 @@ enum class VertexKind {
 
 auto parse_kind(std::string_view const kind_str) -> std::optional<VertexKind> {
 	using std::operator""sv;
-	using std::nullopt;
 	using std::make_optional;
+	using std::nullopt;
 
-	if (false);
-	else if (kind_str == "DigitalPinInPullDown"sv) {
+	if (false) {
+	} else if (kind_str == "DigitalPinInPullDown"sv) {
 		return make_optional(VertexKind::DigitalPinInPullDown);
-	}
-	else if (kind_str == "Conjunction"sv) {
+	} else if (kind_str == "Conjunction"sv) {
 		return make_optional(VertexKind::Conjunction);
-	}
-	else if (kind_str == "DigitalPinOut"sv) {
+	} else if (kind_str == "DigitalPinOut"sv) {
 		return make_optional(VertexKind::DigitalPinOut);
 	}
 
@@ -104,7 +102,7 @@ auto block_initialization(VertexKind kind, std::string id, std::map<std::string,
 		}
 		snippet += "], ";
 	}
-	
+
 	snippet += "})\n";
 	return snippet;
 }

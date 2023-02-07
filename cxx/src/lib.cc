@@ -38,12 +38,12 @@ auto echo(std::map<std::string, Vertex> const &vertices) -> std::string {
 }
 
 auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
-	using std::string;
-	using std::map;
-	using std::vector;
-	using std::set;
 	using std::deque;
+	using std::map;
+	using std::set;
+	using std::string;
 	using std::tuple;
+	using std::vector;
 
 	string code {"import machine\n"};
 
@@ -58,7 +58,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 			id_to_output_to_successor_id_input[predecessor_output.id].try_emplace(predecessor_output.handle);
 			id_to_output_to_successor_id_input[predecessor_output.id][predecessor_output.handle].push_back(Dependency {id, input});
 			if (!successors.contains(predecessor_output.id)) {
-				successors[predecessor_output.id] = vector{tuple {id, vertex}};
+				successors[predecessor_output.id] = vector {tuple {id, vertex}};
 			} else {
 				successors[predecessor_output.id].emplace_back(tuple {id, vertex});
 			}
@@ -79,7 +79,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 			nonsuccessor_ids.push_back(id);
 		}
 	}
-	
+
 	set<string> visited_ids {};
 	vector<tuple<string, Vertex>> sorted_vertices {};
 
@@ -97,7 +97,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 					degree[s_id] -= 1;
 				}
 			} else {
-				//FIXME: check for loops
+				// FIXME: check for loops
 			}
 		}
 	}
@@ -108,7 +108,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 		if (auto const kind = parse_kind(kind_str); kind) {
 			parsed_kinds[kind_str] = *kind;
 			code.append(block_class_definition(*kind));
-		} 
+		}
 	}
 
 	for (auto it = sorted_vertices.rbegin(); it != sorted_vertices.rend(); ++it) {
@@ -131,7 +131,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 EMSCRIPTEN_BINDINGS(module) {
 	emscripten::value_object<Dependency>("Dependency")
 		.field("id", &Dependency::id)
-		.field("output", &Dependency::handle); //TODO unify naming
+		.field("output", &Dependency::handle); // TODO unify naming
 	emscripten::value_object<Vertex>("Vertex")
 		.field("kind", &Vertex::kind)
 		.field("predecessors", &Vertex::predecessors);
