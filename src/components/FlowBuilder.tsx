@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import ReactFlow, {
   Controls,
   Background,
@@ -6,8 +6,15 @@ import ReactFlow, {
   applyEdgeChanges,
   addEdge,
   Edge,
+  EdgeChange,
+  NodeChange,
+  Connection,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+
+import TextNode from './nodes/TextNode';
+
+const nodeTypes = { textNode: TextNode };
 
 const initialNodes = [
   {
@@ -21,6 +28,12 @@ const initialNodes = [
     data: { label: 'World' },
     position: { x: 100, y: 100 },
   },
+  {
+    id: '3',
+    type: 'textNode',
+    data: { label: 'World' },
+    position: { x: 100, y: 100 },
+  },
 ];
 
 const initialEdges: Edge[] = [];
@@ -30,15 +43,18 @@ function FlowBuilder() {
   const [edges, setEdges] = useState(initialEdges);
 
   const onNodesChange = useCallback(
-    (changes: any) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [],
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes],
   );
   const onEdgesChange = useCallback(
-    (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [],
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges],
   );
 
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
 
   return (
     <div style={{ height: '100%' }}>
@@ -48,6 +64,7 @@ function FlowBuilder() {
         edges={edges}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        nodeTypes={nodeTypes}
       >
         <Background />
         <Controls />

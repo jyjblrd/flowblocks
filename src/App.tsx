@@ -1,5 +1,5 @@
-import React from 'react';
 import FlowBuilder from './components/FlowBuilder';
+import './index.css';
 
 export default function App() {
   return (
