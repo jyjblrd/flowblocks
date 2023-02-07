@@ -17,6 +17,7 @@ import 'reactflow/dist/style.css';
 import {
   DndContext, DragEndEvent,
 } from '@dnd-kit/core';
+import Modal from 'react-modal';
 import BlockNode, { BlockNodeData } from './BlockNode';
 import Palette from './Palette';
 import { BlockKind, blockKindData } from '../blocks';
@@ -69,6 +70,9 @@ function FlowBuilder() {
     }
   }
 
+  const [modalIsOpen, setModalIsOpen] = React.useState(false);
+  const [modalText, setModalText] = React.useState('');
+
   return (
     <DndContext
       onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
@@ -91,7 +95,23 @@ function FlowBuilder() {
         </ReactFlow>
       </div>
       <Palette />
-      <Toolbar nodes={nodes} edges={edges} />
+      <Toolbar
+        nodes={nodes}
+        edges={edges}
+        setModalIsOpen={setModalIsOpen}
+        setModalText={setModalText}
+      />
+      <Modal
+        className="exportModal"
+        isOpen={modalIsOpen}
+        onRequestClose={() => setModalIsOpen(false)}
+      >
+        <div style={{ display: 'flex', justifyContent: 'right', gap: '16px' }}>
+          <button type="button" onClick={async () => { await navigator.clipboard.writeText(modalText); }}>Copy</button>
+          <button type="button" onClick={() => { setModalIsOpen(false); }}>Close</button>
+        </div>
+        <textarea id="export-modal" value={modalText} style={{ width: '100%', height: '100%' }} readOnly />
+      </Modal>
     </DndContext>
   );
 }
