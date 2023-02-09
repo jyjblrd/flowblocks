@@ -90,10 +90,10 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 
 EMSCRIPTEN_BINDINGS(module) {
 	emscripten::value_object<Dependency>("Dependency")
-		.field("id", &Dependency::id)
-		.field("output", &Dependency::handle); // TODO unify naming
+		.field("connected_node_id", &Dependency::id)
+		.field("connected_node_output_id", &Dependency::handle); // TODO unify naming
 	emscripten::value_object<Vertex>("Vertex")
-		.field("kind", &Vertex::kind)
-		.field("predecessors", &Vertex::predecessors);
+		.field("node_id", &Vertex::kind)
+		.field("connections", &Vertex::predecessors);
 	emscripten::function("compile", &compile);
 }

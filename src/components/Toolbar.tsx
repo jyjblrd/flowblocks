@@ -18,19 +18,21 @@ export default function Toolbar({
 
   nodes.forEach((node) => {
     vertices[node.id] = {
-      kind: labelToVertexKind(node.data.label),
-      predecessors: {},
+      node_id: labelToVertexKind(node.data.label),
+      connections: {},
     };
   });
 
   edges.forEach((edge) => {
     if (edge.targetHandle && edge.sourceHandle) {
-      vertices[edge.target].predecessors[edge.targetHandle] = {
-        id: edge.source,
-        output: edge.sourceHandle,
+      vertices[edge.target].connections[edge.targetHandle] = {
+        connected_node_id: edge.source,
+        connected_node_output_id: edge.sourceHandle,
       };
     }
   });
+
+  console.log(JSON.stringify(vertices, null, 4));
 
   return (
     <div className="Toolbar">
