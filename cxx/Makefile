@@ -8,6 +8,7 @@ source_files=$(call rwildcard,src,*.cc *.cpp *.cxx)
 wasm_stem=cxx
 temporary=tmp
 package=pkg
+UNAME_S := $(shell uname -s)
 
 all:
 # We reset the temporary directory. (emcc requires it to exist before it is run.)
@@ -16,7 +17,11 @@ all:
 # We generate a javascript and wasm file.
 	emcc -lembind $(source_files) -Os -fwasm-exceptions -s MODULARIZE=1 -o $(temporary)/$(wasm_stem).js -sENVIRONMENT="web" -std=c++20 -s EXPORT_NAME="'load_cxx_module'" --no-entry
 # We modify Emscripten's request URL to be relative.
-	sed -i 's/"$(wasm_stem).wasm"/(new URL("$(wasm_stem).wasm",import.meta.url)).pathname/g;' $(temporary)/$(wasm_stem).js
+ifeq ($(UNAME_S),Darwin)
+		gsed -i 's/"$(wasm_stem).wasm"/(new URL("$(wasm_stem).wasm",import.meta.url)).pathname/g;' $(temporary)/$(wasm_stem).js
+else
+		sed -i 's/"$(wasm_stem).wasm"/(new URL("$(wasm_stem).wasm",import.meta.url)).pathname/g;' $(temporary)/$(wasm_stem).js
+endif
 # We modify the javascript file to be Vite-compatible.
 	printf "\nexport default load_$(wasm_stem)_module;" >> $(temporary)/$(wasm_stem).js
 # We add a typescript file.

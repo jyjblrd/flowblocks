@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Inter;
@@ -39,4 +43,17 @@ body {
 button {
   font: Inter;
   font-size: 13px;
+}
+
+.exportModal {
+  position: absolute;
+  inset: 64px;
+  border: 1px solid #9e9e9e;
+  background: white;
+  overflow: auto;
+  border-radius: 4px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
