@@ -1,5 +1,5 @@
 class programObject:
-    output=False
+    output=True
     outputsTo=[]
     inputsFrom=[]
     inputs=[]
@@ -26,7 +26,6 @@ class programObject:
         for input in self.inputsFrom:
             self.inputs.append(input.getOutput())
         new=self.calculateOutput()
-        print(self,new,self.inputs)
         if new!=self.output:
             self.output=new
             self.updateOutputs()
@@ -49,15 +48,14 @@ class testOut(outObject):
         return self.output
 
 class orObject(programObject):
-    def getOutput(self):
+    def calculateOutput(self):
         for input in self.inputs:
             if input==True:
                 return True
         return False
 
 class andObject(programObject):
-    def getOutput(self):
-        print("a",self)
+    def calculateOutput(self):
         for input in self.inputs:
             if input==False:
                 return False
