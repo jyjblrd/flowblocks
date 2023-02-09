@@ -9,7 +9,7 @@
 
 #include <emscripten/bind.h>
 
-constexpr auto block_class_definition(VertexKind kind) -> std::string {
+auto block_class_definition(VertexKind kind) -> std::string {
 	using std::operator""sv;
 	std::string snippet;
 	switch (kind) {
