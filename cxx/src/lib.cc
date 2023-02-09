@@ -8,35 +8,6 @@
 #include <deque>
 #include <optional>
 
-auto greet(std::string const &input) noexcept -> std::string {
-	std::string output {"Salut, "};
-	output.append(input);
-	output.append("! ~C++");
-	return output;
-}
-
-auto echo(std::map<std::string, Vertex> const &vertices) -> std::string {
-	std::string output {};
-	for (auto const &[id, vertex] : vertices) {
-		output
-			.append(id)
-			.append(", ")
-			.append(vertex.kind)
-			.append(":\n");
-		for (auto const &[input, dep] : vertex.predecessors) {
-			output
-				.append("    ")
-				.append(input)
-				.append(" <- ")
-				.append(dep.id)
-				.append(".")
-				.append(dep.handle)
-				.append("\n");
-		}
-	}
-	return output;
-}
-
 auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 	using std::deque;
 	using std::map;
@@ -135,7 +106,5 @@ EMSCRIPTEN_BINDINGS(module) {
 	emscripten::value_object<Vertex>("Vertex")
 		.field("kind", &Vertex::kind)
 		.field("predecessors", &Vertex::predecessors);
-	emscripten::function("greet", &greet);
-	emscripten::function("echo", &echo);
 	emscripten::function("compile", &compile);
 }
