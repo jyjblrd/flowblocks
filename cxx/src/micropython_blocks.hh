@@ -2,73 +2,57 @@
 
 #include <string>
 #include <map>
-#include <optional>
 #include <vector>
 #include "lib.hh"
 
-enum class VertexKind {
-	DigitalPinInPullDown,
-	Conjunction,
-	DigitalPinOut,
-};
+#include <string_view>
 
-auto parse_kind(std::string_view const kind_str) -> std::optional<VertexKind> {
-	using std::operator""sv;
-	using std::make_optional;
-	using std::nullopt;
-
-	if (false) {
-	} else if (kind_str == "DigitalPinInPullDown"sv) {
-		return make_optional(VertexKind::DigitalPinInPullDown);
-	} else if (kind_str == "Conjunction"sv) {
-		return make_optional(VertexKind::Conjunction);
-	} else if (kind_str == "DigitalPinOut"sv) {
-		return make_optional(VertexKind::DigitalPinOut);
-	}
-
-	return {};
-}
+#include <emscripten/bind.h>
 
 constexpr auto block_class_definition(VertexKind kind) -> std::string {
+	using std::operator""sv;
 	std::string snippet;
 	switch (kind) {
 	case VertexKind::DigitalPinInPullDown:
-		snippet =
-			"class DigitalPinInPullDown:\n"
-			"    def __init__(self, successors):\n"
-			"        self.led = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_DOWN)\n"
-			"        self.successors = successors\n"
-			"\n"
-			"    def query(self):\n"
-			"        output_value = True if self.led.value() else False\n"
-			"        for successor in self.successors['output']:\n"
-			"            successor['vertex'].update(successor['input'], output_value)\n";
-		break;
+		snippet = R"...(
+class DigitalPinInPullDown:
+    def __init__(self, successors):
+        self.led = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_DOWN)
+        self.successors = successors
+
+    def query(self):
+        output_value = True if self.led.value() else False
+        for successor in self.successors['output']:
+            successor['vertex'].update(successor['input'], output_value)
+)..."sv.substr(1);
+	break;
 	case VertexKind::Conjunction:
-		snippet =
-			"class Conjunction:\n"
-			"    def __init__(self, successors):\n"
-			"        self.left = False\n"
-			"        self.right = False\n"
-			"        self.successors = successors\n"
-			"\n"
-			"    def update(self, input, value):\n"
-			"        if input == 'left':\n"
-			"            self.left = value\n"
-			"        elif input == 'right':\n"
-			"            self.right = value\n"
-			"        output_value = True if self.left and self.right else False\n"
-			"        for successor in self.successors['output']:\n"
-			"            successor['vertex'].update(successor['input'], output_value)\n";
+		snippet = R"...(
+class Conjunction:
+    def __init__(self, successors):
+        self.left = False
+        self.right = False
+        self.successors = successors
+
+    def update(self, input, value):
+        if input == 'left':
+            self.left = value
+        elif input == 'right':
+            self.right = value
+        output_value = True if self.left and self.right else False
+        for successor in self.successors['output']:
+            successor['vertex'].update(successor['input'], output_value)
+)..."sv.substr(1);
 		break;
 	case VertexKind::DigitalPinOut:
-		snippet =
-			"class DigitalPinOut:\n"
-			"    def __init__(self, successors):\n"
-			"        self.led = machine.Pin(25, machine.Pin.OUT)\n"
-			"\n"
-			"    def update(self, input, value):\n"
-			"        self.led.value(1 if value else 0)\n";
+		snippet = R"...(
+class DigitalPinOut:
+    def __init__(self, successors):
+        self.led = machine.Pin(25, machine.Pin.OUT)
+
+    def update(self, input, value):
+        self.led.value(1 if value else 0)
+)..."sv.substr(1);
 		break;
 	default:
 		// This should never occur!
@@ -98,7 +82,7 @@ auto block_initialization(VertexKind kind, std::string id, std::map<std::string,
 	for (auto const &[output, dependencies] : successors) {
 		snippet += "'" + output + "' : [";
 		for (auto const &dependency : dependencies) {
-			snippet += "{'vertex' : a" + dependency.id + ", 'input' : '" + dependency.handle + "'}";
+			snippet += "{'vertex' : a" + dependency.id + ", 'input' : '" + dependency.handle + "'}, ";
 		}
 		snippet += "], ";
 	}
