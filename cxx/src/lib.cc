@@ -8,7 +8,7 @@
 #include <deque>
 #include <optional>
 
-auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
+auto compile(std::map<std::string, Node> const &vertices) -> std::string {
 	using std::deque;
 	using std::map;
 	using std::set;
@@ -19,7 +19,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 	string code {"import machine\n"};
 
 	map<string, map<string, vector<Dependency>>> id_to_output_to_successor_id_input {};
-	map<string, vector<tuple<string, Vertex>>> successors {};
+	map<string, vector<tuple<string, Node>>> successors {};
 	map<string, size_t> degree {};
 
 	for (auto const &[id, vertex] : vertices) {
@@ -30,7 +30,7 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 		}
 	}
 
-	deque<tuple<string, Vertex>> upcoming_vertices {};
+	deque<tuple<string, Node>> upcoming_vertices {};
 	vector<string> nonsuccessor_ids {};
 
 	for (auto const &[id, vertex] : vertices) {
@@ -41,13 +41,13 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 	}
 
 	set<string> visited_ids {};
-	vector<tuple<string, Vertex>> sorted_vertices {};
-	set<string> vertex_kinds {};
+	vector<tuple<string, Node>> sorted_vertices {};
+	set<string> node_types {};  // only for generating class definitions
 
 	while (!upcoming_vertices.empty()) {
 		auto const &[id, vertex] = upcoming_vertices.front();
 		visited_ids.insert(id);
-		vertex_kinds.insert(vertex.kind);
+		node_types.insert(vertex.node_type);
 		sorted_vertices.emplace_back(id, vertex);
 		upcoming_vertices.pop_front();
 		for (auto const &[s_id, successor] : successors[id]) {
@@ -63,18 +63,18 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 		}
 	}
 
-	map<string, VertexKind> parsed_kinds;
-
-	for (auto const &kind_str : vertex_kinds) {
-		if (auto const kind = parse_kind(kind_str); kind) {
-			parsed_kinds[kind_str] = *kind;
-			code.append(block_class_definition(*kind));
+	map<string, NodeType> parsed_node_types;
+ 
+	for (auto const &node_type_str : node_types) {
+		if (auto const node_type = parse_node_type(node_type_str); node_type) {
+            parsed_node_types[node_type_str] = *node_type;
+			code.append(block_class_definition(*node_type));
 		}
 	}
-
+ 
 	for (auto it = sorted_vertices.rbegin(); it != sorted_vertices.rend(); ++it) {
 		auto const &[id, vertex] = *it;
-		code.append(block_initialization(parsed_kinds[vertex.kind], id, id_to_output_to_successor_id_input[id]));
+		code.append(block_initialization(parsed_node_types[vertex.node_type], id, id_to_output_to_successor_id_input[id]));
 	}
 
 	code.append("while True:\n");
@@ -92,8 +92,8 @@ EMSCRIPTEN_BINDINGS(module) {
 	emscripten::value_object<Dependency>("Dependency")
 		.field("connected_node_id", &Dependency::id)
 		.field("connected_node_output_id", &Dependency::handle); // TODO unify naming
-	emscripten::value_object<Vertex>("Vertex")
-		.field("node_id", &Vertex::kind)
-		.field("connections", &Vertex::predecessors);
+	emscripten::value_object<Node>("Vertex")
+		.field("node_id", &Node::node_type)
+		.field("connections", &Node::predecessors);
 	emscripten::function("compile", &compile);
 }

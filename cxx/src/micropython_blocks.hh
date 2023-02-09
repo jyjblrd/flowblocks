@@ -9,11 +9,11 @@
 
 #include <emscripten/bind.h>
 
-auto block_class_definition(VertexKind kind) -> std::string {
+auto block_class_definition(NodeType kind) -> std::string {
 	using std::operator""sv;
 	std::string snippet;
 	switch (kind) {
-	case VertexKind::DigitalPinInPullDown:
+	case NodeType::DigitalPinInPullDown:
 		snippet = R"...(
 class DigitalPinInPullDown:
     def __init__(self, successors):
@@ -26,7 +26,7 @@ class DigitalPinInPullDown:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 	break;
-	case VertexKind::Conjunction:
+	case NodeType::Conjunction:
 		snippet = R"...(
 class Conjunction:
     def __init__(self, successors):
@@ -44,7 +44,7 @@ class Conjunction:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 		break;
-	case VertexKind::DigitalPinOut:
+	case NodeType::DigitalPinOut:
 		snippet = R"...(
 class DigitalPinOut:
     def __init__(self, successors):
@@ -61,16 +61,16 @@ class DigitalPinOut:
 	return snippet;
 }
 
-auto block_initialization(VertexKind kind, std::string id, std::map<std::string, std::vector<Dependency>> successors) -> std::string {
+auto block_initialization(NodeType kind, std::string id, std::map<std::string, std::vector<Dependency>> successors) -> std::string {
 	std::string snippet {};
 	switch (kind) {
-	case VertexKind::DigitalPinInPullDown:
+	case NodeType::DigitalPinInPullDown:
 		snippet = "DigitalPinInPullDown";
 		break;
-	case VertexKind::Conjunction:
+	case NodeType::Conjunction:
 		snippet = "Conjunction";
 		break;
-	case VertexKind::DigitalPinOut:
+	case NodeType::DigitalPinOut:
 		snippet = "DigitalPinOut";
 		break;
 	default:
