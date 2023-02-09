@@ -4,14 +4,9 @@ import React, {
 import {
   Handle, NodeProps, Position, useStore, useUpdateNodeInternals,
 } from 'reactflow';
+import { NodeTypeData } from '../shared/interfaces/Node.interface';
 
-export type BlockNodeData = {
-  label: string,
-  targets: Array<string>,
-  sources: Array<string>,
-};
-
-export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
+export default function BlockNode({ id, data }: NodeProps<NodeTypeData>) {
   const size = useStore((s) => {
     const node = s.nodeInternals.get(id);
     return {
@@ -20,24 +15,24 @@ export default function BlockNode({ id, data }: NodeProps<BlockNodeData>) {
     };
   });
 
-  const [targets, ,] = useState(data.targets);
-  const [sources, ,] = useState(data.sources);
+  const [inputs, ,] = useState(data.inputs);
+  const [outputs, ,] = useState(data.outputs);
 
   const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => {
     updateNodeInternals(id);
-  }, [sources, targets]);
+  }, [outputs, inputs]);
 
   return (
     <>
       {
-        targets.map((targetID, index) => <Handle type="target" position={Position.Left} id={targetID} key={targetID} style={{ top: (index + 0.5) * (size.height / targets.length) }} />)
+        Object.entries(inputs).map(([key], index) => <Handle type="target" position={Position.Left} id={key} key={key} style={{ top: (index + 0.5) * (size.height / Object.values(inputs).length) }} />)
       }
       <div className="BlockNode">
-        {data.label}
+        {data.name}
       </div>
       {
-        sources.map((sourceID, index) => <Handle type="source" position={Position.Right} id={sourceID} key={sourceID} style={{ top: (index + 0.5) * (size.height / sources.length) }} />)
+        Object.entries(outputs).map(([key], index) => <Handle type="source" position={Position.Right} id={key} key={key} style={{ top: (index + 0.5) * (size.height / Object.values(outputs).length) }} />)
       }
     </>
   );

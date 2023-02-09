@@ -18,13 +18,13 @@ import {
   DndContext, DragEndEvent,
 } from '@dnd-kit/core';
 import Modal from 'react-modal';
-import BlockNode, { BlockNodeData } from './BlockNode';
+import BlockNode from './BlockNode';
 import Palette from './Palette';
-import { BlockKind, blockKindData } from '../blocks';
+import { NodeId, nodeTypes, NodeTypeData } from '../shared/interfaces/Node.interface';
 import Droppable from './Droppable';
 import Toolbar from './Toolbar';
 
-const initialNodes: Node<BlockNodeData>[] = [];
+const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
 const defaultEdgeOptions: DefaultEdgeOptions = {
   type: 'smoothstep',
@@ -32,7 +32,7 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 
 function FlowBuilder() {
   const reactFlowRef = useRef<HTMLDivElement>(null);
-  const nodeTypes = useMemo(() => ({ block: BlockNode }), []);
+  const nodeTypesA = useMemo(() => ({ block: BlockNode }), []);
 
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
@@ -54,9 +54,10 @@ function FlowBuilder() {
 
   function handleDragEnd(event: DragEndEvent) {
     if (event.active.data.current && event.over && event.over.id === 'flow-builder' && event.active.rect.current.translated) {
-      const newNodeData = blockKindData[event.active.data.current.kind as BlockKind];
+      const nodeId: NodeId = event.active.data.current.nodeId as NodeId;
+      const newNodeData = nodeTypes[nodeId];
 
-      const newNode = {
+      const newNode: Node = {
         type: 'block',
         id: nextID.toString(),
         position: project({
@@ -81,7 +82,7 @@ function FlowBuilder() {
         <Droppable label="flow-builder" />
         <ReactFlow
           ref={reactFlowRef}
-          nodeTypes={nodeTypes}
+          nodeTypes={nodeTypesA}
           nodes={nodes}
           onNodesChange={onNodesChange}
           edges={edges}

@@ -1,5 +1,5 @@
 import load_cxx_module from '../cxx/pkg/cxx';
-import { Vertex } from './vertex';
+import { NodeInstance as Vertex } from './shared/interfaces/NodeInstance.interface';
 
 export interface CxxBindings {
   greet(input: string): string;
