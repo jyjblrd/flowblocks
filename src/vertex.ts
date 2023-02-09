@@ -1,6 +1,6 @@
 export type Vertex = {
-  kind: string,
-  predecessors: Record<string, { id: string, output: string }>,
+  node_id: string,
+  connections: Record<string, { connected_node_id: string, connected_node_output_id: string }>,
 };
 
 export function labelToVertexKind(label: string) {
