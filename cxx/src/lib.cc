@@ -21,23 +21,12 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 	map<string, map<string, vector<Dependency>>> id_to_output_to_successor_id_input {};
 	map<string, vector<tuple<string, Vertex>>> successors {};
 	map<string, size_t> degree {};
-	set<string> vertex_kinds {};
 
 	for (auto const &[id, vertex] : vertices) {
 		for (auto const &[input, predecessor_output] : vertex.predecessors) {
-			id_to_output_to_successor_id_input.try_emplace(predecessor_output.id);
-			id_to_output_to_successor_id_input[predecessor_output.id].try_emplace(predecessor_output.handle);
 			id_to_output_to_successor_id_input[predecessor_output.id][predecessor_output.handle].push_back(Dependency {id, input});
-			if (!successors.contains(predecessor_output.id)) {
-				successors[predecessor_output.id] = vector {tuple {id, vertex}};
-			} else {
-				successors[predecessor_output.id].emplace_back(tuple {id, vertex});
-			}
-			if (!degree.contains(id)) {
-				degree[id] = 1;
-			} else {
-				degree[id] += 1;
-			}
+			successors[predecessor_output.id].emplace_back(id, vertex);
+			++degree[id];
 		}
 	}
 
@@ -46,24 +35,25 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 
 	for (auto const &[id, vertex] : vertices) {
 		if (!degree.contains(id)) {
-			upcoming_vertices.emplace_back(tuple {id, vertex});
+			upcoming_vertices.emplace_back(id, vertex);
 			nonsuccessor_ids.push_back(id);
 		}
 	}
 
 	set<string> visited_ids {};
 	vector<tuple<string, Vertex>> sorted_vertices {};
+	set<string> vertex_kinds {};
 
 	while (!upcoming_vertices.empty()) {
 		auto const &[id, vertex] = upcoming_vertices.front();
 		visited_ids.insert(id);
 		vertex_kinds.insert(vertex.kind);
-		sorted_vertices.emplace_back(tuple {id, vertex});
+		sorted_vertices.emplace_back(id, vertex);
 		upcoming_vertices.pop_front();
 		for (auto const &[s_id, successor] : successors[id]) {
 			if (!visited_ids.contains(s_id)) {
 				if (degree[s_id] == 1) {
-					upcoming_vertices.emplace_back(tuple {s_id, successor});
+					upcoming_vertices.emplace_back(s_id, successor);
 				} else {
 					degree[s_id] -= 1;
 				}
@@ -84,7 +74,6 @@ auto compile(std::map<std::string, Vertex> const &vertices) -> std::string {
 
 	for (auto it = sorted_vertices.rbegin(); it != sorted_vertices.rend(); ++it) {
 		auto const &[id, vertex] = *it;
-		id_to_output_to_successor_id_input.try_emplace(id);
 		code.append(block_initialization(parsed_kinds[vertex.kind], id, id_to_output_to_successor_id_input[id]));
 	}
 
