@@ -13,7 +13,7 @@ yarn
 ```
 
 FlowBlocks also requires Emscripten, which should be installed via the [emsdk](https://emscripten.org/docs/getting_started/downloads.html).
-On Windows, the C++ build process also requires POSIX tools such as `make` and `sed`, which can be installed via [MSYS2](https://www.msys2.org/) or a package manager of your choice; alternatively, you can use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
+On Windows, the C++ build process also requires POSIX tools such as `sed`, which can be installed via [MSYS2](https://www.msys2.org/) or a package manager of your choice, except for `make`, which can be installed via [Chocolatey](https://community.chocolatey.org/packages/make) (MSYS2's `make` cannot use the `cmd` shell, which is required to have paths compatible with `llvm-ar`) . Alternatively, you can use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
 
 ### Installing development tools
 
