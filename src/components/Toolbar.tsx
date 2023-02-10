@@ -1,46 +1,45 @@
 import React from 'react';
-import { Edge, Node } from 'reactflow';
+import { useRecoilValue } from 'recoil';
+import { useReactFlow, Node } from 'reactflow';
+import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { cxx } from '../cxx';
-import { NodeTypeData } from '../shared/interfaces/Node.interface';
-import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import labelToVertexKind from '../shared/helpers/helperFunctions';
+import flowchartToJSON from '../shared/helpers/helperFunctions';
 
-type ToolbarProps = {
-  nodes: Array<Node<NodeTypeData>>,
-  edges: Array<Edge>,
-  setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setModalText: React.Dispatch<React.SetStateAction<string>>,
-};
+export default function Toolbar() {
+  const nodeTypes = useRecoilValue(nodeTypesAtom);
 
-export default function Toolbar({
-  nodes, edges, setModalIsOpen, setModalText,
-} : ToolbarProps) {
-  const project: Record<string, NodeInstance> = {};
+  const reactFlowInstance = useReactFlow();
 
-  nodes.forEach((node) => {
-    project[node.id] = {
-      node_id: labelToVertexKind(node.data.name),
-      connections: {},
+  function createNewNodeInstance(nodeTypeId: string) {
+    const newNodeData = nodeTypes[nodeTypeId];
+
+    const newNode: Node = {
+      id: nodeTypeId,
+      position: { x: 0, y: 0 },
+      data: newNodeData,
+      type: 'defaultNode',
     };
-  });
-
-  edges.forEach((edge) => {
-    if (edge.targetHandle && edge.sourceHandle) {
-      project[edge.target]
-        .connections[edge.targetHandle] = {
-          connected_node_id: edge.source,
-          connected_node_output_id: edge.sourceHandle,
-        };
-    }
-  });
-
-  console.log(JSON.stringify(project, null, 4));
+    reactFlowInstance.addNodes(newNode);
+  }
 
   return (
-    <div className="Toolbar">
+    <div style={{ float: 'right' }}>
+      {
+        Object.keys(nodeTypes).map((nodeTypeId) =>
+          <button type="button" key={nodeTypeId} onClick={() => createNewNodeInstance(nodeTypeId)}>{ nodeTypeId }</button>)
+      }
       <button type="button" className="toolbar">Save</button>
       <button type="button" className="toolbar">Load</button>
-      <button type="button" className="toolbar" onClick={() => { setModalText(cxx.compile(project)); setModalIsOpen(true); }}>Compile</button>
+      <button
+        type="button"
+        className="toolbar"
+        onClick={() => {
+          console.log(cxx.compile(flowchartToJSON(reactFlowInstance)));
+          alert('check console log for code');
+        }}
+      >
+        Compile
+      </button>
     </div>
   );
 }

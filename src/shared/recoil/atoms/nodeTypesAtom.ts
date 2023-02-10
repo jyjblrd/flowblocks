@@ -1,27 +1,8 @@
-export enum NodeId {
-  Button,
-  Conjunction,
-  LED,
-}
+import { atom } from 'recoil';
+import { ConnectionType, NodeTypeData } from '../../interfaces/NodeTypes.interface';
 
-export type Attribute = Record<string, string>;
-
-export enum ConnectionType {
-  Bool,
-  Number,
-}
-
-export type NodeTypeData = {
-  name: string,
-  description: string,
-  attributes: Array<Attribute>,
-  inputs: Record<number, { name: String, type: ConnectionType }>,
-  outputs: Record<number, { name: String, type: ConnectionType }>,
-};
-
-export const nodeTypes: Record<NodeId, NodeTypeData> = {
-  [NodeId.Button]: {
-    name: 'Button',
+const defaultNodeTypes: Record<string, NodeTypeData> = {
+  Button: {
     description: '',
     attributes: [],
     inputs: {},
@@ -32,8 +13,7 @@ export const nodeTypes: Record<NodeId, NodeTypeData> = {
       },
     },
   },
-  [NodeId.Conjunction]: {
-    name: 'And',
+  And: {
     description: '',
     attributes: [],
     inputs: {
@@ -53,8 +33,7 @@ export const nodeTypes: Record<NodeId, NodeTypeData> = {
       },
     },
   },
-  [NodeId.LED]: {
-    name: 'LED',
+  LED: {
     description: '',
     attributes: [],
     inputs: {
@@ -66,3 +45,10 @@ export const nodeTypes: Record<NodeId, NodeTypeData> = {
     outputs: {},
   },
 };
+
+export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
+  key: 'nodeTypes',
+  default: defaultNodeTypes,
+});
+
+export default nodeTypesAtom;

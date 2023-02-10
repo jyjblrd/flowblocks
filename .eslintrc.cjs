@@ -19,5 +19,6 @@ module.exports = {
     'react',
   ],
   rules: {
+    'implicit-arrow-linebreak': 'off',
   },
 };

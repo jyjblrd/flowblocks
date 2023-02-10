@@ -1,11 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import '@fontsource/inter';
 import './index.css';
+import { ReactFlowProvider } from 'reactflow';
+import { RecoilRoot } from 'recoil';
+import App from './App';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <RecoilRoot>
+      <ReactFlowProvider>
+        <App />
+      </ReactFlowProvider>
+    </RecoilRoot>
   </React.StrictMode>,
 );
