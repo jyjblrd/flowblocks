@@ -4,7 +4,7 @@ import {
 } from 'reactflow';
 import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
 
-export default function DefaultNode({ id, data }: NodeProps<NodeTypeData>) {
+export default function DefaultNode({ data }: NodeProps<NodeTypeData>) {
   const numInputs = Object.entries(data.inputs).length;
   const numOutputs = Object.entries(data.outputs).length;
 
@@ -25,7 +25,7 @@ export default function DefaultNode({ id, data }: NodeProps<NodeTypeData>) {
         padding: '16px', backgroundColor: 'white', border: '2px solid grey', borderRadius: '10px',
       }}
       >
-        {id}
+        {data.nodeTypeId}
       </div>
       {
         Object.entries(data.outputs).map(([key], index) => (

@@ -6,6 +6,7 @@ export enum ConnectionType {
 }
 
 export type NodeTypeData = {
+  nodeTypeId?: string,
   description: string,
   attributes: Array<Attribute>,
   inputs: Record<number, { name: String, type: ConnectionType }>,

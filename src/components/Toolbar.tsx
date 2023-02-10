@@ -11,10 +11,15 @@ export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
 
   function createNewNodeInstance(nodeTypeId: string) {
-    const newNodeData = nodeTypes[nodeTypeId];
+    const newNodeData = { ...nodeTypes[nodeTypeId], nodeTypeId };
+
+    const nodes = reactFlowInstance.getNodes();
+    const nextNodeInstanceId = nodes.length === 0
+      ? '0'
+      : (Math.max(...nodes.map((node) => parseInt(node.id, 10))) + 1).toString();
 
     const newNode: Node = {
-      id: nodeTypeId,
+      id: nextNodeInstanceId,
       position: { x: 0, y: 0 },
       data: newNodeData,
       type: 'defaultNode',

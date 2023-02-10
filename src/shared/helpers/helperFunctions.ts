@@ -25,7 +25,7 @@ export default function flowchartToJSON(
 
   nodes.forEach((node) => {
     project[node.id] = {
-      node_id: jsNodeTypeIdToVertexKind(node.id),
+      node_id: jsNodeTypeIdToVertexKind(node.data.nodeTypeId),
       connections: {},
     };
   });
