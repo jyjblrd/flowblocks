@@ -22,7 +22,7 @@ class DigitalPinInPullDown:
 
     def query(self):
         output_value = True if self.led.value() else False
-        for successor in self.successors['output']:
+        for successor in self.successors['1']:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 	break;
@@ -35,12 +35,12 @@ class Conjunction:
         self.successors = successors
 
     def update(self, input, value):
-        if input == 'left':
+        if input == '1':
             self.left = value
-        elif input == 'right':
+        elif input == '2':
             self.right = value
         output_value = True if self.left and self.right else False
-        for successor in self.successors['output']:
+        for successor in self.successors['1']:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 		break;

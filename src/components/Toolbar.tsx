@@ -3,6 +3,7 @@ import { useRecoilValue } from 'recoil';
 import { useReactFlow, Node } from 'reactflow';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { cxx } from '../cxx';
+import runOnDevice from '../serial';
 import flowchartToJSON from '../shared/helpers/helperFunctions';
 
 export default function Toolbar() {
@@ -44,6 +45,15 @@ export default function Toolbar() {
         }}
       >
         Compile
+      </button>
+      <button
+        type="button"
+        className="toolbar"
+        onClick={async () => {
+          await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance)));
+        }}
+      >
+        Compile and run
       </button>
     </div>
   );
