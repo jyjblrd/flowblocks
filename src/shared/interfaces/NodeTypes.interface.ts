@@ -12,3 +12,5 @@ export type NodeTypeData = {
   inputs: Record<number, { name: String, type: ConnectionType }>,
   outputs: Record<number, { name: String, type: ConnectionType }>,
 };
+
+export type NodeTypes = Record<string, NodeTypeData>;

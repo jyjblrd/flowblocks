@@ -1,7 +1,7 @@
 import { atom } from 'recoil';
-import { ConnectionType, NodeTypeData } from '../../interfaces/NodeTypes.interface';
+import { NodeTypes, ConnectionType, NodeTypeData } from '../../interfaces/NodeTypes.interface';
 
-const defaultNodeTypes: Record<string, NodeTypeData> = {
+const defaultNodeTypes: NodeTypes = {
   Button: {
     description: '',
     attributes: [],

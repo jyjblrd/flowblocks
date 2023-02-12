@@ -1,12 +1,25 @@
 import React from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
 import FlowBuilder from './components/FlowBuilder';
+import NodePicker from './components/NodePicker';
 import Toolbar from './components/Toolbar';
 
 export default function App() {
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <Toolbar />
-      <FlowBuilder />
-    </div>
+    <Container fluid>
+      <Row>
+        <Col>
+          <Toolbar />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={4} md={3} xl={2}>
+          <NodePicker />
+        </Col>
+        <Col>
+          <FlowBuilder />
+        </Col>
+      </Row>
+    </Container>
   );
 }
