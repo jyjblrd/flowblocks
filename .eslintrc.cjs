@@ -20,5 +20,7 @@ module.exports = {
   ],
   rules: {
     'implicit-arrow-linebreak': 'off',
+    'no-else-return': 'off',
+    'react/require-default-props': 'off',
   },
 };
