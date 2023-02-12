@@ -2,7 +2,7 @@ import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 import { cxx } from '../cxx';
-import runOnDevice from '../serial';
+import runOnDevice from '../shared/helpers/serial';
 import flowchartToJSON from '../shared/helpers/helperFunctions';
 
 export default function Toolbar() {
@@ -10,10 +10,11 @@ export default function Toolbar() {
 
   return (
     <div style={{ float: 'right' }}>
-      <Button variant="outline-primary">Save</Button>
-      <Button variant="outline-primary">Load</Button>
+      <Button variant="outline-dark" className="mx-1">Save</Button>
+      <Button variant="outline-dark" className="mx-1">Load</Button>
       <Button
-        variant="outline-primary"
+        className="mx-1"
+        variant="outline-dark"
         onClick={() => {
           console.log(cxx.compile(flowchartToJSON(reactFlowInstance)));
           alert('check console log for code');
@@ -22,7 +23,8 @@ export default function Toolbar() {
         Compile
       </Button>
       <Button
-        variant="outline-primary"
+        className="mx-1"
+        variant="outline-dark"
         onClick={async () => {
           await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance)));
         }}

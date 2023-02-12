@@ -3,7 +3,7 @@ import { NodeTypes, ConnectionType, NodeTypeData } from '../../interfaces/NodeTy
 
 const defaultNodeTypes: NodeTypes = {
   Button: {
-    description: '',
+    description: 'Physical button input',
     attributes: [],
     inputs: {},
     outputs: {
@@ -14,7 +14,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   And: {
-    description: '',
+    description: 'Logical AND',
     attributes: [],
     inputs: {
       1: {
@@ -34,7 +34,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   LED: {
-    description: '',
+    description: 'LED output',
     attributes: [],
     inputs: {
       1: {

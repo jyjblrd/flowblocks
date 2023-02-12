@@ -15,6 +15,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { DragEndEvent, useDndMonitor } from '@dnd-kit/core';
 import { useRecoilValue } from 'recoil';
+import { Card } from 'react-bootstrap';
 import DefaultNode from './DefaultNode';
 import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
 import Droppable from './Droppable';
@@ -26,6 +27,8 @@ const initialEdges: Edge[] = [];
 const reactflowNodeTypes = { defaultNode: DefaultNode };
 
 function FlowBuilder() {
+  const [userDragging, setUserDragging] = useState(false);
+
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
@@ -44,8 +47,8 @@ function FlowBuilder() {
   const reactFlowInstance = useReactFlow();
   useDndMonitor({
     onDragEnd(event: DragEndEvent) {
-      if (event.active.data.current && event.over && event.over.id === 'flow-builder' && event.active.rect.current.translated) {
-        const { nodeTypeId } = event.active.data.current;
+      if (event.over?.id === 'flow-builder') {
+        const nodeTypeId = event.active.data.current?.nodeTypeId;
         const newNodeData = { ...nodeTypes[nodeTypeId], nodeTypeId };
 
         const nodes = reactFlowInstance.getNodes();
@@ -56,20 +59,34 @@ function FlowBuilder() {
         const newNode: Node = {
           id: nextNodeInstanceId,
           position: reactFlowInstance.project({
-            x: event.active.rect.current.translated.left - event.over.rect.left,
-            y: event.active.rect.current.translated.top - event.over.rect.top,
+            x: (event.active.rect.current.translated?.left ?? 0) - event.over.rect.left,
+            y: (event.active.rect.current.translated?.top ?? 0) - event.over.rect.top,
           }),
           data: newNodeData,
           type: 'defaultNode',
         };
         reactFlowInstance.addNodes(newNode);
       }
+      setUserDragging(false);
+    },
+    onDragStart() {
+      setUserDragging(true);
     },
   });
 
   return (
     <Droppable id="flow-builder">
-      <div style={{ height: '90vh' }}>
+      <Card className="shadow-sm" style={{ height: '90vh' }}>
+        {userDragging && (
+          <div
+            style={{
+              position: 'absolute', zIndex: 10, backgroundColor: 'rgba(0, 0, 0, 0.05)', borderRadius: 'inherit',
+            }}
+            className="d-flex align-items-center w-100 h-100"
+          >
+            <h1 className="flex-fill text-center fw-light">Drop Here</h1>
+          </div>
+        )}
         <ReactFlow
           nodeTypes={reactflowNodeTypes}
           nodes={nodes}
@@ -81,7 +98,7 @@ function FlowBuilder() {
           <Background />
           <Controls />
         </ReactFlow>
-      </div>
+      </Card>
     </Droppable>
   );
 }

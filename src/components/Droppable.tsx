@@ -7,15 +7,12 @@ interface DroppableProps {
 }
 
 export default function Droppable({ children, id }: DroppableProps) {
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id,
   });
-  const style = {
-    color: isOver ? 'green' : undefined,
-  };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef}>
       {children}
     </div>
   );

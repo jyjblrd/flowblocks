@@ -9,7 +9,7 @@ interface DraggableProps {
 
 export default function Draggable({ children, id, data }: DraggableProps) {
   const {
-    attributes, listeners, setNodeRef, transform,
+    attributes, listeners, setNodeRef, transform, isDragging,
   } = useDraggable({
     id,
     data,
@@ -19,8 +19,17 @@ export default function Draggable({ children, id, data }: DraggableProps) {
   } : undefined;
 
   return (
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div
+      ref={setNodeRef}
+      style={{
+        ...style,
+        zIndex: isDragging ? 100 : 'auto',
+        position: 'relative',
+        cursor: 'grab',
+      }}
+      {...listeners} // eslint-disable-line react/jsx-props-no-spreading
+      {...attributes} // eslint-disable-line react/jsx-props-no-spreading
+    >
       {children}
     </div>
   );

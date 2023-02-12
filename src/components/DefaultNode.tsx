@@ -3,6 +3,7 @@ import {
   Handle, NodeProps, Position,
 } from 'reactflow';
 import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
+import './DefaultNode.scss';
 
 interface DummyNodeProps {
   data: NodeTypeData;
