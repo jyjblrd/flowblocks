@@ -2,7 +2,7 @@ import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 import { cxx } from '../cxx';
-import runOnDevice from '../shared/helpers/serial';
+import { runOnDevice, stopRunning, forceReselectPort } from '../shared/helpers/serial';
 import flowchartToJSON from '../shared/helpers/helperFunctions';
 
 export default function Toolbar() {
@@ -30,6 +30,24 @@ export default function Toolbar() {
         }}
       >
         Compile and run
+      </Button>
+      <Button
+        className="mx-1"
+        variant="outline-dark"
+        onClick={async () => {
+          await stopRunning();
+        }}
+      >
+        Stop running
+      </Button>
+      <Button
+        className="mx-1"
+        variant="outline-dark"
+        onClick={async () => {
+          await forceReselectPort();
+        }}
+      >
+        Select device
       </Button>
     </div>
   );
