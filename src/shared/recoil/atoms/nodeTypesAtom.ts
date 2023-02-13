@@ -1,10 +1,14 @@
 import { atom } from 'recoil';
-import { NodeTypes, ConnectionType, NodeTypeData } from '../../interfaces/NodeTypes.interface';
+import {
+  NodeTypes, ConnectionType, NodeTypeData, AttributeTypes,
+} from '../../interfaces/NodeTypes.interface';
 
 const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
-    attributes: [],
+    attributes: {
+      'Pin Num': { type: AttributeTypes.PinInNum },
+    },
     inputs: {},
     outputs: {
       1: {
@@ -15,7 +19,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   And: {
     description: 'Logical AND',
-    attributes: [],
+    attributes: {},
     inputs: {
       1: {
         name: 'left',
@@ -35,7 +39,9 @@ const defaultNodeTypes: NodeTypes = {
   },
   LED: {
     description: 'LED output',
-    attributes: [],
+    attributes: {
+      'Pin Num': { type: AttributeTypes.PinOutNum },
+    },
     inputs: {
       1: {
         name: 'left',

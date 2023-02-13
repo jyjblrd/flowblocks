@@ -2,11 +2,13 @@ import React from 'react';
 import {
   Handle, NodeProps, Position,
 } from 'reactflow';
-import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
+import { useRecoilValue } from 'recoil';
+import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
+import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
 
 interface DummyNodeProps {
-  data: NodeTypeData;
+  data: NodeInstance;
 }
 
 function calcHandleTop(index: number, numHandles: number) {
@@ -17,15 +19,16 @@ export default function DefaultNode(
   {
     isDummyNode = false,
     data,
-  }: (NodeProps<NodeTypeData> | DummyNodeProps) & { isDummyNode?: Boolean },
+  }: (NodeProps<NodeInstance> | DummyNodeProps) & { isDummyNode?: Boolean },
 ) {
-  const numInputs = Object.entries(data.inputs).length;
-  const numOutputs = Object.entries(data.outputs).length;
+  const nodeType = useRecoilValue(nodeTypesAtom)[data.nodeTypeId];
+  const numInputs = Object.entries(nodeType.inputs).length;
+  const numOutputs = Object.entries(nodeType.outputs).length;
 
   return (
     <>
       {
-        Object.entries(data.inputs).map(([key], index) => {
+        Object.entries(nodeType.inputs).map(([key], index) => {
           if (isDummyNode) {
             return (
               <div
@@ -58,7 +61,7 @@ export default function DefaultNode(
         <h5 className="m-0">{data.nodeTypeId}</h5>
       </div>
       {
-        Object.entries(data.outputs).map(([key], index) => {
+        Object.entries(nodeType.outputs).map(([key], index) => {
           if (isDummyNode) {
             return (
               <div

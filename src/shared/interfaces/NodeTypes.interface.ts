@@ -1,4 +1,8 @@
-export type Attribute = Record<string, string>;
+export enum AttributeTypes {
+  PinInNum,
+  PinOutNum,
+}
+export type Attributes = Record<string, { type: AttributeTypes }>;
 
 export enum ConnectionType {
   Bool,
@@ -8,7 +12,7 @@ export enum ConnectionType {
 export type NodeTypeData = {
   nodeTypeId?: string,
   description: string,
-  attributes: Array<Attribute>,
+  attributes: Attributes,
   inputs: Record<number, { name: String, type: ConnectionType }>,
   outputs: Record<number, { name: String, type: ConnectionType }>,
 };

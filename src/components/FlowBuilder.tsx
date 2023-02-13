@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, {
-  useState, useCallback, useEffect, useRef,
+  useState, useCallback, useEffect, createRef,
 } from 'react';
 import ReactFlow, {
   Controls,
@@ -21,6 +21,8 @@ import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
 import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
+import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
+import { attributeGenerator } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -52,7 +54,7 @@ function FlowBuilder() {
   /*
     Context menu handling
   */
-  const selfRef = useRef<HTMLElement>();
+  const selfRef = createRef<HTMLDivElement>();
 
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPos, setcontextMenuPos] = useState({ x: 0, y: 0 });
@@ -84,28 +86,40 @@ function FlowBuilder() {
   });
 
   /*
-    Handle dragging
+    Handle dragging new node onto flowbuilder
   */
   const [userDragging, setUserDragging] = useState(false);
 
   useDndMonitor({
     onDragEnd(event: DragEndEvent) {
       if (event.over?.id === 'flow-builder') {
+        /*
+          Generate new node
+        */
         const nodeTypeId = event.active.data.current?.nodeTypeId;
-        const newNodeData = { ...nodeTypes[nodeTypeId], nodeTypeId };
+        const nodeInstance: NodeInstance = {
+          nodeTypeId,
+          connections: {},
+          attributes: {},
+        };
+        // Populate node attributes
+        Object.entries(nodeTypes[nodeTypeId].attributes)
+          .forEach(([attributeId, { type }]) => {
+            nodeInstance.attributes[attributeId] = attributeGenerator(type);
+          });
 
         const nodes = reactFlowInstance.getNodes();
         const nextNodeInstanceId = nodes.length === 0
           ? '0'
           : (Math.max(...nodes.map((node: Node) => parseInt(node.id, 10))) + 1).toString();
 
-        const newNode: Node = {
+        const newNode: Node<NodeInstance> = {
           id: nextNodeInstanceId,
           position: reactFlowInstance.project({
             x: (event.active.rect.current.translated?.left ?? 0) - event.over.rect.left,
             y: (event.active.rect.current.translated?.top ?? 0) - event.over.rect.top,
           }),
-          data: newNodeData,
+          data: nodeInstance,
           type: 'defaultNode',
         };
         reactFlowInstance.addNodes(newNode);

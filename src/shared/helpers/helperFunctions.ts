@@ -1,5 +1,6 @@
 import { ReactFlowInstance } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
+import { AttributeTypes } from '../interfaces/NodeTypes.interface';
 
 // Pls fix the c++ side to not need this ugly conversion
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
@@ -24,18 +25,19 @@ export default function flowchartToJSON(
   const project: Record<string, NodeInstance> = {};
 
   nodes.forEach((node) => {
-    project[node.id] = {
-      node_id: jsNodeTypeIdToVertexKind(node.data.nodeTypeId),
-      connections: {},
-    };
+    project[node.id] = node.data;
+
+    // TODO: please make the c++ backend consistent so I can get rid of this
+    project[node.id].nodeTypeId = jsNodeTypeIdToVertexKind(project[node.id].nodeTypeId);
   });
 
+  // Populate node connections
   edges.forEach((edge) => {
     if (edge.targetHandle && edge.sourceHandle) {
       project[edge.target]
         .connections[edge.targetHandle] = {
-          connected_node_id: edge.source,
-          connected_node_output_id: edge.sourceHandle,
+          connectedNodeId: edge.source,
+          connectedNodeOutputId: edge.sourceHandle,
         };
     }
   });
@@ -43,4 +45,15 @@ export default function flowchartToJSON(
   console.log(JSON.stringify(project, null, 4));
 
   return project;
+}
+
+export function attributeGenerator(attributeType: AttributeTypes): string {
+  switch (attributeType) {
+    case AttributeTypes.PinInNum:
+      return '14';
+    case AttributeTypes.PinOutNum:
+      return '25';
+    default:
+      return 'error';
+  }
 }
