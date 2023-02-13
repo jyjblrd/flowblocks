@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, {
-  useState, useCallback, useEffect, createRef,
+  useState, useCallback, useRef,
 } from 'react';
 import ReactFlow, {
   Controls,
@@ -54,36 +54,33 @@ function FlowBuilder() {
   /*
     Context menu handling
   */
-  const selfRef = createRef<HTMLDivElement>();
+  const selfRef = useRef<HTMLDivElement>();
 
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [contextMenuPos, setcontextMenuPos] = useState({ x: 0, y: 0 });
-  const [contextMenuNode, setcontextMenuNode] = useState<Node>();
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const [contextMenuNode, setContextMenuNode] = useState<Node>();
 
   const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     setShowContextMenu(true);
-    setcontextMenuPos({
+    setContextMenuPos({
       x: event.pageX - (selfRef.current?.offsetLeft ?? 0),
       y: event.pageY - (selfRef.current?.offsetTop ?? 0),
     });
-    setcontextMenuNode(node);
+    setContextMenuNode(node);
+  }, []);
+
+  const hideContextMenu = useCallback(() => {
+    setShowContextMenu(false);
   }, []);
 
   const onNodeDragStart = useCallback(() => {
-    setShowContextMenu(false);
+    hideContextMenu();
   }, []);
 
-  function handleClickOutside() {
-    setShowContextMenu(false);
-  }
-
-  useEffect(() => {
-    document.addEventListener('click', handleClickOutside, true);
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-    };
-  });
+  const handleClickOutside = useCallback(() => {
+    hideContextMenu();
+  }, []);
 
   /*
     Handle dragging new node onto flowbuilder
@@ -133,7 +130,7 @@ function FlowBuilder() {
   });
 
   return (
-    <div ref={selfRef}>
+    <div ref={selfRef as React.RefObject<HTMLDivElement>}>
       <Droppable id="flow-builder">
         <Card className="shadow-sm" style={{ height: '90vh' }}>
           {userDragging && (
@@ -155,6 +152,7 @@ function FlowBuilder() {
             onConnect={onConnect}
             onNodeContextMenu={onNodeContextMenu}
             onNodeDragStart={onNodeDragStart}
+            onPaneClick={handleClickOutside}
           >
             <Background />
             <Controls />
@@ -162,7 +160,8 @@ function FlowBuilder() {
           <ContextMenu
             show={showContextMenu}
             position={contextMenuPos}
-            node={contextMenuNode}
+            clickedNode={contextMenuNode}
+            hideMenu={hideContextMenu}
           />
         </Card>
       </Droppable>
