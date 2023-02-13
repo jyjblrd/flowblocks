@@ -52,18 +52,20 @@ function FlowBuilder() {
   /*
     Context menu handling
   */
-  const selfRef = useRef();
+  const selfRef = useRef<HTMLElement>();
 
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPos, setcontextMenuPos] = useState({ x: 0, y: 0 });
+  const [contextMenuNode, setcontextMenuNode] = useState<Node>();
 
-  const onNodeContextMenu = useCallback((event: React.MouseEvent) => {
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     setShowContextMenu(true);
     setcontextMenuPos({
       x: event.pageX - (selfRef.current?.offsetLeft ?? 0),
       y: event.pageY - (selfRef.current?.offsetTop ?? 0),
     });
+    setcontextMenuNode(node);
   }, []);
 
   const onNodeDragStart = useCallback(() => {
@@ -146,6 +148,7 @@ function FlowBuilder() {
           <ContextMenu
             show={showContextMenu}
             position={contextMenuPos}
+            node={contextMenuNode}
           />
         </Card>
       </Droppable>

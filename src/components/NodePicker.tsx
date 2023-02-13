@@ -17,7 +17,7 @@ export default function NodePicker() {
               <h5>{nodeTypeId}</h5>
               <h6 className="small">{nodeType.description}</h6>
             </Col>
-            <Col xs={5}>
+            <Col xs={12} lg={5}>
               <div className="mx-auto" style={{ position: 'relative', width: 'fit-content' }}>
                 <Draggable id={nodeTypeId} data={{ nodeTypeId }}>
                   <DefaultNode
