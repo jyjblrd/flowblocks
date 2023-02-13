@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, {
-  useState, useCallback,
+  useState, useCallback, useEffect, useRef,
 } from 'react';
 import ReactFlow, {
   Controls,
@@ -20,6 +20,7 @@ import DefaultNode from './DefaultNode';
 import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
 import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
+import ContextMenu from './ContextMenu';
 
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -27,8 +28,12 @@ const initialEdges: Edge[] = [];
 const reactflowNodeTypes = { defaultNode: DefaultNode };
 
 function FlowBuilder() {
-  const [userDragging, setUserDragging] = useState(false);
+  const nodeTypes = useRecoilValue(nodeTypesAtom);
+  const reactFlowInstance = useReactFlow();
 
+  /*
+    Making the reactflow component interactive
+  */
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
@@ -36,6 +41,7 @@ function FlowBuilder() {
     (changes: any) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [],
   );
+
   const onEdgesChange = useCallback(
     (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
@@ -43,8 +49,43 @@ function FlowBuilder() {
 
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
-  const nodeTypes = useRecoilValue(nodeTypesAtom);
-  const reactFlowInstance = useReactFlow();
+  /*
+    Context menu handling
+  */
+  const selfRef = useRef();
+
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPos, setcontextMenuPos] = useState({ x: 0, y: 0 });
+
+  const onNodeContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setcontextMenuPos({
+      x: event.pageX - (selfRef.current?.offsetLeft ?? 0),
+      y: event.pageY - (selfRef.current?.offsetTop ?? 0),
+    });
+  }, []);
+
+  const onNodeDragStart = useCallback(() => {
+    setShowContextMenu(false);
+  }, []);
+
+  function handleClickOutside() {
+    setShowContextMenu(false);
+  }
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  });
+
+  /*
+    Handle dragging
+  */
+  const [userDragging, setUserDragging] = useState(false);
+
   useDndMonitor({
     onDragEnd(event: DragEndEvent) {
       if (event.over?.id === 'flow-builder') {
@@ -71,13 +112,15 @@ function FlowBuilder() {
     },
     onDragStart() {
       setUserDragging(true);
+      setShowContextMenu(false);
     },
   });
 
   return (
-    <Droppable id="flow-builder">
-      <Card className="shadow-sm" style={{ height: '90vh' }}>
-        {userDragging && (
+    <div ref={selfRef}>
+      <Droppable id="flow-builder">
+        <Card className="shadow-sm" style={{ height: '90vh' }}>
+          {userDragging && (
           <div
             style={{
               position: 'absolute', zIndex: 10, backgroundColor: 'rgba(0, 0, 0, 0.05)', borderRadius: 'inherit',
@@ -86,20 +129,27 @@ function FlowBuilder() {
           >
             <h1 className="flex-fill text-center fw-light">Drop Here</h1>
           </div>
-        )}
-        <ReactFlow
-          nodeTypes={reactflowNodeTypes}
-          nodes={nodes}
-          onNodesChange={onNodesChange}
-          edges={edges}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-        >
-          <Background />
-          <Controls />
-        </ReactFlow>
-      </Card>
-    </Droppable>
+          )}
+          <ReactFlow
+            nodeTypes={reactflowNodeTypes}
+            nodes={nodes}
+            onNodesChange={onNodesChange}
+            edges={edges}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeContextMenu={onNodeContextMenu}
+            onNodeDragStart={onNodeDragStart}
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
+          <ContextMenu
+            show={showContextMenu}
+            position={contextMenuPos}
+          />
+        </Card>
+      </Droppable>
+    </div>
   );
 }
 

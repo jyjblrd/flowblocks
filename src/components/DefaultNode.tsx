@@ -55,7 +55,7 @@ export default function DefaultNode(
           borderRadius: '10px',
         }}
       >
-        {data.nodeTypeId}
+        <h5 className="m-0">{data.nodeTypeId}</h5>
       </div>
       {
         Object.entries(data.outputs).map(([key], index) => {
