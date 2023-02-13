@@ -25,7 +25,7 @@ export default function flowchartToJSON(
   const project: Record<string, NodeInstance> = {};
 
   nodes.forEach((node) => {
-    project[node.id] = node.data;
+    project[node.id] = { ...node.data };
 
     // TODO: please make the c++ backend consistent so I can get rid of this
     project[node.id].nodeTypeId = jsNodeTypeIdToVertexKind(project[node.id].nodeTypeId);
