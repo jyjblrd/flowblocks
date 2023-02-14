@@ -10,6 +10,7 @@
 #include <utility>
 #include <functional>
 #include <vector>
+#include <unordered_map>
 
 // temporary forward declaration for function in micropython_blocks.hh
 // TODO: remove when NodeType::emit_block_definition() is implemented properly
