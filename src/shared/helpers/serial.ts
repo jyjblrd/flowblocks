@@ -10,7 +10,6 @@ const PicoUSBIds = {
 } as const;
 
 const PicoBaudRate = 115200;
-const BufferSize = 127;
 
 export async function forceReselectPort() {
   const ports = await navigator.serial.getPorts();
@@ -34,17 +33,11 @@ async function sendToDevice(content: string) {
   const port = await getPort();
   await port.open({ baudRate: PicoBaudRate });
 
-  const textEncoder = new TextEncoderStream();
-  const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-  const writer = textEncoder.writable.getWriter();
-  while (content.length >= BufferSize) {
-    await writer.write(content.slice(0, BufferSize));
-    content = content.slice(BufferSize);
-  }
-  await writer.write(content);
+  const encoder = new TextEncoder();
+  const writer = port.writable.getWriter();
+  await writer.write(encoder.encode(content));
+  await writer.close();
 
-  writer.close();
-  await writableStreamClosed;
   await port.close();
 }
 
