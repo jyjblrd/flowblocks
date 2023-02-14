@@ -1,12 +1,16 @@
 import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
+import { useRecoilValue } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, forceReselectPort } from '../shared/helpers/serial';
 import flowchartToJSON from '../shared/helpers/helperFunctions';
+import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
+
+  const nodeTypes = useRecoilValue(nodeTypesAtom);
 
   return (
     <div style={{ float: 'right' }}>
@@ -16,7 +20,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={() => {
-          console.log(cxx.compile(flowchartToJSON(reactFlowInstance)));
+          console.log(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
           alert('check console log for code');
         }}
       >
@@ -26,7 +30,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance)));
+          await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
         }}
       >
         Compile and run

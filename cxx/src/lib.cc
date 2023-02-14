@@ -74,7 +74,7 @@ auto process_graph(std::map<std::string, Node> const &id_to_node) -> std::option
 	return {graph};
 }
 
-auto compile(std::map<std::string, Node> const &id_to_node) -> std::string {
+auto compile(std::map<std::string, Node> const &id_to_node, int const &node_types) -> std::string {
 	using std::deque;
 	using std::map;
 	using std::string;
