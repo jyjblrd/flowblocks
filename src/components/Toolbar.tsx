@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, forceReselectPort } from '../shared/helpers/serial';
 import flowchartToJSON from '../shared/helpers/helperFunctions';
+import { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 
 export default function Toolbar() {
@@ -17,12 +18,20 @@ export default function Toolbar() {
       <Button 
         variant="outline-dark"
         className="mx-1"
+        onClick={async() => {
+          //console.log("Save")
+          await saveFlowInstance(reactFlowInstance);
+          //save blob
+        }}
       >
         Save
       </Button>
       <Button 
         variant="outline-dark"
         className="mx-1"
+        onClick={async() => {
+          await loadFlowInstance();
+        }}
       >
         Load
       </Button>
