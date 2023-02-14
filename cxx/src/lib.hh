@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <set>
 #include <unordered_set>
+#include <vector>
 
 enum class NodeType {
 	DigitalPinInPullDown,
