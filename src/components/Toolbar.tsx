@@ -14,8 +14,18 @@ export default function Toolbar() {
 
   return (
     <div style={{ float: 'right' }}>
-      <Button variant="outline-dark" className="mx-1">Save</Button>
-      <Button variant="outline-dark" className="mx-1">Load</Button>
+      <Button 
+        variant="outline-dark"
+        className="mx-1"
+      >
+        Save
+      </Button>
+      <Button 
+        variant="outline-dark"
+        className="mx-1"
+      >
+        Load
+      </Button>
       <Button
         className="mx-1"
         variant="outline-dark"
