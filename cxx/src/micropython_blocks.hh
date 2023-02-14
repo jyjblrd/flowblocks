@@ -9,13 +9,17 @@
 
 #include <emscripten/bind.h>
 
-auto block_class_definition(NodeType kind) -> std::string {
+// TODO: move this to NodeType::emit_block_definition()
+// this is currently temporary and should be removed asap once generating blocks
+// as specified by the code definitions provided by the JSON is implemented.
+// it only exists now so that I can test the implementation of NodeType.
+auto block_class_definition(int i) -> std::string {
 	using std::operator""sv;
 	std::string snippet;
-	switch (kind) {
-	case NodeType::DigitalPinInPullDown:
+	switch (i) {
+	case 0:
 		snippet = R"...(
-class DigitalPinInPullDown:
+class Button:
     def __init__(self, successors):
         self.led = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_DOWN)
         self.successors = successors
@@ -26,9 +30,9 @@ class DigitalPinInPullDown:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 		break;
-	case NodeType::Conjunction:
+	case 1:
 		snippet = R"...(
-class Conjunction:
+class And:
     def __init__(self, successors):
         self.left = False
         self.right = False
@@ -44,9 +48,9 @@ class Conjunction:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
 		break;
-	case NodeType::DigitalPinOut:
+	case 2:
 		snippet = R"...(
-class DigitalPinOut:
+class LED:
     def __init__(self, successors):
         self.led = machine.Pin(25, machine.Pin.OUT)
 
@@ -61,24 +65,9 @@ class DigitalPinOut:
 	return snippet;
 }
 
-auto block_initialization(NodeType kind, std::string id, std::map<std::string, std::unordered_set<Successor>> output_to_successors) -> std::string {
-	std::string snippet {};
-	switch (kind) {
-	case NodeType::DigitalPinInPullDown:
-		snippet = "DigitalPinInPullDown";
-		break;
-	case NodeType::Conjunction:
-		snippet = "Conjunction";
-		break;
-	case NodeType::DigitalPinOut:
-		snippet = "DigitalPinOut";
-		break;
-	default:
-		// This should never occur!
-		snippet = "";
-	}
-
-	snippet = "a" + id + " = " + snippet + "({";
+auto block_initialization(const std::string& class_name, const std::string& id, const std::map<std::string, std::unordered_set<Successor>>& output_to_successors) -> std::string {
+	std::string snippet{}; // temporary use
+	snippet = "a" + id + " = " + class_name + "({";
 	for (auto const &[output, successors] : output_to_successors) {
 		snippet += "'" + output + "' : [";
 		for (auto const &successor : successors) {
