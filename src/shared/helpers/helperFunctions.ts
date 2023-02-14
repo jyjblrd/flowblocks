@@ -57,3 +57,29 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
       return 'error';
   }
 }
+
+
+export function saveFlowInstance(reactFlowInstance: ReactFlowInstance): void {
+  /*var obj = reactFlowInstance.toObject();
+  var json = JSON.stringify(obj);
+  var exportData = "data:text/json;charset=utf-8," + json;
+  var blob = new Blob([json], {type: "application/json"});
+  var newWindow = window.open(encodeURI(exportData));
+  */
+  downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  return;
+}
+
+function downloadObjectAsJson(exportObj: Object, exportName: string){
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+export function loadFlowInstance(): void {
+  return;
+}
