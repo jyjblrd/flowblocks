@@ -5,11 +5,8 @@
 #include <map>
 #include <optional>
 #include <cstddef>
-
-struct Dependency {
-	std::string id;
-	std::string handle;
-};
+#include <set>
+#include <unordered_set>
 
 enum class NodeType {
 	DigitalPinInPullDown,
@@ -17,9 +14,44 @@ enum class NodeType {
 	DigitalPinOut,
 };
 
+struct Successor {
+	std::string id;
+	std::string input;
+
+	auto operator==(Successor const &) const -> bool = default;
+};
+
+template <>
+struct std::hash<Successor> {
+	std::size_t operator()(Successor const &successor) const noexcept {
+		std::size_t h1 = std::hash<std::string> {}(successor.id);
+		std::size_t h2 = std::hash<std::string> {}(successor.input);
+		return h1 ^ (h2 << 1);
+	}
+};
+
+struct Predecessor {
+	std::string id;
+	std::string output;
+};
+
+struct SortedNode {
+	std::map<std::string, std::unordered_set<Successor>> output_to_successors;
+	NodeType type;
+};
+
+struct SortedGraph {
+	std::map<std::string, SortedNode> id_to_node;
+	std::vector<std::string> argsorted_ids;
+	std::set<NodeType> node_types;
+
+	// FIXME: This should not be required if all nodes are queried in order.
+	std::vector<std::string> nonsuccessor_ids {};
+};
+
 struct Node {
-	std::string node_type;
-	std::map<std::string, Dependency> predecessors;
+	std::string type_str;
+	std::map<std::string, Predecessor> input_to_predecessor;
 };
 
 enum class ConnectionType {
@@ -27,15 +59,15 @@ enum class ConnectionType {
 	Number,
 };
 
-auto parse_node_type(std::string_view const kind_str) -> std::optional<NodeType> {
+auto parse_node_type(std::string_view const type_str) -> std::optional<NodeType> {
 	using std::operator""sv;
 
 	if (false) {
-	} else if (kind_str == "DigitalPinInPullDown"sv) {
+	} else if (type_str == "DigitalPinInPullDown"sv) {
 		return {NodeType::DigitalPinInPullDown};
-	} else if (kind_str == "Conjunction"sv) {
+	} else if (type_str == "Conjunction"sv) {
 		return {NodeType::Conjunction};
-	} else if (kind_str == "DigitalPinOut"sv) {
+	} else if (type_str == "DigitalPinOut"sv) {
 		return {NodeType::DigitalPinOut};
 	}
 

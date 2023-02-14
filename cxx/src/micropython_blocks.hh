@@ -25,7 +25,7 @@ class DigitalPinInPullDown:
         for successor in self.successors['1']:
             successor['vertex'].update(successor['input'], output_value)
 )..."sv.substr(1);
-	break;
+		break;
 	case NodeType::Conjunction:
 		snippet = R"...(
 class Conjunction:
@@ -61,7 +61,7 @@ class DigitalPinOut:
 	return snippet;
 }
 
-auto block_initialization(NodeType kind, std::string id, std::map<std::string, std::vector<Dependency>> successors) -> std::string {
+auto block_initialization(NodeType kind, std::string id, std::map<std::string, std::unordered_set<Successor>> output_to_successors) -> std::string {
 	std::string snippet {};
 	switch (kind) {
 	case NodeType::DigitalPinInPullDown:
@@ -79,10 +79,10 @@ auto block_initialization(NodeType kind, std::string id, std::map<std::string, s
 	}
 
 	snippet = "a" + id + " = " + snippet + "({";
-	for (auto const &[output, dependencies] : successors) {
+	for (auto const &[output, successors] : output_to_successors) {
 		snippet += "'" + output + "' : [";
-		for (auto const &dependency : dependencies) {
-			snippet += "{'vertex' : a" + dependency.id + ", 'input' : '" + dependency.handle + "'}, ";
+		for (auto const &successor : successors) {
+			snippet += "{'vertex' : a" + successor.id + ", 'input' : '" + successor.input + "'}, ";
 		}
 		snippet += "], ";
 	}

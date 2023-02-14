@@ -8,90 +8,98 @@
 #include <deque>
 #include <optional>
 
-auto compile(std::map<std::string, Node> const &vertices) -> std::string {
+// Topologically sorts the graph; returns nullopt if graph is ill-formed.
+auto process_graph(std::map<std::string, Node> const &id_to_node) -> std::optional<SortedGraph> {
+	if (id_to_node.empty())
+		return {}; // "# Empty graph"; // TODO: actual error handling
+
+	SortedGraph graph {};
+	std::map<std::string, std::size_t> id_to_unprocessed_predecessors {};
+
+	for (auto const &[id, node] : id_to_node) {
+		// FIXME: Ensure node types are not in error.
+		auto const node_type = parse_node_type(node.type_str).value();
+		graph.id_to_node[id].type = node_type;
+		for (auto const &[input, predecessor] : node.input_to_predecessor) {
+			// FIXME: Ensure node types are not in error.
+			auto input_type = get_input_type(node_type, input);
+			auto output_type = get_output_type(parse_node_type(id_to_node.at(predecessor.id).type_str).value(), predecessor.output);
+			if (!input_type || !output_type || *input_type != *output_type)
+				return {}; // "# Type checking failed"; // TODO: actual error handling
+			graph.id_to_node[predecessor.id].output_to_successors[predecessor.output].insert(Successor {id, input});
+			++id_to_unprocessed_predecessors[id];
+		}
+	}
+
+	std::deque<std::string> nodes_for_processing {};
+
+	for (auto const &[id, node] : id_to_node) {
+		// Enqueue nodes for processing if they have no predecessors.
+		if (!id_to_unprocessed_predecessors.contains(id)) {
+			nodes_for_processing.emplace_back(id);
+			graph.nonsuccessor_ids.push_back(id);
+		}
+
+		// Ensure nodes have the expected amount of predecessors.
+		if (id_to_unprocessed_predecessors[id] != expected_indegree(parse_node_type(node.type_str).value())) {
+			return {}; // "# Missing input(s)"; // TODO: actual error handling
+		}
+	}
+
+	std::unordered_set<std::string> visited_ids {};
+
+	while (!nodes_for_processing.empty()) {
+		auto const id = nodes_for_processing.front();
+		visited_ids.insert(id);
+		if (auto const node_type = parse_node_type(id_to_node.at(id).type_str); node_type)
+			graph.node_types.insert(*node_type);
+		graph.argsorted_ids.emplace_back(id);
+		nodes_for_processing.pop_front();
+
+		for (auto const &[output, successors] : graph.id_to_node[id].output_to_successors) {
+			for (auto const &successor : successors) {
+				if (!visited_ids.contains(successor.id)) {
+					if (id_to_unprocessed_predecessors[successor.id] == 1) {
+						nodes_for_processing.emplace_back(successor.id);
+					} else {
+						id_to_unprocessed_predecessors[successor.id] -= 1;
+					}
+				} else {
+					// FIXME: check for loops
+				}
+			}
+		}
+	}
+
+	return {graph};
+}
+
+auto compile(std::map<std::string, Node> const &id_to_node) -> std::string {
 	using std::deque;
 	using std::map;
-	using std::set;
 	using std::string;
 	using std::tuple;
+	using std::unordered_set;
 	using std::vector;
 
-	if (vertices.empty()) {
-		return "# Empty graph"; // TODO: actual error handling
-	}
+	auto const graph = process_graph(id_to_node);
+
+	if (!graph)
+		return ""; // TODO - Reapply error message
 
 	string code {"import machine\n"};
 
-	map<string, map<string, vector<Dependency>>> id_to_output_to_successor_id_input {};
-	map<string, vector<tuple<string, Node>>> successors {};
-	map<string, std::size_t> degree {};
+	for (auto const &node_type : (*graph).node_types)
+		code.append(block_class_definition(node_type));
 
-	for (auto const &[id, vertex] : vertices) {
-		for (auto const &[input, predecessor_output] : vertex.predecessors) {
-			auto input_type = get_input_type(parse_node_type(vertex.node_type).value(), input);
-			auto output_type = get_output_type(parse_node_type(vertices.at(predecessor_output.id).node_type).value(), predecessor_output.handle);
-			if (!input_type || !output_type || *input_type != *output_type) {
-				return "# Type checking failed"; // TODO: actual error handling
-			}
-			id_to_output_to_successor_id_input[predecessor_output.id][predecessor_output.handle].push_back(Dependency {id, input});
-			successors[predecessor_output.id].emplace_back(id, vertex);
-			++degree[id];
-		}
-	}
-
-	deque<tuple<string, Node>> upcoming_vertices {};
-	vector<string> nonsuccessor_ids {};
-
-	for (auto const &[id, vertex] : vertices) {
-		if (!degree.contains(id)) {
-			upcoming_vertices.emplace_back(id, vertex);
-			nonsuccessor_ids.push_back(id);
-		}
-		if (degree[id] != expected_indegree(parse_node_type(vertex.node_type).value())) {
-			return "# Missing input(s)"; // TODO: actual error handling
-		}
-	}
-
-	set<string> visited_ids {};
-	vector<tuple<string, Node>> sorted_vertices {};
-	set<string> node_types {}; // only for generating class definitions
-
-	while (!upcoming_vertices.empty()) {
-		auto const &[id, vertex] = upcoming_vertices.front();
-		visited_ids.insert(id);
-		node_types.insert(vertex.node_type);
-		sorted_vertices.emplace_back(id, vertex);
-		upcoming_vertices.pop_front();
-		for (auto const &[s_id, successor] : successors[id]) {
-			if (!visited_ids.contains(s_id)) {
-				if (degree[s_id] == 1) {
-					upcoming_vertices.emplace_back(s_id, successor);
-				} else {
-					degree[s_id] -= 1;
-				}
-			} else {
-				// FIXME: check for loops
-			}
-		}
-	}
-
-	map<string, NodeType> parsed_node_types;
-
-	for (auto const &node_type_str : node_types) {
-		if (auto const node_type = parse_node_type(node_type_str); node_type) {
-			parsed_node_types[node_type_str] = *node_type;
-			code.append(block_class_definition(*node_type));
-		}
-	}
-
-	for (auto it = sorted_vertices.rbegin(); it != sorted_vertices.rend(); ++it) {
-		auto const &[id, vertex] = *it;
-		code.append(block_initialization(parsed_node_types[vertex.node_type], id, id_to_output_to_successor_id_input[id]));
+	for (auto it = (*graph).argsorted_ids.rbegin(); it != (*graph).argsorted_ids.rend(); ++it) {
+		auto const &id = *it;
+		code.append(block_initialization((*graph).id_to_node.at(id).type, id, (*graph).id_to_node.at(id).output_to_successors));
 	}
 
 	code.append("while True:\n");
 
-	for (auto const &id : nonsuccessor_ids) {
+	for (auto const &id : (*graph).nonsuccessor_ids) {
 		code
 			.append("    a")
 			.append(id)
@@ -101,11 +109,11 @@ auto compile(std::map<std::string, Node> const &vertices) -> std::string {
 }
 
 EMSCRIPTEN_BINDINGS(module) {
-	emscripten::value_object<Dependency>("Dependency")
-		.field("connectedNodeId", &Dependency::id)
-		.field("connectedNodeOutputId", &Dependency::handle); // TODO unify naming
+	emscripten::value_object<Predecessor>("Dependency")
+		.field("connectedNodeId", &Predecessor::id)
+		.field("connectedNodeOutputId", &Predecessor::output); // TODO unify naming
 	emscripten::value_object<Node>("Vertex")
-		.field("nodeTypeId", &Node::node_type)
-		.field("connections", &Node::predecessors);
+		.field("nodeTypeId", &Node::type_str)
+		.field("connections", &Node::input_to_predecessor);
 	emscripten::function("compile", &compile);
 }
