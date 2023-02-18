@@ -7,6 +7,9 @@ import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
 
+let numberOfConections = new Map<string, number>();
+
+
 interface DummyNodeProps {
   data: NodeInstance;
 }
@@ -44,7 +47,9 @@ export default function DefaultNode(
                 position={Position.Left}
                 id={key}
                 key={key}
+                //style={{ background: '#fff' }}
                 style={{ top: calcHandleTop(index, numInputs) }}
+                
               />
             );
           }
@@ -78,6 +83,10 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
+                onConnect={(params) => console.log('handle onConnect',String(params.target)+String(params.targetHandle))}
+                onCut={(params) => console.log('handle ondelete',params)}
+                isValidConnection={(connection) => connection.source!=connection.target}
+
               />
             );
           }
