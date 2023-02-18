@@ -6,11 +6,11 @@ import { AttributeTypes } from '../interfaces/NodeTypes.interface';
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
   switch (nodeTypeId) {
     case 'Button':
-      return 'DigitalPinInPullDown';
+      return 'Button';
     case 'And':
-      return 'Conjunction';
+      return 'And';
     case 'LED':
-      return 'DigitalPinOut';
+      return 'LED';
     default:
       return '';
   }
