@@ -79,8 +79,11 @@ export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportNam
 
 
 
-function saveToLocal(exportObj: Object, exportName: string){
+function saveToLocal(exportObj: Object, exportName: string|null){
   console.log("saveToLocal");
+  if(exportName == null){
+    exportName = "default"
+  }
   localStorage.setItem(exportName, JSON.stringify(exportObj));
 }
 
