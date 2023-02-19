@@ -9,7 +9,7 @@ import { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunc
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 
 export default function Toolbar() {
-  const reactFlowInstance = useReactFlow();
+  var reactFlowInstance = useReactFlow();
 
   const nodeTypes = useRecoilValue(nodeTypesAtom);
 
@@ -30,7 +30,7 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={async() => {
-          await loadFlowInstance();
+          await loadFlowInstance(reactFlowInstance, 'flowchart');
         }}
       >
         Load

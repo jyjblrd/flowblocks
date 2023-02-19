@@ -66,8 +66,33 @@ export function saveFlowInstance(reactFlowInstance: ReactFlowInstance): void {
   var blob = new Blob([json], {type: "application/json"});
   var newWindow = window.open(encodeURI(exportData));
   */
-  downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  //downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  saveToLocal(reactFlowInstance.toObject(), 'flowchart');
   return;
+}
+
+export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
+  var loaded = loadFromLocal(exportName);
+  reactFlowInstance.setNodes(loaded.nodes);
+  reactFlowInstance.setEdges(loaded.edges);
+}
+
+
+
+function saveToLocal(exportObj: Object, exportName: string){
+  console.log("saveToLocal");
+  localStorage.setItem(exportName, JSON.stringify(exportObj));
+}
+
+function loadFromLocal(exportName: string){
+  console.log("loadFromLocal");
+  var load = localStorage.getItem(exportName);
+  if (load) {
+    return JSON.parse(load);
+  } else {
+    alert("No saved flowchart found of this name");
+    return null;
+  }
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string){
@@ -80,6 +105,3 @@ function downloadObjectAsJson(exportObj: Object, exportName: string){
   downloadAnchorNode.remove();
 }
 
-export function loadFlowInstance(): void {
-  return;
-}
