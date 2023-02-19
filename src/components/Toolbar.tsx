@@ -20,7 +20,8 @@ export default function Toolbar() {
         className="mx-1"
         onClick={async() => {
           //console.log("Save")
-          await saveFlowInstance(reactFlowInstance);
+          var name = 'flowchart2';
+          await saveFlowInstance(reactFlowInstance, name);
           //save blob
         }}
       >
@@ -30,7 +31,8 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={async() => {
-          await loadFlowInstance(reactFlowInstance, 'flowchart');
+          var name = 'flowchart2';
+          await loadFlowInstance(reactFlowInstance, name);
         }}
       >
         Load

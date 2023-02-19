@@ -59,7 +59,7 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
 }
 
 
-export function saveFlowInstance(reactFlowInstance: ReactFlowInstance): void {
+export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
   /*var obj = reactFlowInstance.toObject();
   var json = JSON.stringify(obj);
   var exportData = "data:text/json;charset=utf-8," + json;
@@ -67,7 +67,7 @@ export function saveFlowInstance(reactFlowInstance: ReactFlowInstance): void {
   var newWindow = window.open(encodeURI(exportData));
   */
   //downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
-  saveToLocal(reactFlowInstance.toObject(), 'flowchart');
+  saveToLocal(reactFlowInstance.toObject(), name);
   return;
 }
 
@@ -93,6 +93,14 @@ function loadFromLocal(exportName: string){
     alert("No saved flowchart found of this name");
     return null;
   }
+}
+
+function getLocalStorageKeys(){
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++){
+    keys.push(localStorage.key(i));
+  }
+  return keys;
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string){
