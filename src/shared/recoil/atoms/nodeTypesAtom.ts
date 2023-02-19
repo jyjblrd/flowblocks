@@ -23,7 +23,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   And: {
-    description: 'Logical AND',
+    description: 'Logical AND requires all inputs to be true to output true',
     attributes: {},
     code: {
       init: 'self.left = False\nself.right = False',
@@ -33,11 +33,38 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       1: {
         name: 'left',
-        type: ConnectionType.Bool,
+        type:ConnectionType.Bool,
       },
       2: {
         name: 'right',
         type: ConnectionType.Bool,
+        
+      },
+    },
+    outputs: {
+      1: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  Or: {
+    description: 'Logical OR, requires one of the inputs to be true.',
+    attributes: {},
+    code: {
+      init: 'self.left = False\nself.right = False',
+      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\nreturn True if self.left or self.right else False',
+      isQuery: false,
+    },
+    inputs: {
+      1: {
+        name: 'left',
+        type:ConnectionType.Bool,
+      },
+      2: {
+        name: 'right',
+        type: ConnectionType.Bool,
+        
       },
     },
     outputs: {

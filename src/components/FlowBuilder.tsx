@@ -11,6 +11,7 @@ import ReactFlow, {
   Edge,
   Node,
   useReactFlow,
+  getConnectedEdges
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { DragEndEvent, useDndMonitor } from '@dnd-kit/core';
@@ -26,8 +27,8 @@ import { attributeGenerator } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
-
 const reactflowNodeTypes = { defaultNode: DefaultNode };
+
 
 function FlowBuilder() {
   const nodeTypes = useRecoilValue(nodeTypesAtom);
@@ -44,10 +45,21 @@ function FlowBuilder() {
     [],
   );
 
+  function handleIsFree(node:String,handle:String){
+    for (let edge of edges.values()) {
+      console.log(edge);
+      if (edge.target==node &&edge.targetHandle==handle){
+        return false;
+      }
+    }
+    return true;
+  }
   const onEdgesChange = useCallback(
+    
     (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
   );
+
 
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
