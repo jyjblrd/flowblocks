@@ -33,12 +33,12 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       1: {
         name: 'left',
-        type:ConnectionType.Bool,
+        type: ConnectionType.Bool,
       },
       2: {
         name: 'right',
         type: ConnectionType.Bool,
-        
+
       },
     },
     outputs: {
@@ -59,12 +59,12 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       1: {
         name: 'left',
-        type:ConnectionType.Bool,
+        type: ConnectionType.Bool,
       },
       2: {
         name: 'right',
         type: ConnectionType.Bool,
-        
+
       },
     },
     outputs: {

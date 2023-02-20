@@ -65,8 +65,8 @@ class LED:
 	return snippet;
 }
 
-auto block_initialization(const std::string& class_name, const std::string& id, const std::map<std::string, std::unordered_set<Successor>>& output_to_successors) -> std::string {
-	std::string snippet{}; // temporary use
+auto block_initialization(std::string const &class_name, std::string const &id, std::map<std::string, std::unordered_set<Successor>> const &output_to_successors) -> std::string {
+	std::string snippet {}; // temporary use
 	snippet = "a" + id + " = " + class_name + "({";
 	for (auto const &[output, successors] : output_to_successors) {
 		snippet += "'" + output + "' : [";

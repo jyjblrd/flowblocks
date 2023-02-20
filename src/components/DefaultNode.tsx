@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
-  Handle, NodeProps, Position,
+  Connection,
+  getConnectedEdges,
+  Handle, NodeProps, Position, useReactFlow,
 } from 'reactflow';
 import { useRecoilValue } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
-import {handleIsFree} from './FlowBuilder';
 
 interface DummyNodeProps {
   data: NodeInstance;
@@ -15,6 +16,25 @@ interface DummyNodeProps {
 function calcHandleTop(index: number, numHandles: number) {
   return `${(100 / (numHandles + 1)) * (index + 1)}%`;
 }
+
+const useConnectionValidator = () => {
+  const { getNode, getEdges } = useReactFlow();
+
+  return useCallback(
+    (connection: Connection) => {
+      if (!connection.target
+        || !connection.targetHandle
+        || !connection.source
+        || connection.source === connection.target) return false;
+      const target = getNode(connection.target);
+      const edges = getConnectedEdges(target ? [target] : [], getEdges());
+      return edges.every((edge) =>
+        !(edge.target === connection.target
+          && edge.targetHandle === connection.targetHandle));
+    },
+    [getNode, getEdges],
+  );
+};
 
 export default function DefaultNode(
   {
@@ -46,9 +66,7 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numInputs) }}
-                isValidConnection={(connection) => connection.source!=connection.target && handleIsFree(String(connection.target),String(connection.targetHandle))}
-
-                //isValidConnection={(connection) =>false}
+                isValidConnection={useConnectionValidator()}
               />
             );
           }
@@ -82,9 +100,8 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
-                //on={(params) => console.log('handle ondelete',params)}
-                isValidConnection={(connection) => connection.source!=connection.target && handleIsFree(String(connection.target),String(connection.targetHandle))}
-
+                // on={(params) => console.log('handle ondelete',params)}
+                isValidConnection={useConnectionValidator()}
               />
             );
           }

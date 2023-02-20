@@ -23,21 +23,7 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { attributeGenerator } from '../shared/helpers/helperFunctions';
-declare global{
-  var edgesList:any;
-}
 
-export function handleIsFree(node:String,handle:String){
-  for (let edge of globalThis.edgesList.values()) {
-    if (edge.target==node &&edge.targetHandle==handle){
-      return false;
-    }
-  }
-  return true;
-}
-function setEdgesList(e:any){
-  globalThis.edgesList=e;
-}
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
 
@@ -62,7 +48,6 @@ function FlowBuilder() {
     (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
   );
-  const onConnectStart=setEdgesList(edges);
 
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
@@ -165,7 +150,6 @@ function FlowBuilder() {
             edges={edges}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onConnectStart={onConnectStart}
             onNodeContextMenu={onNodeContextMenu}
             onNodeDragStart={onNodeDragStart}
             onPaneClick={handleClickOutside}
