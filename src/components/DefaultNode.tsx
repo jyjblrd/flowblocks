@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
-import 'FlowBuilder.tsx';
+import {handleIsFree} from './FlowBuilder';
 
 interface DummyNodeProps {
   data: NodeInstance;
@@ -46,6 +46,8 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numInputs) }}
+                isValidConnection={(connection) => connection.source!=connection.target && handleIsFree(String(connection.target),String(connection.targetHandle))}
+
                 //isValidConnection={(connection) =>false}
               />
             );
@@ -81,7 +83,7 @@ export default function DefaultNode(
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
                 //on={(params) => console.log('handle ondelete',params)}
-                isValidConnection={(connection) => connection.source!=connection.target /*&& handleIsFree(String(connection.target),String(connection.targetHandle))*/}
+                isValidConnection={(connection) => connection.source!=connection.target && handleIsFree(String(connection.target),String(connection.targetHandle))}
 
               />
             );
