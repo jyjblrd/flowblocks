@@ -14,16 +14,20 @@ const PicoBaudRate = 115200;
 export async function forceReselectPort() {
   const ports = await navigator.serial.getPorts();
   ports.forEach((port) => port.forget());
-  return await navigator.serial.requestPort({ filters: [PicoUSBIds] });
+  const chosen = await navigator.serial.requestPort({ filters: [PicoUSBIds] });
+  await chosen.open({ baudRate: PicoBaudRate });
+  return chosen;
 }
 
 async function getPort() {
   const ports = await navigator.serial.getPorts();
   if (ports.length === 1) {
-    const portInfo = ports[0].getInfo();
+    const port = ports[0];
+    const portInfo = port.getInfo();
     if (portInfo.usbVendorId === PicoUSBIds.usbVendorId
-        && portInfo.usbProductId === PicoUSBIds.usbProductId) {
-      return ports[0];
+        && portInfo.usbProductId === PicoUSBIds.usbProductId
+        && port.writable) {
+      return port;
     }
   }
   return forceReselectPort();
@@ -31,14 +35,10 @@ async function getPort() {
 
 async function sendToDevice(content: string) {
   const port = await getPort();
-  await port.open({ baudRate: PicoBaudRate });
-
   const encoder = new TextEncoder();
   const writer = port.writable.getWriter();
   await writer.write(encoder.encode(content));
-  await writer.close();
-
-  await port.close();
+  writer.releaseLock();
 }
 
 export async function runOnDevice(code: string) {

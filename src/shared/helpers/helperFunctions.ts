@@ -59,15 +59,51 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
 }
 
 
-export function saveFlowInstance(reactFlowInstance: ReactFlowInstance): void {
+export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
   /*var obj = reactFlowInstance.toObject();
   var json = JSON.stringify(obj);
   var exportData = "data:text/json;charset=utf-8," + json;
   var blob = new Blob([json], {type: "application/json"});
   var newWindow = window.open(encodeURI(exportData));
   */
-  downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  //downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  saveToLocal(reactFlowInstance.toObject(), name);
   return;
+}
+
+export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
+  var loaded = loadFromLocal(exportName);
+  reactFlowInstance.setNodes(loaded.nodes);
+  reactFlowInstance.setEdges(loaded.edges);
+}
+
+
+
+function saveToLocal(exportObj: Object, exportName: string|null){
+  console.log("saveToLocal");
+  if(exportName == null){
+    exportName = "default"
+  }
+  localStorage.setItem(exportName, JSON.stringify(exportObj));
+}
+
+function loadFromLocal(exportName: string){
+  console.log("loadFromLocal");
+  var load = localStorage.getItem(exportName);
+  if (load) {
+    return JSON.parse(load);
+  } else {
+    alert("No saved flowchart found of this name");
+    return null;
+  }
+}
+
+function getLocalStorageKeys(){
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++){
+    keys.push(localStorage.key(i));
+  }
+  return keys;
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string){
@@ -80,6 +116,3 @@ function downloadObjectAsJson(exportObj: Object, exportName: string){
   downloadAnchorNode.remove();
 }
 
-export function loadFlowInstance(): void {
-  return;
-}
