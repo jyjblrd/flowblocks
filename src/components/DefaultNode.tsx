@@ -81,7 +81,7 @@ export default function DefaultNode(
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
                 //on={(params) => console.log('handle ondelete',params)}
-                isValidConnection={(connection) => connection.source!=connection.target && handleIsFree(String(connection.target),String(connection.targetHandle))}
+                isValidConnection={(connection) => connection.source!=connection.target /*&& handleIsFree(String(connection.target),String(connection.targetHandle))*/}
 
               />
             );

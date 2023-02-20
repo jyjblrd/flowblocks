@@ -11,7 +11,6 @@ import ReactFlow, {
   Edge,
   Node,
   useReactFlow,
-  getConnectedEdges
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { DragEndEvent, useDndMonitor } from '@dnd-kit/core';
@@ -24,11 +23,26 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { attributeGenerator } from '../shared/helpers/helperFunctions';
-
+//declare global{
+//var edgesList:any;
+//}
+/*
+function handleIsFree(node:String,handle:String){
+  for (let edge of edgesList.values()) {
+    console.log(edge);
+    if (edge.target==node &&edge.targetHandle==handle){
+      return false;
+    }
+  }
+  return true;
+}
+function setEdges(e:any){
+  edgesList=e;
+}*/
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
-const reactflowNodeTypes = { defaultNode: DefaultNode };
 
+const reactflowNodeTypes = { defaultNode: DefaultNode };
 
 function FlowBuilder() {
   const nodeTypes = useRecoilValue(nodeTypesAtom);
@@ -45,21 +59,10 @@ function FlowBuilder() {
     [],
   );
 
-  function handleIsFree(node:String,handle:String){
-    for (let edge of edges.values()) {
-      console.log(edge);
-      if (edge.target==node &&edge.targetHandle==handle){
-        return false;
-      }
-    }
-    return true;
-  }
   const onEdgesChange = useCallback(
-    
     (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
   );
-
 
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
