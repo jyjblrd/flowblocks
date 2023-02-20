@@ -28,15 +28,11 @@ declare global{
 }
 
 export function handleIsFree(node:String,handle:String){
-  console.log(node," ",handle);
   for (let edge of globalThis.edgesList.values()) {
-    console.log(edge);
     if (edge.target==node &&edge.targetHandle==handle){
-      console.log("f");
       return false;
     }
   }
-  console.log("t");
   return true;
 }
 function setEdgesList(e:any){

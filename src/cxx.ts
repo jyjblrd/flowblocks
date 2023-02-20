@@ -1,4 +1,4 @@
-import load_cxx_module from '../cxx/pkg/cxx';
+//import load_cxx_module from '../cxx/pkg/cxx';
 import { NodeInstance } from './shared/interfaces/NodeInstance.interface';
 import { NodeTypeData } from './shared/interfaces/NodeTypes.interface';
 
@@ -11,4 +11,4 @@ export interface CxxBindings {
   ): string;
 }
 
-export const cxx = await load_cxx_module<CxxBindings>();
+export const cxx = await undefined;//load_cxx_module<CxxBindings>();
