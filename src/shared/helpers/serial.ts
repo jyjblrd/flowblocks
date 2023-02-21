@@ -11,15 +11,7 @@ const PicoUSBIds = {
 
 const PicoBaudRate = 115200;
 
-export async function forceReselectPort() {
-  const ports = await navigator.serial.getPorts();
-  ports.forEach((port) => port.forget());
-  const chosen = await navigator.serial.requestPort({ filters: [PicoUSBIds] });
-  await chosen.open({ baudRate: PicoBaudRate });
-  return chosen;
-}
-
-async function getPort() {
+async function maybeGetPort() {
   const ports = await navigator.serial.getPorts();
   if (ports.length === 1) {
     const port = ports[0];
@@ -30,7 +22,24 @@ async function getPort() {
       return port;
     }
   }
-  return forceReselectPort();
+  return undefined;
+}
+
+export async function disconnectSerial() {
+  (await maybeGetPort())?.close();
+  const ports = await navigator.serial.getPorts();
+  ports.forEach((port) => port.forget());
+}
+
+async function forceReselectPort() {
+  await disconnectSerial();
+  const chosen = await navigator.serial.requestPort({ filters: [PicoUSBIds] });
+  await chosen.open({ baudRate: PicoBaudRate });
+  return chosen;
+}
+
+async function getPort() {
+  return await maybeGetPort() || forceReselectPort();
 }
 
 async function sendToDevice(content: string) {

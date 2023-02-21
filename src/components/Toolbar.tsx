@@ -3,7 +3,7 @@ import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 import { useRecoilValue } from 'recoil';
 import { cxx } from '../cxx';
-import { runOnDevice, stopRunning, forceReselectPort } from '../shared/helpers/serial';
+import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 
@@ -68,10 +68,10 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          await forceReselectPort();
+          await disconnectSerial();
         }}
       >
-        Select device
+        Disconnect
       </Button>
     </div>
   );
