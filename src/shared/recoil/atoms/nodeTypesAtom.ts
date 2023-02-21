@@ -33,12 +33,12 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       1: {
         name: 'left',
-        type:ConnectionType.Bool,
+        type: ConnectionType.Bool,
       },
       2: {
         name: 'right',
         type: ConnectionType.Bool,
-        
+
       },
     },
     outputs: {
@@ -59,18 +59,44 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       1: {
         name: 'left',
-        type:ConnectionType.Bool,
+        type: ConnectionType.Bool,
       },
       2: {
         name: 'right',
         type: ConnectionType.Bool,
-        
+
       },
     },
     outputs: {
       1: {
         name: 'output',
         type: ConnectionType.Bool,
+      },
+    },
+  },
+  Add: {
+    description: 'add 2 numbers together',
+    attributes: {},
+    code: {
+      init: 'self.left = 0\nself.right = 0',
+      update: 'return self.right+self.left',
+      isQuery: false,
+    },
+    inputs: {
+      1: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      2: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      1: {
+        name: 'output',
+        type: ConnectionType.Number,
       },
     },
   },

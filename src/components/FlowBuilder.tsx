@@ -23,20 +23,27 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { attributeGenerator } from '../shared/helpers/helperFunctions';
+
 declare global{
   var edgesList:any;
+  var nodesList:any;
 }
 
-export function handleIsFree(node:String,handle:String){
-  for (let edge of globalThis.edgesList.values()) {
-    if (edge.target==node &&edge.targetHandle==handle){
+export function handleIsFree(node:String, handle:String) {
+  for (const edge of globalThis.edgesList.values()) {
+    if (edge.target == node && edge.targetHandle == handle) {
       return false;
     }
   }
   return true;
 }
-function setEdgesList(e:any){
-  globalThis.edgesList=e;
+export function sameType(node1:String, node2:String) {
+  console.log(globalThis.nodesList.get(node1));
+  return true;
+}
+function setEdgesList(e:any, n:any) {
+  globalThis.edgesList = e;
+  globalThis.nodesList = n;
 }
 const initialNodes: Node<NodeTypeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -62,7 +69,7 @@ function FlowBuilder() {
     (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
   );
-  const onConnectStart=setEdgesList(edges);
+  const onConnectStart = setEdgesList(edges, nodes);
 
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
