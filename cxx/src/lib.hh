@@ -308,8 +308,8 @@ public:
 
 		code += "},";
 
-		for (auto const &[name, value] : sn.attributes) {
-			code += " " + attributes.at(name).name() + " = " + value + ",";
+		for (auto const &[a_name, value] : sn.attributes) {
+			code += " " + attributes.at(a_name).name() + " = " + value + ",";
 		}
 
 		code.pop_back(); // remove final comma
