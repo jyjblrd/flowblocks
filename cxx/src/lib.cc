@@ -165,7 +165,8 @@ EMSCRIPTEN_BINDINGS(module) {
 
 	emscripten::value_object<marshalling::Node>("NodeInstance")
 		.field("nodeTypeId", &marshalling::Node::type_str)
-		.field("connections", &marshalling::Node::input_to_predecessor);
+		.field("connections", &marshalling::Node::input_to_predecessor)
+		.field("attributes", &marshalling::Node::attributes);
 
 	// bindings for NodeType
 

@@ -11,7 +11,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: 'self.led = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_DOWN)',
-      update: 'return True if self.led.value() else False',
+      update: 'output_value = True if self.led.value() else False',
       isQuery: true,
     },
     inputs: {},
@@ -27,7 +27,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.left = False\nself.right = False',
-      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\nreturn True if self.left and self.right else False',
+      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\noutput_value = True if self.left and self.right else False',
       isQuery: false,
     },
     inputs: {
@@ -53,7 +53,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.left = False\nself.right = False',
-      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\nreturn True if self.left or self.right else False',
+      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\noutput_value = True if self.left or self.right else False',
       isQuery: false,
     },
     inputs: {

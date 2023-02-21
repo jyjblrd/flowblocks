@@ -11,10 +11,7 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
-
-// temporary forward declaration for function in micropython_blocks.hh
-// TODO: remove when NodeType::emit_block_definition() is implemented properly
-auto block_class_definition(int i) -> std::string;
+#include <concepts>
 
 enum class ConnectionType {
 	Bool,
@@ -60,8 +57,52 @@ struct Predecessor {
 struct Node {
 	std::string type_str;
 	std::map<std::string, Predecessor> input_to_predecessor;
-	// todo: add map for attributes
+	std::map<std::string, std::string> attributes;
 };
+}
+
+inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) {
+	for (std::size_t body_pos {0}; body_pos < body.length(); ++body_pos) {
+		auto substr_end_idx = body.find('\n', body_pos);
+
+		if (substr_end_idx == std::string_view::npos) {
+			substr_end_idx = body.length();
+		}
+
+		auto substr = body.substr(body_pos, substr_end_idx - body_pos);
+
+		int local_indent {indent_amt};
+		while (!substr.empty() && substr.front() == '\t') {
+			substr.remove_prefix(1);
+			++local_indent;
+		}
+
+		output.append("\n");
+		for (int i {0}; i <= local_indent; ++i) {
+			output.append("    ");
+		}
+
+		output.append(substr);
+		body_pos = substr_end_idx;
+	}
+}
+
+template <typename... Ts>
+	requires((sizeof...(Ts) > 0) && ... && std::convertible_to<Ts, std::string_view>)
+inline auto generate_block_method(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
+	output.append("\n");
+	for (int i {0}; i <= indent_amt; ++i) {
+		output.append("    ");
+	}
+	output.append(header);
+	indent_amt += 1;
+
+	std::vector<std::string_view> const code_snippets = {snippets...};
+	for (auto const &snip : code_snippets) {
+		generate_py_lines(output, indent_amt, snip);
+	}
+
+	output.append("\n");
 }
 
 class NodeType {
@@ -71,20 +112,31 @@ public:
 		 , mnt {m_node_type} { }
 
 	auto emit_block_definition(std::string &code) const -> void {
-		if (used) {
-			// TODO: implement substitution with mnt.code.init and mnt.code.update
+		constexpr std::string_view init_begin {"self.successors = successors"};
+		constexpr std::string_view update_end {"for successor in self.successors['1']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
 
-			// below is a temporary implementation so that it compiles our demo
-			// this should be replaced later
-			int val {-1};
-			if (name == "Button")
-				val = 0;
-			else if (name == "And")
-				val = 1;
-			else if (name == "LED")
-				val = 2;
-			code.append(block_class_definition(val));
-			// todo: remove forward declaration at top of file, and block_class_definition in micropython_blocks.hh when done
+		if (used) {
+			code.append("class " + name + ":");
+
+			if (!mnt.outputs.empty()) {
+				generate_block_method(code, 1, "def __init__(self, successors):", init_begin, mnt.code.init);
+
+				if (mnt.code.is_query) {
+					generate_block_method(code, 1, "def query(self):", mnt.code.update, update_end);
+				} else {
+					generate_block_method(code, 1, "def update(self, input, value):", mnt.code.update, update_end);
+				}
+			} else {
+				generate_block_method(code, 1, "def __init__(self, successors):", mnt.code.init);
+
+				if (mnt.code.is_query) {
+					generate_block_method(code, 1, "def query(self):", mnt.code.update);
+				} else {
+					generate_block_method(code, 1, "def update(self, input, value):", mnt.code.update);
+				}
+			}
+
+			code.append("\n");
 		}
 	}
 
@@ -109,7 +161,7 @@ public:
 
 private:
 	std::string name;
-	marshalling::NodeType const &mnt;
+	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
 	bool used {false};
 };
 
