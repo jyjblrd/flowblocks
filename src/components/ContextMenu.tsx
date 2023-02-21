@@ -1,5 +1,5 @@
 import React, {
-  FormEvent, FormEventHandler, useEffect, useState,
+  FormEvent, useEffect, useState,
 } from 'react';
 import {
   Col, Dropdown, Form, InputGroup, Row,

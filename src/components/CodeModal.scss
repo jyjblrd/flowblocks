@@ -1,0 +1,14 @@
+@import "../../node_modules/bootstrap/scss/functions";
+@import '../../node_modules/bootstrap/scss/variables.scss';
+
+.codeModal {
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+    margin-left: 10vw;
+    margin-right: 10vw;
+}
+
+.codeModal .modal-content {
+    height: 80vh;
+    width: 80vw;
+}

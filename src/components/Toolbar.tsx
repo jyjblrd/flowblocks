@@ -1,16 +1,18 @@
 import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
+import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
 
   const nodeTypes = useRecoilValue(nodeTypesAtom);
+  const setCodeModal = useSetRecoilState(codeModalAtom);
 
   return (
     <div style={{ float: 'right' }}>
@@ -40,11 +42,11 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={() => {
-          console.log(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
-          alert('check console log for code');
+          const code = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code }));
         }}
       >
-        Compile
+        Show code
       </Button>
       <Button
         className="mx-1"
@@ -53,7 +55,7 @@ export default function Toolbar() {
           await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
         }}
       >
-        Compile and run
+        Run
       </Button>
       <Button
         className="mx-1"
