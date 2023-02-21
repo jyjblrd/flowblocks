@@ -15,6 +15,10 @@
 #include <utility>
 #include <vector>
 
+// TODO: maybe replace all instances of std::locale::classic() to use the local locale instead of C locale? Maybe have a global locale variable?
+
+// TODO: reorganise code? split into several files?
+
 enum class ConnectionType {
 	Bool,
 	Integer,
@@ -63,7 +67,58 @@ struct Node {
 };
 }
 
-// TODO: maybe move these generation functions somewhere else
+struct Successor {
+	std::string id;
+	std::string input;
+
+	auto operator==(Successor const &) const -> bool = default;
+};
+
+template <>
+struct std::hash<Successor> {
+	std::size_t operator()(Successor const &successor) const noexcept {
+		std::size_t const h1 = std::hash<std::string> {}(successor.id);
+		std::size_t const h2 = std::hash<std::string> {}(successor.input);
+		return h1 ^ (h2 << 1);
+	}
+};
+
+struct SortedNode {
+	std::map<std::string, std::unordered_set<Successor>> output_to_successors;
+	std::size_t node_type_index;
+	std::map<std::string, std::string> attributes; // TODO: type check these
+};
+
+struct SortedGraph {
+	std::map<std::string, SortedNode> id_to_node;
+	std::vector<std::string> argsorted_ids;
+
+	// FIXME: This should not be required if all nodes are queried in order.
+	std::vector<std::string> nonsuccessor_ids {};
+};
+
+class AttributeInfo {
+public:
+	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
+	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
+	[[nodiscard]] auto used_in_update() const -> auto { return used; }
+
+	auto set_used() -> void { used = true; }
+
+	auto alpha_convert_name(std::size_t collision_no) -> void {
+		generated_name += std::to_string(collision_no);
+		generated_self_name += std::to_string(collision_no);
+	}
+
+	AttributeInfo(std::string &&n)
+		 : generated_name {n}
+		 , generated_self_name {"self.__" + generated_name} { }
+
+private:
+	std::string generated_name;
+	std::string generated_self_name;
+	bool used {false};
+};
 
 inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) {
 	for (std::size_t body_pos {0}; body_pos < body.length(); ++body_pos) {
@@ -81,12 +136,12 @@ inline auto generate_py_lines(std::string &output, int indent_amt, std::string_v
 			++local_indent;
 		}
 
-		output.append("\n");
+		output += "\n";
 		for (int i {0}; i < local_indent; ++i) {
-			output.append("    ");
+			output += "    ";
 		}
 
-		output.append(substr);
+		output += substr;
 		body_pos = substr_end_idx;
 	}
 }
@@ -96,7 +151,7 @@ template <typename... Ts>
 inline auto generate_function(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
 	output.append("\n");
 	for (int i {0}; i < indent_amt; ++i) {
-		output.append("    ");
+		output += "    ";
 	}
 	output.append(header);
 	indent_amt += 1;
@@ -106,14 +161,45 @@ inline auto generate_function(std::string &output, int indent_amt, std::string_v
 		generate_py_lines(output, indent_amt, snip);
 	}
 
-	output.append("\n");
+	output += "\n";
+}
+
+inline auto make_init_attribute_pair(std::string_view const name, std::map<std::string, AttributeInfo> const &attrs) -> std::pair<std::string, std::string> {
+	std::string function_name {"def "};
+	std::string attribute_init {};
+
+	function_name += name;
+	function_name += "(self, successors"; // todo: update with new system later
+
+	for (auto const &entry : attrs) {
+		function_name += ", ";
+		function_name += entry.second.name();
+
+		// as a runtime memory space optimisation, only save attributes that are used in the body of the update block
+		if (entry.second.used_in_update()) {
+			attribute_init += entry.second.self_name();
+			attribute_init += " = ";
+			attribute_init += entry.second.name();
+			attribute_init += "\n";
+		}
+	}
+
+	function_name += "):";
+
+	if (!attribute_init.empty())
+		attribute_init.pop_back(); // at least one line added; remove trailing newline
+
+	return std::make_pair(std::move(function_name), std::move(attribute_init));
 }
 
 class NodeType {
 public:
-	static auto generate_name(std::string const &n) -> std::string {
-		// TODO: maybe change to use local locale instead of C locale? Maybe have a global locale variable?
+	static auto generate_block_name(std::string const &n) -> std::string {
 		std::string g_name {n};
+
+		// strip leading non-alphabet characters
+		bool done {false};
+		std::erase_if(g_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
 
 		if (n.empty()) {
 			g_name = "UnnamedBlock" + n;
@@ -122,33 +208,74 @@ public:
 			g_name = "Block" + g_name;
 		}
 
-		g_name.erase(std::remove_if(g_name.begin(), g_name.end(), [](char c) { return std::isspace(c, std::locale::classic()); }), g_name.end());
+		std::erase_if(g_name, [](char c) { return !std::isalnum(c, std::locale::classic()); });
 
 		return g_name;
 	}
 
-	auto alpha_convert_generated_name(std::size_t collision_no) -> void {
+	static auto generate_attr_name(std::string const &n) -> std::string {
+		std::string a_name {n};
+
+		// strip leading non-alphabet characters
+		bool done {false};
+		std::erase_if(a_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
+
+		if (n.empty()) {
+			a_name = "unnamed_attribute" + n;
+		} else {
+			a_name.front() = std::tolower(a_name.front(), std::locale::classic());
+		}
+
+		std::erase_if(a_name, [](char c) { return !(std::isalnum(c, std::locale::classic()) || c == '_'); });
+
+		return a_name;
+	}
+
+	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
 		generated_name += std::to_string(collision_no);
 	}
 
 	NodeType(std::string block_name, marshalling::NodeType const &m_node_type)
 		 : name {std::move(block_name)}
 		 , mnt {m_node_type} {
-		generated_name = generate_name(name);
+		generated_name = generate_block_name(name);
+
+		// rename attributes, provide map from old attribute names to new attributes names
+		std::unordered_map<std::string, std::size_t> name_collisions {};
+		for (auto const &[attr_name, attr_type] : mnt.attributes) {
+			AttributeInfo ai {generate_attr_name(attr_name)};
+
+			if (name_collisions.contains(ai.name())) {
+				std::size_t const tmp = (name_collisions[ai.name()] += 1);
+				ai.alpha_convert_name(tmp);
+			} else {
+				name_collisions[ai.name()] = 0;
+			}
+
+			// also check if attribute is used in update function
+			// in c++23, this would just be mnt.code.update.contains(attr_name)
+			if (mnt.code.update.find(attr_name) != std::string::npos)
+				ai.set_used();
+
+			attributes.insert_or_assign(attr_name, std::move(ai));
+		}
 	}
 
 	auto emit_block_definition(std::string &code) const -> void {
 		static constexpr std::string_view init_begin {"self.successors = successors"};
 		static constexpr std::string_view update_end {"for successor in self.successors['1']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
-		static constexpr std::string_view init_func {"def __init__(self, successors):"};
 		static constexpr std::string_view query_func {"def query(self):"};
 		static constexpr std::string_view update_func {"def update(self, input, value):"};
 
 		if (used) {
+			auto [init_func, attr_init] = make_init_attribute_pair("__init__", attributes);
+
 			code.append("class " + get_generated_name() + ":");
 
+			// TODO: perform attribute name substitution in code update function
+
 			if (!mnt.outputs.empty()) {
-				generate_function(code, 1, init_func, init_begin, mnt.code.init);
+				generate_function(code, 1, init_func, init_begin, attr_init, mnt.code.init);
 
 				if (mnt.code.is_query) {
 					generate_function(code, 1, query_func, mnt.code.update, update_end);
@@ -156,7 +283,7 @@ public:
 					generate_function(code, 1, update_func, mnt.code.update, update_end);
 				}
 			} else {
-				generate_function(code, 1, init_func, mnt.code.init);
+				generate_function(code, 1, init_func, attr_init, mnt.code.init);
 
 				if (mnt.code.is_query) {
 					generate_function(code, 1, query_func, mnt.code.update);
@@ -167,6 +294,26 @@ public:
 
 			code.append("\n");
 		}
+	}
+
+	auto emit_block_instantiation(std::string &code, SortedNode const &sn, std::string const &id) const -> void {
+		code += "a" + id + " = " + get_generated_name() + "(successors = {";
+		for (auto const &[output, successors] : sn.output_to_successors) {
+			code += "'" + output + "' : [";
+			for (auto const &successor : successors) {
+				code += "{'vertex' : a" + successor.id + ", 'input' : '" + successor.input + "'}, ";
+			}
+			code += "], ";
+		}
+
+		code += "},";
+
+		for (auto const &[name, value] : sn.attributes) {
+			code += " " + attributes.at(name).name() + " = " + value + ",";
+		}
+
+		code.pop_back(); // remove final comma
+		code += ")\n";
 	}
 
 	[[nodiscard]] auto get_input_type(std::string const &input_name) const -> std::optional<ConnectionType> {
@@ -192,38 +339,14 @@ public:
 private:
 	std::string name;
 	std::string generated_name;
-	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
+	std::map<std::string, AttributeInfo> attributes;
 	bool used {false};
+
+	// raw data:
+	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
 };
 
-struct Successor {
-	std::string id;
-	std::string input;
 
-	auto operator==(Successor const &) const -> bool = default;
-};
-
-template <>
-struct std::hash<Successor> {
-	std::size_t operator()(Successor const &successor) const noexcept {
-		std::size_t const h1 = std::hash<std::string> {}(successor.id);
-		std::size_t const h2 = std::hash<std::string> {}(successor.input);
-		return h1 ^ (h2 << 1);
-	}
-};
-
-struct SortedNode {
-	std::map<std::string, std::unordered_set<Successor>> output_to_successors;
-	std::size_t node_type_index;
-};
-
-struct SortedGraph {
-	std::map<std::string, SortedNode> id_to_node;
-	std::vector<std::string> argsorted_ids;
-
-	// FIXME: This should not be required if all nodes are queried in order.
-	std::vector<std::string> nonsuccessor_ids {};
-};
 
 class NodeDefinitions {
 public:
@@ -238,7 +361,7 @@ public:
 		std::transform(identifier.begin(), identifier.end(), identifier.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
 		if (name_collisions.contains(identifier)) {
 			std::size_t const tmp = (name_collisions[identifier] += 1);
-			nt.alpha_convert_generated_name(tmp);
+			nt.alpha_convert_generated_class_name(tmp);
 		} else {
 			name_collisions[identifier] = 0;
 		}
