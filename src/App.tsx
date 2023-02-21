@@ -9,8 +9,8 @@ export default function App() {
   return (
     <>
       <Container fluid className="main-container">
-        <Row className="mt-4 mb-2">
-          <Col className="ms-4">
+        <Row className="mt-4 mb-2 flex-nowrap">
+          <Col className="ms-4" style={{ width: 'fit-content' }} md="auto">
             <h2>Flow Blocks</h2>
           </Col>
           <Col>
