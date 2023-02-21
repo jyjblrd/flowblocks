@@ -12,6 +12,8 @@
 #include <vector>
 #include <unordered_map>
 #include <concepts>
+#include <algorithm>
+#include <locale>
 
 enum class ConnectionType {
 	Bool,
@@ -78,7 +80,7 @@ inline auto generate_py_lines(std::string &output, int indent_amt, std::string_v
 		}
 
 		output.append("\n");
-		for (int i {0}; i <= local_indent; ++i) {
+		for (int i {0}; i < local_indent; ++i) {
 			output.append("    ");
 		}
 
@@ -89,9 +91,9 @@ inline auto generate_py_lines(std::string &output, int indent_amt, std::string_v
 
 template <typename... Ts>
 	requires((sizeof...(Ts) > 0) && ... && std::convertible_to<Ts, std::string_view>)
-inline auto generate_block_method(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
+inline auto generate_function(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
 	output.append("\n");
-	for (int i {0}; i <= indent_amt; ++i) {
+	for (int i {0}; i < indent_amt; ++i) {
 		output.append("    ");
 	}
 	output.append(header);
@@ -107,32 +109,57 @@ inline auto generate_block_method(std::string &output, int indent_amt, std::stri
 
 class NodeType {
 public:
+	static auto generate_name(std::string const &n) -> std::string {
+		// TODO: maybe change to use local locale instead of C locale? Maybe have a global locale variable?
+		std::string g_name {n};
+
+		if (n.empty()) {
+			g_name = "UnnamedBlock" + n;
+		} else {
+			g_name.front() = std::toupper(g_name.front(), std::locale::classic());
+			g_name = "Block" + g_name;
+		}
+
+		g_name.erase(std::remove_if(g_name.begin(), g_name.end(), [](char c) { return std::isspace(c, std::locale::classic()); }), g_name.end());
+
+		return g_name;
+	}
+
+	auto alpha_convert_generated_name(std::size_t collision_no) -> void {
+		generated_name += std::to_string(collision_no);
+	}
+
 	NodeType(std::string block_name, marshalling::NodeType const &m_node_type)
 		 : name {std::move(block_name)}
-		 , mnt {m_node_type} { }
+		 , mnt {m_node_type} {
+		generated_name = generate_name(name);
+	}
 
 	auto emit_block_definition(std::string &code) const -> void {
-		constexpr std::string_view init_begin {"self.successors = successors"};
-		constexpr std::string_view update_end {"for successor in self.successors['1']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
+		static constexpr std::string_view init_begin {"self.successors = successors"};
+		static constexpr std::string_view update_end {"for successor in self.successors['1']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
+		static constexpr std::string_view init_func {"def __init__(self, successors):"};
+		static constexpr std::string_view query_func {"def query(self):"};
+		static constexpr std::string_view update_func {"def update(self, input, value):"};
 
 		if (used) {
-			code.append("class " + name + ":");
+			code.append("class " + get_generated_name() + ":");
 
 			if (!mnt.outputs.empty()) {
-				generate_block_method(code, 1, "def __init__(self, successors):", init_begin, mnt.code.init);
+				generate_function(code, 1, init_func, init_begin, mnt.code.init);
 
 				if (mnt.code.is_query) {
-					generate_block_method(code, 1, "def query(self):", mnt.code.update, update_end);
+					generate_function(code, 1, query_func, mnt.code.update, update_end);
 				} else {
-					generate_block_method(code, 1, "def update(self, input, value):", mnt.code.update, update_end);
+					generate_function(code, 1, update_func, mnt.code.update, update_end);
 				}
 			} else {
-				generate_block_method(code, 1, "def __init__(self, successors):", mnt.code.init);
+				generate_function(code, 1, init_func, mnt.code.init);
 
 				if (mnt.code.is_query) {
-					generate_block_method(code, 1, "def query(self):", mnt.code.update);
+					generate_function(code, 1, query_func, mnt.code.update);
 				} else {
-					generate_block_method(code, 1, "def update(self, input, value):", mnt.code.update);
+					generate_function(code, 1, update_func, mnt.code.update);
 				}
 			}
 
@@ -157,10 +184,12 @@ public:
 	auto mark_used() -> void { used = true; }
 	[[nodiscard]] auto expected_in_degree() const -> std::size_t { return mnt.inputs.size(); }
 	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return mnt.outputs.size(); }
-	[[nodiscard]] auto get_name() const -> std::string const & { return name; }
+	[[nodiscard]] auto get_generated_name() const -> std::string const & { return generated_name; }
+	[[nodiscard]] auto get_real_name() const -> std::string const & { return name; }
 
 private:
 	std::string name;
+	std::string generated_name;
 	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
 	bool used {false};
 };
@@ -203,8 +232,18 @@ public:
 	}
 
 	auto insert_type(NodeType &&nt) -> void {
+		// we perform alpha conversion if there is a name collision with the default generated name
+		std::string identifier {nt.get_generated_name()};
+		std::transform(identifier.begin(), identifier.end(), identifier.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
+		if (name_collisions.contains(identifier)) {
+			std::size_t const tmp = (name_collisions[identifier] += 1);
+			nt.alpha_convert_generated_name(tmp);
+		} else {
+			name_collisions[identifier] = 0;
+		}
+
 		definitions.push_back(std::move(nt));
-		names[definitions.back().get_name()] = definitions.size() - 1;
+		names[definitions.back().get_real_name()] = definitions.size() - 1;
 	}
 
 	[[nodiscard]] auto parse_node_type_as_index(std::string const &block_name) const -> std::optional<std::size_t> {
@@ -239,4 +278,5 @@ public:
 private:
 	std::vector<NodeType> definitions;
 	std::unordered_map<std::string, std::size_t> names {};
+	std::unordered_map<std::string, std::size_t> name_collisions {};
 };

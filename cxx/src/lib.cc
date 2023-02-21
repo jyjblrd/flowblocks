@@ -126,7 +126,7 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	// add instances of block classes to code
 	for (auto it = graph->argsorted_ids.rbegin(); it != graph->argsorted_ids.rend(); ++it) {
 		auto const &id = *it;
-		code.append(block_initialization(node_defs->get_node_type(graph->id_to_node.at(id)).get_name(),
+		code.append(block_initialization(node_defs->get_node_type(graph->id_to_node.at(id)).get_generated_name(),
 			id, graph->id_to_node.at(id).output_to_successors));
 		// TODO: improve production of block initializers; also add attributes
 	}
