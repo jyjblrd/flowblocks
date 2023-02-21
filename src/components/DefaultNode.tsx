@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
-  Handle, NodeProps, Position,
+  Connection,
+  getConnectedEdges,
+  Handle, NodeProps, Position, useReactFlow,
 } from 'reactflow';
 import { useRecoilValue } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
@@ -15,6 +17,25 @@ interface DummyNodeProps {
 function calcHandleTop(index: number, numHandles: number) {
   return `${(100 / (numHandles + 1)) * (index + 1)}%`;
 }
+
+const useConnectionValidator = () => {
+  const { getNode, getEdges } = useReactFlow();
+
+  return useCallback(
+    (connection: Connection) => {
+      if (!connection.target
+        || !connection.targetHandle
+        || !connection.source
+        || connection.source === connection.target) return false;
+      const target = getNode(connection.target);
+      const edges = getConnectedEdges(target ? [target] : [], getEdges());
+      return edges.every((edge) =>
+        !(edge.target === connection.target
+          && edge.targetHandle === connection.targetHandle));
+    },
+    [getNode, getEdges],
+  );
+};
 
 export default function DefaultNode(
   {

@@ -58,61 +58,45 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
   }
 }
 
+function saveToLocal(exportObj: Object, exportName: string | null) {
+  console.log('saveToLocal');
+  localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
+}
+
+function loadFromLocal(exportName: string) {
+  console.log('loadFromLocal');
+  const load = localStorage.getItem(exportName);
+  if (load) {
+    return JSON.parse(load);
+  } else {
+    alert('No saved flowchart found of this name');
+    return null;
+  }
+}
 
 export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
-  /*var obj = reactFlowInstance.toObject();
+  /* var obj = reactFlowInstance.toObject();
   var json = JSON.stringify(obj);
   var exportData = "data:text/json;charset=utf-8," + json;
   var blob = new Blob([json], {type: "application/json"});
   var newWindow = window.open(encodeURI(exportData));
   */
-  //downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+  // downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
   saveToLocal(reactFlowInstance.toObject(), name);
-  return;
 }
 
 export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
-  var loaded = loadFromLocal(exportName);
+  const loaded = loadFromLocal(exportName);
   reactFlowInstance.setNodes(loaded.nodes);
   reactFlowInstance.setEdges(loaded.edges);
 }
 
-
-
-function saveToLocal(exportObj: Object, exportName: string|null){
-  console.log("saveToLocal");
-  if(exportName == null){
-    exportName = "default"
-  }
-  localStorage.setItem(exportName, JSON.stringify(exportObj));
-}
-
-function loadFromLocal(exportName: string){
-  console.log("loadFromLocal");
-  var load = localStorage.getItem(exportName);
-  if (load) {
-    return JSON.parse(load);
-  } else {
-    alert("No saved flowchart found of this name");
-    return null;
-  }
-}
-
-function getLocalStorageKeys(){
-  var keys = [];
-  for (var i = 0; i < localStorage.length; i++){
-    keys.push(localStorage.key(i));
-  }
-  return keys;
-}
-
-function downloadObjectAsJson(exportObj: Object, exportName: string){
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href",     dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
+function downloadObjectAsJson(exportObj: Object, exportName: string) {
+  const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(exportObj))}`;
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute('href', dataStr);
+  downloadAnchorNode.setAttribute('download', `${exportName}.json`);
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 }
-

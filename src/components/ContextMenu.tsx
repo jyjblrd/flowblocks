@@ -11,7 +11,7 @@ export default function ContextMenu(
   }:
   {
     show: boolean,
-    position: { x: number, y:number },
+    position: { x: number, y: number },
     clickedNode?: Node<NodeInstance>,
     hideMenu: any
   },
@@ -58,20 +58,24 @@ export default function ContextMenu(
   return (
     <Dropdown show={show} style={{ position: 'absolute', transform: `translate(${position.x}px, ${position.y}px)` }}>
       <Dropdown.Menu>
-        <Form className="px-3 pt-2 pb-1">
-          <h6 style={{ paddingTop: '4px' }}>Attributes</h6>
-          {Object.entries(attributes).map(([attributeId, value]) => (
-            <InputGroup key={attributeId} as={Row} className="g-0">
-              <Col xs={8}>
-                <Form.Label className="mt-1">{attributeId}</Form.Label>
-              </Col>
-              <Col>
-                <Form.Control size="sm" value={value} name={attributeId} onChange={handleInputChange} />
-              </Col>
-            </InputGroup>
-          ))}
-        </Form>
-        <Dropdown.Divider />
+        {Object.keys(attributes).length !== 0 && (
+          <>
+            <Form className="px-3 pt-2 pb-1">
+              <h6 style={{ paddingTop: '4px' }}>Attributes</h6>
+              {Object.entries(attributes).map(([attributeId, value]) => (
+                <InputGroup key={attributeId} as={Row} className="g-0">
+                  <Col xs={8}>
+                    <Form.Label className="mt-1">{attributeId}</Form.Label>
+                  </Col>
+                  <Col>
+                    <Form.Control size="sm" value={value} name={attributeId} onChange={handleInputChange} />
+                  </Col>
+                </InputGroup>
+              ))}
+            </Form>
+            <Dropdown.Divider />
+          </>
+        )}
         <Dropdown.Item onClick={deleteItem}>Delete</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>

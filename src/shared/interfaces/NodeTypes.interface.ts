@@ -14,7 +14,7 @@ export type NodeTypeData = {
   attributes: Attributes,
   inputs: Record<number, { name: String, type: ConnectionType }>,
   outputs: Record<number, { name: String, type: ConnectionType }>,
-  code: { init: string, update:string, isQuery: boolean }
+  code: { init: string, update: string, isQuery: boolean }
 };
 
 export type NodeTypes = Record<string, NodeTypeData>;

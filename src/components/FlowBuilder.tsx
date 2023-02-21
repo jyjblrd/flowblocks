@@ -172,7 +172,6 @@ function FlowBuilder() {
             edges={edges}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onConnectStart={onConnectStart}
             onNodeContextMenu={onNodeContextMenu}
             onNodeDragStart={onNodeDragStart}
             onPaneClick={handleClickOutside}

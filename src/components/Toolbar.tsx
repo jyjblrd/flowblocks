@@ -4,34 +4,33 @@ import Button from 'react-bootstrap/Button';
 import { useRecoilValue } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, forceReselectPort } from '../shared/helpers/serial';
-import flowchartToJSON from '../shared/helpers/helperFunctions';
-import { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
+import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 
 export default function Toolbar() {
-  var reactFlowInstance = useReactFlow();
+  const reactFlowInstance = useReactFlow();
 
   const nodeTypes = useRecoilValue(nodeTypesAtom);
 
   return (
     <div style={{ float: 'right' }}>
-      <Button 
+      <Button
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          //console.log("Save")
-          var name = 'flowchart2';
+          // console.log("Save")
+          const name = 'flowchart2';
           saveFlowInstance(reactFlowInstance, name);
-          //save blob
+          // save blob
         }}
       >
         Save
       </Button>
-      <Button 
+      <Button
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          var name = 'flowchart2';      
+          const name = 'flowchart2';
           loadFlowInstance(reactFlowInstance, name);
         }}
       >
