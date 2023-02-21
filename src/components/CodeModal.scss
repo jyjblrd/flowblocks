@@ -1,14 +1,33 @@
 @import "../../node_modules/bootstrap/scss/functions";
 @import '../../node_modules/bootstrap/scss/variables.scss';
 
-.codeModal {
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fade-in-backdrop {
+    from { opacity: 0; }
+    to   { opacity: $modal-backdrop-opacity; }
+}
+
+.code-modal {
     margin-top: 10vh;
     margin-bottom: 10vh;
     margin-left: 10vw;
     margin-right: 10vw;
 }
 
-.codeModal .modal-content {
+.code-modal .modal-content {
     height: 80vh;
     width: 80vw;
+    animation-duration: 250ms;
+    animation-name: fade-in;
+    animation-timing-function: ease-in-out;
+}
+
+.modal-backdrop {
+    animation-duration: 125ms;
+    animation-name: fade-in-backdrop;
+    animation-timing-function: ease-in-out;
 }

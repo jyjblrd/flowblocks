@@ -13,14 +13,14 @@ export default function CodeModal() {
   const handleClose = () => setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: false }));
 
   return (
-    <Modal animation show={codeModal.isOpen} onHide={handleClose} dialogClassName="codeModal">
+    <Modal animation={false} show={codeModal.isOpen} onHide={handleClose} dialogClassName="code-modal">
       <Modal.Header closeButton>
         <Button variant="dark" onClick={async () => { await navigator.clipboard.writeText(codeModal.code); }}>
           Copy to clipboard
         </Button>
       </Modal.Header>
       <Modal.Body>
-        <Form.Control as="textarea" className={"font-monospace"} value={codeModal.code} style={{ width: '100%', height: '100%', resize: 'none' }} readOnly />
+        <Form.Control as="textarea" className="font-monospace" value={codeModal.code} style={{ width: '100%', height: '100%', resize: 'none' }} readOnly />
       </Modal.Body>
     </Modal>
   );
