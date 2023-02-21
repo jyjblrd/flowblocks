@@ -11,7 +11,7 @@ export default function ContextMenu(
   }:
   {
     show: boolean,
-    position: { x: number, y:number },
+    position: { x: number, y: number },
     clickedNode?: Node<NodeInstance>,
     hideMenu: any
   },
