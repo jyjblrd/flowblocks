@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
 #include <map>
-#include <vector>
-#include "lib.hh"
-
+#include <string>
 #include <string_view>
+#include <vector>
+
+#include "lib.hh"
 
 #include <emscripten/bind.h>
 

@@ -2,6 +2,7 @@
 #include "micropython_blocks.hh"
 
 #include <emscripten/bind.h>
+
 #include "emscripten_extensions.hh"
 
 #include <deque>

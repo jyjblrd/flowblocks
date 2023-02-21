@@ -1,19 +1,19 @@
 #pragma once
 
-#include <string>
-#include <string_view>
+#include <algorithm>
+#include <array>
+#include <concepts>
+#include <cstddef>
+#include <functional>
+#include <locale>
 #include <map>
 #include <optional>
-#include <cstddef>
-#include <set>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <functional>
 #include <vector>
-#include <unordered_map>
-#include <concepts>
-#include <algorithm>
-#include <locale>
 
 enum class ConnectionType {
 	Bool,
@@ -63,6 +63,8 @@ struct Node {
 };
 }
 
+// TODO: maybe move these generation functions somewhere else
+
 inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) {
 	for (std::size_t body_pos {0}; body_pos < body.length(); ++body_pos) {
 		auto substr_end_idx = body.find('\n', body_pos);
@@ -99,7 +101,7 @@ inline auto generate_function(std::string &output, int indent_amt, std::string_v
 	output.append(header);
 	indent_amt += 1;
 
-	std::vector<std::string_view> const code_snippets = {snippets...};
+	std::array<std::string_view, sizeof...(Ts)> const code_snippets = {snippets...};
 	for (auto const &snip : code_snippets) {
 		generate_py_lines(output, indent_amt, snip);
 	}
@@ -218,7 +220,6 @@ struct SortedNode {
 struct SortedGraph {
 	std::map<std::string, SortedNode> id_to_node;
 	std::vector<std::string> argsorted_ids;
-	//	std::set<NodeType> node_types;
 
 	// FIXME: This should not be required if all nodes are queried in order.
 	std::vector<std::string> nonsuccessor_ids {};
@@ -232,7 +233,7 @@ public:
 	}
 
 	auto insert_type(NodeType &&nt) -> void {
-		// we perform alpha conversion if there is a name collision with the default generated name
+		// we perform basic alpha conversion if there is a name collision with a lowercase version of the default generated name
 		std::string identifier {nt.get_generated_name()};
 		std::transform(identifier.begin(), identifier.end(), identifier.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
 		if (name_collisions.contains(identifier)) {
