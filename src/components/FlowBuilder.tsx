@@ -195,11 +195,7 @@ function FlowBuilder() {
           data: nodeInstance,
           type: 'defaultNode',
         };
-        const nodeChange: NodeAddChange<NodeInstance> = {
-          item: newNode,
-          type: 'add',
-        };
-        setNodes((nds) => applyNodeChanges([nodeChange], nds));
+        setNodes((nodes) => nodes.concat(newNode));
       }
       setUserDragging(false);
     },

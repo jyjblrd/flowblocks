@@ -5,7 +5,6 @@ import {
   Handle, NodeProps, Position, useReactFlow,
 } from 'reactflow';
 import { useRecoilValue } from 'recoil';
-import { typeToColour } from '../shared/helpers/helperFunctions';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
@@ -50,16 +49,13 @@ export default function DefaultNode(
   return (
     <>
       {
-        Object.entries(nodeType.inputs).map(([key, { type }], index) => {
+        Object.entries(nodeType.inputs).map(([key], index) => {
           if (isDummyNode) {
             return (
               <div
                 key={key}
                 className="react-flow__handle react-flow__handle-left"
-                style={{
-                  top: calcHandleTop(index, numInputs),
-                  backgroundColor: typeToColour(type),
-                }}
+                style={{ top: calcHandleTop(index, numInputs) }}
               />
             );
           } else {
@@ -69,10 +65,8 @@ export default function DefaultNode(
                 position={Position.Left}
                 id={key}
                 key={key}
-                style={{
-                  top: calcHandleTop(index, numInputs),
-                  backgroundColor: typeToColour(type),
-                }}
+                style={{ top: calcHandleTop(index, numInputs) }}
+                className={data.isInputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
               />
             );
@@ -85,16 +79,13 @@ export default function DefaultNode(
         <h5 className="m-0">{data.nodeTypeId}</h5>
       </div>
       {
-        Object.entries(nodeType.outputs).map(([key, { type }], index) => {
+        Object.entries(nodeType.outputs).map(([key], index) => {
           if (isDummyNode) {
             return (
               <div
                 key={key}
                 className="react-flow__handle react-flow__handle-right"
-                style={{
-                  top: calcHandleTop(index, numOutputs),
-                  backgroundColor: typeToColour(type),
-                }}
+                style={{ top: calcHandleTop(index, numOutputs) }}
               />
             );
           } else {
@@ -104,11 +95,8 @@ export default function DefaultNode(
                 position={Position.Right}
                 id={key}
                 key={key}
-                style={{
-                  top: calcHandleTop(index, numOutputs),
-                  backgroundColor: typeToColour(type),
-                }}
-                // on={(params) => console.log('handle ondelete',params)}
+                style={{ top: calcHandleTop(index, numOutputs) }}
+                className={data.isOutputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
               />
             );

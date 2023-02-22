@@ -1,6 +1,6 @@
 import { ReactFlowInstance } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
-import { AttributeTypes, ConnectionType } from '../interfaces/NodeTypes.interface';
+import { AttributeTypes } from '../interfaces/NodeTypes.interface';
 
 // TODO: delete this function !!!!
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
@@ -91,15 +91,4 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
-}
-
-export function typeToColour(type: ConnectionType) {
-  switch (type) {
-    case ConnectionType.Bool:
-      return '#f56c62';
-    case ConnectionType.Number:
-      return '#d072f2';
-    default:
-      return '#000000';
-  }
 }
