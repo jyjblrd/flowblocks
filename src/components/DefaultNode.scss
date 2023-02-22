@@ -25,9 +25,9 @@
     right: -4px;
 }
 
-path.react-flow__edge-path {
-   stroke-width: 2px;
-}  
+path.react-flow__edge-path, path.react-flow__connection-path {
+  stroke-width: 3.5px;
+}
 
 .react-flow__node.selected > .node {
     border-color: $gray-900;
