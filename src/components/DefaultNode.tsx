@@ -8,7 +8,6 @@ import { useRecoilValue } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import './DefaultNode.scss';
-import { handleIsFree, sameType } from './FlowBuilder';
 
 interface DummyNodeProps {
   data: NodeInstance;
@@ -39,9 +38,9 @@ const useConnectionValidator = () => {
 
 export default function DefaultNode(
   {
-    isDummyNode = false,
     data,
-  }: (NodeProps<NodeInstance> | DummyNodeProps) & { isDummyNode?: Boolean },
+    isDummyNode = false,
+  }: (NodeProps<NodeInstance> | DummyNodeProps) & { isDummyNode?: boolean },
 ) {
   const nodeType = useRecoilValue(nodeTypesAtom)[data.nodeTypeId];
   const numInputs = Object.entries(nodeType.inputs).length;
@@ -67,21 +66,15 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numInputs) }}
-                isValidConnection={(connection) => connection.source != connection.target
-                  && handleIsFree(String(connection.target), String(connection.targetHandle))}
-
+                className={data.isInputConnected[index] ? 'connected' : ''}
+                isValidConnection={useConnectionValidator()}
               />
             );
           }
         })
       }
       <div
-        style={{
-          padding: '16px',
-          backgroundColor: 'white',
-          border: '2px solid grey',
-          borderRadius: '10px',
-        }}
+        className="node"
       >
         <h5 className="m-0">{data.nodeTypeId}</h5>
       </div>
@@ -103,10 +96,8 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
-                isValidConnection={(connection) => connection.source !== connection.target
-                  && handleIsFree(String(connection.target), String(connection.targetHandle))
-                && sameType(String(connection.target), String(connection.source))}
-
+                className={data.isOutputConnected[index] ? 'connected' : ''}
+                isValidConnection={useConnectionValidator()}
               />
             );
           }
