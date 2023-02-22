@@ -7,16 +7,16 @@ const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
     attributes: {
-      'Pin Num': { type: AttributeTypes.PinInNum },
+      pin_num: { type: AttributeTypes.PinInNum },
     },
     code: {
-      init: 'self.led = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_DOWN)',
-      update: 'return True if self.led.value() else False',
+      init: 'self.led = machine.Pin(pin_num, machine.Pin.IN, machine.Pin.PULL_DOWN)',
+      update: 'output_value = True if self.led.value() else False',
       isQuery: true,
     },
     inputs: {},
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -27,22 +27,22 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.left = False\nself.right = False',
-      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\nreturn True if self.left and self.right else False',
+      update: 'if input == "0":\n\tself.left = value\nelif input == "1":\n\tself.right = value\noutput_value = True if self.left and self.right else False',
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },
-      2: {
+      1: {
         name: 'right',
         type: ConnectionType.Bool,
 
       },
     },
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -53,22 +53,22 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.left = False\nself.right = False',
-      update: 'if input == "1":\n\tself.left = value\nelif input == "2":\n\tself.right = value\nreturn True if self.left or self.right else False',
+      update: 'if input == "0":\n\tself.left = value\nelif input == "1":\n\tself.right = value\noutput_value = True if self.left or self.right else False',
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },
-      2: {
+      1: {
         name: 'right',
         type: ConnectionType.Bool,
 
       },
     },
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -103,15 +103,15 @@ const defaultNodeTypes: NodeTypes = {
   LED: {
     description: 'LED output',
     attributes: {
-      'Pin Num': { type: AttributeTypes.PinOutNum },
+      pin_num: { type: AttributeTypes.PinOutNum },
     },
     code: {
-      init: 'self.led = machine.Pin(25, machine.Pin.OUT)',
+      init: 'self.led = machine.Pin(pin_num, machine.Pin.OUT)',
       update: 'self.led.value(1 if value else 0)',
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },

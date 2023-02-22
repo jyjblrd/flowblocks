@@ -1,6 +1,6 @@
 ---
 AccessModifierOffset: -3
-AllowShortBlocksOnASingleLine: true
+AllowShortBlocksOnASingleLine: Always
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakBeforeMultilineStrings: true
@@ -14,7 +14,7 @@ IndentPPDirectives: BeforeHash
 IndentWidth: 3
 PointerAlignment: Right
 QualifierAlignment: Right
-SortIncludes: false
-Standard: Cpp11
+SortIncludes: CaseSensitive
+Standard: c++20
 TabWidth: 3
 UseTab: ForContinuationAndIndentation

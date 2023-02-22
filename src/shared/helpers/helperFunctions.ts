@@ -2,18 +2,10 @@ import { ReactFlowInstance } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes } from '../interfaces/NodeTypes.interface';
 
-// Pls fix the c++ side to not need this ugly conversion
+// TODO: delete this function !!!!
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
-  switch (nodeTypeId) {
-    case 'Button':
-      return 'Button';
-    case 'And':
-      return 'And';
-    case 'LED':
-      return 'LED';
-    default:
-      return '';
-  }
+  return nodeTypeId;
+  // TODO: remove all instances of the function
 }
 
 export default function flowchartToJSON(

@@ -4,10 +4,17 @@
 .react-flow__handle {
     width: 10px;
     height: 10px;
-    border-radius: 4px;
-    border-width: 1px;
-    border-color: $gray-100;
+    border-radius: 100%;
+    border: 0;
     background-color: $gray-800;
+}
+
+.react-flow__handle.connecting {
+    background-color: $red;
+}
+
+.react-flow__handle.connected {
+    background-color: $blue;
 }
 
 .react-flow__handle-left {
@@ -16,4 +23,19 @@
 
 .react-flow__handle-right {
     right: -4px;
+}
+
+path.react-flow__edge-path, path.react-flow__connection-path {
+    stroke-width: 3.5px;
+}
+
+.react-flow__node.selected > .node {
+    border-color: $gray-900;
+}
+
+.node {
+    padding: 16px;
+    background-color: white;
+    border: 2px solid grey;
+    border-radius: 10px;
 }

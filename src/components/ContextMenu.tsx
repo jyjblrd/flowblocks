@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  FormEvent, useEffect, useState,
+} from 'react';
 import {
   Col, Dropdown, Form, InputGroup, Row,
 } from 'react-bootstrap';
@@ -55,12 +57,16 @@ export default function ContextMenu(
       }));
   };
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
   return (
     <Dropdown show={show} style={{ position: 'absolute', transform: `translate(${position.x}px, ${position.y}px)` }}>
       <Dropdown.Menu>
         {Object.keys(attributes).length !== 0 && (
           <>
-            <Form className="px-3 pt-2 pb-1">
+            <Form className="px-3 pt-2 pb-1" onSubmit={handleSubmit}>
               <h6 style={{ paddingTop: '4px' }}>Attributes</h6>
               {Object.entries(attributes).map(([attributeId, value]) => (
                 <InputGroup key={attributeId} as={Row} className="g-0">

@@ -1,7 +1,7 @@
 #include "lib.hh"
-#include "micropython_blocks.hh"
 
 #include <emscripten/bind.h>
+
 #include "emscripten_extensions.hh"
 
 #include <deque>
@@ -11,10 +11,11 @@ auto process_node_defs(std::map<std::string, marshalling::NodeType> const &defin
 	NodeDefinitions defs {};
 
 	for (auto const &[name, marshalled_node_type] : definitions) {
+
+		// basically everything happens in the constructor at the moment
 		NodeType tmp {name, marshalled_node_type};
 
 		// TODO: validate code for block implementations ?
-		// TODO: ensure that code blocks names are unique
 
 		defs.insert_type(std::move(tmp));
 	}
@@ -38,6 +39,10 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 			return {}; // error: node_instance references non-existent node_type // TODO: add error handling
 
 		graph.id_to_node[id].node_type_index = *node_type_idx;
+
+		// currently copying without error checking, etc // TODO: improve this
+		graph.id_to_node[id].attributes = node.attributes;
+
 		auto &node_type {defs.get_node_type(graph.id_to_node[id])};
 
 		// Mark NodeType as used to ensure that block class is emitted
@@ -126,9 +131,7 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	// add instances of block classes to code
 	for (auto it = graph->argsorted_ids.rbegin(); it != graph->argsorted_ids.rend(); ++it) {
 		auto const &id = *it;
-		code.append(block_initialization(node_defs->get_node_type(graph->id_to_node.at(id)).get_name(),
-			id, graph->id_to_node.at(id).output_to_successors));
-		// TODO: improve production of block initializers; also add attributes
+		node_defs->get_node_type(graph->id_to_node.at(id)).emit_block_instantiation(code, graph->id_to_node.at(id), id);
 	}
 
 	code.append("while True:\n");
@@ -165,7 +168,8 @@ EMSCRIPTEN_BINDINGS(module) {
 
 	emscripten::value_object<marshalling::Node>("NodeInstance")
 		.field("nodeTypeId", &marshalling::Node::type_str)
-		.field("connections", &marshalling::Node::input_to_predecessor);
+		.field("connections", &marshalling::Node::input_to_predecessor)
+		.field("attributes", &marshalling::Node::attributes);
 
 	// bindings for NodeType
 
