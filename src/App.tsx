@@ -18,7 +18,7 @@ export default function App() {
           </Col>
         </Row>
         <Row>
-          <Col xs={5} md={4} xl={2}>
+          <Col xs={5} md={4} xl={3}>
             <NodePicker />
           </Col>
           <Col>
