@@ -263,7 +263,7 @@ public:
 
 	auto emit_block_definition(std::string &code) const -> void {
 		static constexpr std::string_view init_begin {"self.successors = successors"};
-		static constexpr std::string_view update_end {"for successor in self.successors['1']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
+		static constexpr std::string_view update_end {"for successor in self.successors['0']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
 		static constexpr std::string_view query_func {"def query(self):"};
 		static constexpr std::string_view update_func {"def update(self, input, value):"};
 
