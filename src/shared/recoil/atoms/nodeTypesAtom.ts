@@ -16,7 +16,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     inputs: {},
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -31,18 +31,18 @@ const defaultNodeTypes: NodeTypes = {
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },
-      2: {
+      1: {
         name: 'right',
         type: ConnectionType.Bool,
 
       },
     },
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -57,18 +57,18 @@ const defaultNodeTypes: NodeTypes = {
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },
-      2: {
+      1: {
         name: 'right',
         type: ConnectionType.Bool,
 
       },
     },
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Bool,
       },
@@ -85,7 +85,7 @@ const defaultNodeTypes: NodeTypes = {
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Bool,
       },

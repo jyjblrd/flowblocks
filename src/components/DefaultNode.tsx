@@ -38,9 +38,9 @@ const useConnectionValidator = () => {
 
 export default function DefaultNode(
   {
-    isDummyNode = false,
     data,
-  }: (NodeProps<NodeInstance> | DummyNodeProps) & { isDummyNode?: Boolean },
+    isDummyNode = false,
+  }: (NodeProps<NodeInstance> | DummyNodeProps) & { isDummyNode?: boolean },
 ) {
   const nodeType = useRecoilValue(nodeTypesAtom)[data.nodeTypeId];
   const numInputs = Object.entries(nodeType.inputs).length;
@@ -66,6 +66,7 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numInputs) }}
+                className={data.isInputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
               />
             );
@@ -73,12 +74,7 @@ export default function DefaultNode(
         })
       }
       <div
-        style={{
-          padding: '16px',
-          backgroundColor: 'white',
-          border: '2px solid grey',
-          borderRadius: '10px',
-        }}
+        className="node"
       >
         <h5 className="m-0">{data.nodeTypeId}</h5>
       </div>
@@ -100,7 +96,7 @@ export default function DefaultNode(
                 id={key}
                 key={key}
                 style={{ top: calcHandleTop(index, numOutputs) }}
-                // on={(params) => console.log('handle ondelete',params)}
+                className={data.isOutputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
               />
             );
