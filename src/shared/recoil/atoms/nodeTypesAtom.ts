@@ -7,7 +7,7 @@ const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
     attributes: {
-      pin_num: {type: AttributeTypes.PinInNum},
+      pin_num: { type: AttributeTypes.PinInNum },
     },
     code: {
       init: 'self.led = machine.Pin(pin_num, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -77,7 +77,7 @@ const defaultNodeTypes: NodeTypes = {
   LED: {
     description: 'LED output',
     attributes: {
-      pin_num: {type: AttributeTypes.PinOutNum},
+      pin_num: { type: AttributeTypes.PinOutNum },
     },
     code: {
       init: 'self.led = machine.Pin(pin_num, machine.Pin.OUT)',
