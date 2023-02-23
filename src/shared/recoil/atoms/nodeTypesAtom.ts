@@ -75,7 +75,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Add: {
-    description: 'add 2 numbers together',
+    description: 'Add 2 numbers together.',
     attributes: {},
     code: {
       init: 'self.left = 0\nself.right = 0',
@@ -83,18 +83,18 @@ const defaultNodeTypes: NodeTypes = {
       isQuery: false,
     },
     inputs: {
-      1: {
+      0: {
         name: 'left',
         type: ConnectionType.Number,
       },
-      2: {
+      1: {
         name: 'right',
         type: ConnectionType.Number,
 
       },
     },
     outputs: {
-      1: {
+      0: {
         name: 'output',
         type: ConnectionType.Number,
       },

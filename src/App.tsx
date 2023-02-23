@@ -1,9 +1,15 @@
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 import CodeModal from './components/CodeModal';
 import FlowBuilder from './components/FlowBuilder';
 import NodePicker from './components/NodePicker';
 import Toolbar from './components/Toolbar';
+import NodeEditorModal from './components/NodeEditorComponents/NodeEditorModal';
+
+library.add(fas, fab);
 
 export default function App() {
   return (
@@ -27,6 +33,7 @@ export default function App() {
         </Row>
       </Container>
       <CodeModal />
+      <NodeEditorModal />
     </>
   );
 }

@@ -12,8 +12,8 @@ export enum ConnectionType {
 export type NodeTypeData = {
   description: string,
   attributes: Attributes,
-  inputs: Record<number, { name: String, type: ConnectionType }>,
-  outputs: Record<number, { name: String, type: ConnectionType }>,
+  inputs: Record<number, { name: string, type: ConnectionType }>,
+  outputs: Record<number, { name: string, type: ConnectionType }>,
   code: { init: string, update: string, isQuery: boolean }
 };
 
