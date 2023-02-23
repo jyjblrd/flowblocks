@@ -38,7 +38,7 @@ export function handleIsFree(node:String, handle:String) {
   return true;
 }
 export function sameType(node1:String, node2:String) {
-  console.log(globalThis.nodesList.get(node1));
+  console.log((globalThis.nodesList));
   return true;
 }
 function setEdgesList(e:any, n:any) {
