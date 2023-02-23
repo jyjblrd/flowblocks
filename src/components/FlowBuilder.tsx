@@ -156,6 +156,10 @@ function FlowBuilder() {
     hideContextMenu();
   }, []);
 
+  const handlePaneMove = useCallback(() => {
+    hideContextMenu();
+  }, []);
+
   /*
     Handle dragging new node onto flowbuilder
   */
@@ -229,6 +233,7 @@ function FlowBuilder() {
             onNodeContextMenu={onNodeContextMenu}
             onNodeDragStart={onNodeDragStart}
             onPaneClick={handleClickOutside}
+            onMoveStart={handlePaneMove}
           >
             <Background />
             <Controls />
