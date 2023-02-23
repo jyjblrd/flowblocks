@@ -15,7 +15,7 @@ export default function CodeModal() {
   return (
     <Modal animation={false} show={codeModal.isOpen} onHide={handleClose} dialogClassName="code-modal">
       <Modal.Header closeButton>
-        <Button variant="dark" onClick={async () => { await navigator.clipboard.writeText(codeModal.code); }}>
+        <Button variant="outline-dark" onClick={async () => { await navigator.clipboard.writeText(codeModal.code); }}>
           Copy to clipboard
         </Button>
       </Modal.Header>

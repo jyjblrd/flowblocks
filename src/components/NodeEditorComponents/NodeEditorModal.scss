@@ -1,0 +1,9 @@
+@import "../../../node_modules/bootstrap/scss/functions";
+@import '../../../node_modules/bootstrap/scss/variables.scss';
+
+.code-editor {
+    border-width: $border-width;
+    border-radius: $border-radius;
+    border-color: $gray-400;
+    border-style: solid;
+}
