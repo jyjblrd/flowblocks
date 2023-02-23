@@ -1,6 +1,8 @@
 export enum AttributeTypes {
-  PinInNum,
-  PinOutNum,
+  digitalIn,
+  digitalOut,
+  analogueIn,
+  analogueOut,
 }
 export type Attributes = Record<string, { type: AttributeTypes }>;
 

@@ -25,6 +25,7 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
 import { attributeGenerator } from '../shared/helpers/helperFunctions';
+import { pinType, Attributes } from '../shared/interfaces/NodeTypes.interface';
 
 const initialNodes: Node<NodeInstance>[] = [];
 const initialEdges: Edge[] = [];
@@ -185,6 +186,7 @@ function FlowBuilder() {
           .forEach(([attributeId, { type }]) => {
             nodeInstance.attributes[attributeId] = attributeGenerator(type);
           });
+          console.log(nodeInstance.attributes);
 
         const nextNodeInstanceId = nodes.length === 0
           ? '0'

@@ -41,9 +41,9 @@ export default function flowchartToJSON(
 
 export function attributeGenerator(attributeType: AttributeTypes): string {
   switch (attributeType) {
-    case AttributeTypes.PinInNum:
+    case AttributeTypes.digitalIn:
       return '14';
-    case AttributeTypes.PinOutNum:
+    case AttributeTypes.digitalOut:
       return '25';
     default:
       return 'error';
