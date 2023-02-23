@@ -7,6 +7,8 @@
     border-radius: 100%;
     border: 0;
     background-color: $gray-800;
+    border-width: 2px;
+    border-style: solid;
 }
 
 .react-flow__handle.connecting {
@@ -26,7 +28,7 @@
 }
 
 path.react-flow__edge-path, path.react-flow__connection-path {
-    stroke-width: 3.5px;
+    stroke-width: 3px;
 }
 
 .react-flow__node.selected > .node {
