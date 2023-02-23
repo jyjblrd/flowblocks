@@ -65,7 +65,7 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 	for (auto const &[id, node] : id_to_node) {
 		// Enqueue nodes for processing if they have no predecessors.
 		if (!id_to_unprocessed_predecessors.contains(id)) {
-			nodes_for_processing.emplace_back(id);
+			nodes_for_processing.push_back(id);
 			graph.nonsuccessor_ids.push_back(id);
 		}
 
@@ -82,14 +82,14 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 		visited_ids.insert(id);
 		//		if (auto const node_type = parse_node_type(id_to_node.at(id).type_str); node_type)
 		//			graph.node_types.insert(*node_type); // Is this still needed?
-		graph.argsorted_ids.emplace_back(id);
+		graph.argsorted_ids.push_back(id);
 		nodes_for_processing.pop_front();
 
 		for (auto const &[output, successors] : graph.id_to_node[id].output_to_successors) {
 			for (auto const &successor : successors) {
 				if (!visited_ids.contains(successor.id)) {
 					if (id_to_unprocessed_predecessors[successor.id] == 1) {
-						nodes_for_processing.emplace_back(successor.id);
+						nodes_for_processing.push_back(successor.id);
 					} else {
 						id_to_unprocessed_predecessors[successor.id] -= 1;
 					}
@@ -136,7 +136,7 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 
 	code.append("while True:\n");
 
-	for (auto const &id : (*graph).nonsuccessor_ids) {
+	for (auto const &id : graph->nonsuccessor_ids) {
 		code
 			.append("    a")
 			.append(id)
