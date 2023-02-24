@@ -1,6 +1,6 @@
 const Control = {
   enterPasteMode: '\u0005',
-  exitPasteMode: '\u0004',
+  reset: '\u0004',
   interrupt: '\u0003',
 } as const;
 
@@ -10,6 +10,8 @@ const PicoUSBIds = {
 } as const;
 
 const PicoBaudRate = 115200;
+
+let running = false;
 
 async function maybeGetPort() {
   const ports = await navigator.serial.getPorts();
@@ -51,9 +53,14 @@ async function sendToDevice(content: string) {
 }
 
 export async function runOnDevice(code: string) {
-  await sendToDevice(`${Control.enterPasteMode}${code}${Control.exitPasteMode}`);
+  if (running) {
+    return; // TODO tell user already running (frontend)
+  }
+  running = true;
+  await sendToDevice(`${Control.reset}${Control.enterPasteMode}${code}${Control.reset}`);
 }
 
 export async function stopRunning() {
   await sendToDevice(Control.interrupt);
+  running = false;
 }

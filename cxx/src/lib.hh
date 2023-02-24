@@ -346,8 +346,6 @@ private:
 	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
 };
 
-
-
 class NodeDefinitions {
 public:
 	auto emit_block_definitions(std::string &code) const -> void {
@@ -371,10 +369,10 @@ public:
 	}
 
 	[[nodiscard]] auto parse_node_type_as_index(std::string const &block_name) const -> std::optional<std::size_t> {
-		if (!names.contains(block_name))
-			return {};
-		else
+		if (names.contains(block_name))
 			return {names.at(block_name)};
+		else
+			return {};
 	}
 
 	[[nodiscard]] auto node_type_from_string(std::string const &s) -> std::optional<std::reference_wrapper<NodeType>> {
