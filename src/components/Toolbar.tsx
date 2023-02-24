@@ -75,6 +75,15 @@ export default function Toolbar() {
       >
         Disconnect
       </Button>
+      <Button
+        className="mx-1"
+        variant="outline-dark"
+        onClick={async () => {
+          await disconnectSerial();
+        }}
+      >
+        Generate Circut
+      </Button>
     </div>
   );
 }
