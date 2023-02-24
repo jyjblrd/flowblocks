@@ -186,7 +186,6 @@ function FlowBuilder() {
           .forEach(([attributeId, { type }]) => {
             nodeInstance.attributes[attributeId] = attributeGenerator(type);
           });
-          console.log(nodeInstance.attributes);
 
         const nextNodeInstanceId = nodes.length === 0
           ? '0'

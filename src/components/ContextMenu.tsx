@@ -6,7 +6,8 @@ import {
 } from 'react-bootstrap';
 import { Node, useReactFlow } from 'reactflow';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-
+import { Attributes } from '../shared/interfaces/NodeTypes.interface';
+import {used}from  '../shared/helpers/helperFunctions';
 export default function ContextMenu(
   {
     show, position, clickedNode, hideMenu,
@@ -28,6 +29,10 @@ export default function ContextMenu(
 
   const deleteItem = () => {
     if (clickedNode) {
+      var oldPin:number=parseInt(clickedNode.data.attributes.pin_num );
+      if (!Number.isNaN(oldPin)){
+        used.pop(used.indexOf(oldPin));
+      }
       reactFlowInstance.deleteElements({ nodes: [clickedNode] });
       hideMenu();
     }
@@ -42,14 +47,25 @@ export default function ContextMenu(
     });
 
     reactFlowInstance.setNodes((nodes) =>
+    
       nodes.map((node) => {
+        var oldPin:number=parseInt(node.data.attributes.pin_num );
+
         if (clickedNode && node.id === clickedNode.id) {
           const newNode = node;
           newNode.data.attributes = {
             ...node.data.attributes,
             [attributeId]: target.value,
           };
-          console.log(newNode.data);
+          //console.log(newNode.data);
+          console.log(node.data.attributes.pin_num);
+          var newPin:number=parseInt(newNode.data.attributes.pin_num);
+          if (!Number.isNaN(newPin)){
+            used.push(newPin);
+          }
+          if (!Number.isNaN(oldPin)){
+            used.pop(used.indexOf(oldPin));
+          }
           return newNode;
         }
 

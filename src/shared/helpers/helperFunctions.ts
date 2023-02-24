@@ -1,3 +1,4 @@
+import { number } from 'prop-types';
 import { ReactFlowInstance } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes } from '../interfaces/NodeTypes.interface';
@@ -39,12 +40,30 @@ export default function flowchartToJSON(
   return project;
 }
 
+let availiblePins = new Map<string, number[]>([
+  ["dig", [0,1,2,3,4,,6,7]],
+  ["an", [8,9,10]]
+]);
+export var used: number[]=[];
+
+function nextUnused(toUse:number[],used:number[]){
+  for (var i in toUse){
+    if (used.indexOf(toUse[i])==-1){return toUse[i];}
+  }
+  //throw new error("")
+}
+
 export function attributeGenerator(attributeType: AttributeTypes): string {
+  var out:number=0;
   switch (attributeType) {
     case AttributeTypes.digitalIn:
-      return '14';
+      out= nextUnused(availiblePins.get("dig"),used);
+      used.push(out);
+      return out as unknown as string;
     case AttributeTypes.digitalOut:
-      return '25';
+      out= nextUnused(availiblePins.get("dig"),used);
+      used.push(out);
+      return out as unknown as string;
     default:
       return 'error';
   }
