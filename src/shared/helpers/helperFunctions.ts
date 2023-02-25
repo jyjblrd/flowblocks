@@ -51,7 +51,7 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
 }
 
 function saveToLocal(exportObj: Object, exportName: string | null) {
-  console.log('saveToLocal' + exportName);
+  console.log('saveToLocal: ' + exportName);
   localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
 }
 

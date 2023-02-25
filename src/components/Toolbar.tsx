@@ -23,7 +23,7 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          startTutorial();
+          //startTutorial();
         }}
       >
         Tutorial
