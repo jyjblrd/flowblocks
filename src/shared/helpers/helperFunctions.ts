@@ -51,7 +51,7 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
 }
 
 function saveToLocal(exportObj: Object, exportName: string | null) {
-  console.log('saveToLocal');
+  console.log('saveToLocal' + exportName);
   localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
 }
 
@@ -82,6 +82,8 @@ export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportNam
   reactFlowInstance.setNodes(loaded.nodes);
   reactFlowInstance.setEdges(loaded.edges);
 }
+
+
 
 function downloadObjectAsJson(exportObj: Object, exportName: string) {
   const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(exportObj))}`;

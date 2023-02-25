@@ -5,14 +5,17 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
+import { startTutorial } from '../shared/helpers/tutorial';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
+import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
 
   const nodeTypes = useRecoilValue(nodeTypesAtom);
   const setCodeModal = useSetRecoilState(codeModalAtom);
+  const setSaveModal = useSetRecoilState(saveModalAtom);
 
   return (
     <div style={{ float: 'right' }}>
@@ -20,9 +23,19 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
+          startTutorial();
+        }}
+      >
+        Tutorial
+      </Button>
+      <Button
+        variant="outline-dark"
+        className="mx-1"
+        onClick={() => {
           // console.log("Save")
           const name = 'flowchart2';
-          saveFlowInstance(reactFlowInstance, name);
+          setSaveModal((prevSaveModal) => ({ ...prevSaveModal, isOpen: true, saveChart: (name) => {saveFlowInstance(reactFlowInstance, name)} }));
+          
           // save blob
         }}
       >
@@ -32,7 +45,7 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          const name = 'flowchart2';
+          const name = 'default';
           loadFlowInstance(reactFlowInstance, name);
         }}
       >
