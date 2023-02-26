@@ -18,8 +18,9 @@ export default function SaveModal() {
     setName(target.value); 
   };
 
+  //TODO: change dialogClassName
   return (
-    <Modal animation={false} show={saveModal.isOpen} onHide={handleClose} dialogClassName="save-modal">
+    <Modal animation={false} show={saveModal.isOpen} onHide={handleClose} dialogClassName="default"> 
       <Modal.Header closeButton>
         <Button variant="outline-dark" onClick={async () => { 
             saveModal.saveChart(name); 
@@ -30,7 +31,7 @@ export default function SaveModal() {
         </Button>
       </Modal.Header>
       <Modal.Body>
-        <Form.Control name="Save" as="textarea" className="font-monospace" value={name} onChange={updateName} style={{ width: '100%', height: '50%', resize: 'none' }}/>
+        <Form.Control name="Save" as="textarea" className="font-monospace" value={name} onChange={updateName} style={{ width: '100%', height: '100%', resize: 'none' }}/>
       </Modal.Body>
     </Modal>
   );

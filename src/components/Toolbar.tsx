@@ -4,11 +4,12 @@ import Button from 'react-bootstrap/Button';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
-import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
+import flowchartToJSON, { saveFlowInstance, loadFlowInstance, ppKnownCharts } from '../shared/helpers/helperFunctions';
 //import { startTutorial } from '../shared/helpers/tutorial';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
+import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
@@ -16,6 +17,7 @@ export default function Toolbar() {
   const nodeTypes = useRecoilValue(nodeTypesAtom);
   const setCodeModal = useSetRecoilState(codeModalAtom);
   const setSaveModal = useSetRecoilState(saveModalAtom);
+  const setLoadModal = useSetRecoilState(loadModalAtom);
 
   return (
     <div style={{ float: 'right' }}>
@@ -46,7 +48,9 @@ export default function Toolbar() {
         className="mx-1"
         onClick={() => {
           const name = 'default';
-          loadFlowInstance(reactFlowInstance, name);
+          const knownNames = ppKnownCharts();
+          setLoadModal((prevLoadModal) => ({ ...prevLoadModal, isOpen: true, loadChart: (name) => {loadFlowInstance(reactFlowInstance, name)}, knownNames: knownNames }));
+          //loadFlowInstance(reactFlowInstance, name);
         }}
       >
         Load

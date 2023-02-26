@@ -83,7 +83,18 @@ export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportNam
   reactFlowInstance.setEdges(loaded.edges);
 }
 
+function knownLocalCharts(): string[] {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    keys.push(localStorage.key(i) ?? '');
+  }
+  return keys;
+}
 
+export function ppKnownCharts(): string {
+  const charts = knownLocalCharts();
+  return charts.join("\n");
+}
 
 function downloadObjectAsJson(exportObj: Object, exportName: string) {
   const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(exportObj))}`;
