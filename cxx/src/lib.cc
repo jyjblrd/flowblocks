@@ -7,6 +7,9 @@
 #include <deque>
 #include <optional>
 
+#include <iostream>
+// TODO: replace console log errors with error box / other system at a later date
+
 auto process_node_defs(std::map<std::string, marshalling::NodeType> const &definitions) -> std::optional<NodeDefinitions> {
 	NodeDefinitions defs {};
 
@@ -25,8 +28,10 @@ auto process_node_defs(std::map<std::string, marshalling::NodeType> const &defin
 
 // Topologically sorts the graph; returns nullopt if graph is ill-formed.
 auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, NodeDefinitions &defs) -> std::optional<SortedGraph> {
-	if (id_to_node.empty())
+	if (id_to_node.empty()) {
+		std::cerr << "Error: Empty Graph\n";
 		return {}; // "# Empty graph"; // TODO: actual error handling
+	}
 
 	SortedGraph graph {};
 	std::map<std::string, std::size_t> id_to_unprocessed_predecessors {};
@@ -35,8 +40,10 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 		// FIXME: Ensure node types are not in error.
 		auto const node_type_idx = defs.parse_node_type_as_index(node.type_str);
 
-		if (!node_type_idx)
+		if (!node_type_idx) {
+			std::cerr << "Error: Graph References Non-existent Node Type\n";
 			return {}; // error: node_instance references non-existent node_type // TODO: add error handling
+		}
 
 		graph.id_to_node[id].node_type_index = *node_type_idx;
 
@@ -53,8 +60,10 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 			// FIXME: Ensure node types are not in error.
 			auto input_type = node_type.get_input_type(input);
 			auto output_type = defs.node_type_from_string(id_to_node.at(predecessor.id).type_str).value().get().get_output_type(predecessor.output);
-			if (!input_type || !output_type || *input_type != *output_type)
+			if (!input_type || !output_type || *input_type != *output_type) {
+				std::cerr << "Error: Type checking failed\n";
 				return {}; // "# Type checking failed"; // TODO: actual error handling
+			}
 			graph.id_to_node[predecessor.id].output_to_successors[predecessor.output].insert(Successor {id, input});
 			++id_to_unprocessed_predecessors[id];
 		}
@@ -71,6 +80,7 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 		// Ensure nodes have the expected amount of predecessors.
 		if (id_to_unprocessed_predecessors[id] != defs.node_type_from_string(node.type_str).value().get().expected_in_degree()) {
+			std::cerr << "Error: Missing inputs\n";
 			return {}; // "# Missing input(s)"; // TODO: actual error handling
 		}
 	}
@@ -152,7 +162,9 @@ EMSCRIPTEN_BINDINGS(module) {
 
 	emscripten::enum_<AttributeTypes>("AttributeTypes")
 		.value("PinInNum", AttributeTypes::PinInNum)
-		.value("PinOutNum", AttributeTypes::PinOutNum);
+		.value("PinOutNum", AttributeTypes::PinOutNum)
+		.value("Bool", AttributeTypes::Bool)
+		.value("Number", AttributeTypes::Number);
 
 	emscripten::enum_<ConnectionType>("ConnectionType")
 		.value("Bool", ConnectionType::Bool)
