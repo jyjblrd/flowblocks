@@ -60,7 +60,7 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 			// FIXME: Ensure node types are not in error.
 			auto input_type = node_type.get_input_type(input);
 			auto output_type = defs.node_type_from_string(id_to_node.at(predecessor.id).type_str).value().get().get_output_type(predecessor.output);
-			if (!input_type || !output_type || *input_type != *output_type) {
+			if (!input_type || !output_type || *input_type != *output_type || *input_type == ConnectionType::Invalid) {
 				std::cerr << "Error: Type checking failed\n";
 				return {}; // "# Type checking failed"; // TODO: actual error handling
 			}
@@ -158,17 +158,17 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 EMSCRIPTEN_BINDINGS(module) {
 
 	// bindings for enums
-	// not sure if this is the best way to do this, but if it works...
+	// not sure if this is the best way to do this, but if it works... UPDATE: IT DOESNT WORK
 
-	emscripten::enum_<AttributeTypes>("AttributeTypes")
-		.value("PinInNum", AttributeTypes::PinInNum)
-		.value("PinOutNum", AttributeTypes::PinOutNum)
-		.value("Bool", AttributeTypes::Bool)
-		.value("Number", AttributeTypes::Number);
-
-	emscripten::enum_<ConnectionType>("ConnectionType")
-		.value("Bool", ConnectionType::Bool)
-		.value("Number", ConnectionType::Integer); // TODO: unify naming
+	//	emscripten::enum_<AttributeType>("AttributeTypes")
+	//		.value("PinInNum", AttributeType::PinInNum)
+	//		.value("PinOutNum", AttributeType::PinOutNum)
+	//		.value("Bool", AttributeType::Bool)
+	//		.value("Number", AttributeType::Number);
+	//
+	//	emscripten::enum_<ConnectionType>("ConnectionType")
+	//		.value("Bool", ConnectionType::Bool)
+	//		.value("Number", ConnectionType::Number); // TODO: unify naming
 
 	// TODO: extend above 2 bindings if necessary
 
@@ -194,8 +194,8 @@ EMSCRIPTEN_BINDINGS(module) {
 		.field("update", &marshalling::NodeType::CodeDef::update)
 		.field("isQuery", &marshalling::NodeType::CodeDef::is_query);
 
-	emscripten::value_object<marshalling::NodeType::AttributeType>("AttributeTypeStruct")
-		.field("type", &marshalling::NodeType::AttributeType::type);
+	emscripten::value_object<marshalling::NodeType::AttributeTypeStruct>("AttributeTypeStruct")
+		.field("type", &marshalling::NodeType::AttributeTypeStruct::type);
 
 	emscripten::value_object<marshalling::NodeType>("NodeType")
 		//        .field("description", &marshalling::NodeType::description)

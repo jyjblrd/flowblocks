@@ -15,20 +15,26 @@
 #include <utility>
 #include <vector>
 
+// #include <iostream> // uncomment this and all `std::cout` in NodeType() for attribute and connection type marshalling debug print statements
+
 // TODO: maybe replace all instances of std::locale::classic() to use the local locale instead of C locale? Maybe have a global locale variable?
 
 // TODO: reorganise code? split into several files?
 
 enum class ConnectionType {
 	Bool,
-	Integer,
+	Number,
+
+	Invalid = -1,
 };
 
-enum class AttributeTypes {
+enum class AttributeType {
 	PinInNum,
 	PinOutNum,
 	Bool,
 	Number,
+
+	Invalid = -1,
 };
 
 // I moved the structs used in marshalling to this namespace
@@ -37,7 +43,7 @@ namespace marshalling {
 struct NodeType {
 	struct ConnectionEntry {
 		std::string name;
-		ConnectionType type;
+		int type;
 	};
 
 	struct CodeDef {
@@ -46,12 +52,12 @@ struct NodeType {
 		bool is_query;
 	};
 
-	struct AttributeType {
-		AttributeTypes type;
+	struct AttributeTypeStruct {
+		int type;
 	};
 
 	// std::string description; // commented out because we don't care about the description
-	std::map<std::string, AttributeType> attributes; // FIXME: unsure if attributes should be string or int; see NodeTypes.interface.ts
+	std::map<std::string, AttributeTypeStruct> attributes;
 	std::map<std::string, ConnectionEntry> inputs;
 	std::map<std::string, ConnectionEntry> outputs;
 	CodeDef code;
@@ -103,6 +109,7 @@ class AttributeInfo {
 public:
 	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
 	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
+	[[nodiscard]] auto type() const -> auto const { return attr_type; }
 	[[nodiscard]] auto used_in_update() const -> auto { return used; }
 
 	auto set_used_in_update() -> void { used = true; }
@@ -112,13 +119,39 @@ public:
 		generated_self_name += std::to_string(collision_no);
 	}
 
-	AttributeInfo(std::string &&n)
+	[[maybe_unused]] AttributeInfo(std::string &&n, AttributeType at)
 		 : generated_name {n}
-		 , generated_self_name {"self.__" + generated_name} { }
+		 , generated_self_name {"self.__" + generated_name}
+		 , attr_type {at} { }
+
+	AttributeInfo(std::string &&n, int attribute_type_int)
+		 : generated_name {n}
+		 , generated_self_name {"self.__" + generated_name} {
+		switch (attribute_type_int) {
+		case static_cast<int>(AttributeType::PinInNum):
+			attr_type = AttributeType::PinInNum;
+			break;
+		case static_cast<int>(AttributeType::PinOutNum):
+			attr_type = AttributeType::PinOutNum;
+			break;
+		case static_cast<int>(AttributeType::Bool):
+			attr_type = AttributeType::Bool;
+			break;
+		case static_cast<int>(AttributeType::Number):
+			attr_type = AttributeType::Number;
+			break;
+
+			// TODO: add more cases to switch statement if necessary (or fix enum marshalling)
+
+		default:
+			attr_type = AttributeType::Invalid;
+		}
+	}
 
 private:
 	std::string generated_name;
 	std::string generated_self_name;
+	AttributeType attr_type;
 	bool used {false};
 };
 
@@ -133,10 +166,28 @@ public:
 		generated_self_name += std::to_string(collision_no);
 	}
 
-	InputOutputInfo(std::string &&n, ConnectionType ct)
+	[[maybe_unused]] InputOutputInfo(std::string &&n, ConnectionType ct)
 		 : generated_name {n}
 		 , generated_self_name {"self." + generated_name}
 		 , con_type {ct} { }
+
+	InputOutputInfo(std::string &&n, int connection_type_int)
+		 : generated_name {n}
+		 , generated_self_name {"self." + generated_name} {
+		switch (connection_type_int) {
+		case static_cast<int>(ConnectionType::Bool):
+			con_type = ConnectionType::Bool;
+			break;
+		case static_cast<int>(ConnectionType::Number):
+			con_type = ConnectionType::Number;
+			break;
+
+			// TODO: add more cases to switch statement if necessary (or fix enum marshalling)
+
+		default:
+			con_type = ConnectionType::Invalid;
+		}
+	}
 
 private:
 	std::string generated_name;
@@ -340,7 +391,9 @@ public:
 		std::unordered_map<std::string, std::size_t> name_collisions {};
 
 		for (auto const &[attr_name, attr_type] : m_node_type.attributes) {
-			AttributeInfo ai {generate_var_name(attr_name, "unnamed_attribute")};
+			//			std::cout << generated_name << " attr: " << attr_name << " " << static_cast<int>(attr_type.type) << '\n';
+
+			AttributeInfo ai {generate_var_name(attr_name, "unnamed_attribute"), attr_type.type};
 
 			if (name_collisions.contains(ai.name())) {
 				std::size_t const tmp = (name_collisions[ai.name()] += 1);
@@ -353,6 +406,8 @@ public:
 		}
 
 		for (auto const &[in_id, in_con_entry] : m_node_type.inputs) {
+			//			std::cout << generated_name << " in: " << in_id << " " << in_con_entry.name << " " << static_cast<int>(in_con_entry.type) << '\n';
+
 			InputOutputInfo ii {generate_var_name(in_con_entry.name, "unnamed_input"), in_con_entry.type};
 
 			if (name_collisions.contains(ii.name())) {
@@ -367,6 +422,8 @@ public:
 		}
 
 		for (auto const &[out_id, out_con_entry] : m_node_type.outputs) {
+			//			std::cout << generated_name << " out: " << out_id << " " << out_con_entry.name << " " << static_cast<int>(out_con_entry.type) << '\n';
+
 			InputOutputInfo oi {generate_var_name(out_con_entry.name, "unnamed_output"), out_con_entry.type};
 
 			if (name_collisions.contains(oi.name())) {
@@ -452,16 +509,16 @@ public:
 		code += ")\n";
 	}
 
-	[[nodiscard]] auto get_input_type(std::string const &input_name) const -> std::optional<ConnectionType> {
-		if (input_ids.contains(input_name))
-			return {inputs.at(input_ids.at(input_name)).type()};
+	[[nodiscard]] auto get_input_type(std::string const &input_id) const -> std::optional<ConnectionType> {
+		if (input_ids.contains(input_id))
+			return {inputs.at(input_ids.at(input_id)).type()};
 		else
 			return {};
 	}
 
-	[[nodiscard]] auto get_output_type(std::string const &output_name) const -> std::optional<ConnectionType> {
-		if (output_ids.contains(output_name))
-			return {outputs.at(output_ids.at(output_name)).type()};
+	[[nodiscard]] auto get_output_type(std::string const &output_id) const -> std::optional<ConnectionType> {
+		if (output_ids.contains(output_id))
+			return {outputs.at(output_ids.at(output_id)).type()};
 		else
 			return {};
 	}
