@@ -7,12 +7,12 @@ const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
     attributes: {
-        'Pin Num': {type: AttributeTypes.PinInNum},
+      'Pin Num': {type: AttributeTypes.PinInNum},
     },
     code: {
-        init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
-        update: 'output_value = True if self.led.value() else False',
-        isQuery: true,
+      init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
+      update: 'output_value = True if self.led.value() else False',
+      isQuery: true,
     },
     inputs: {},
     outputs: {
@@ -78,56 +78,56 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Add 2 numbers together.',
     attributes: {},
     code: {
-        init: '',
-        update: '{{ output }} = {{ left }} + {{ right }}',
-        isQuery: false,
+      init: '',
+      update: '{{ output }} = {{ left }} + {{ right }}',
+      isQuery: false,
     },
     inputs: {
       0: {
         name: 'left',
         type: ConnectionType.Number,
       },
-        1: {
-            name: 'right',
-            type: ConnectionType.Number,
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
 
-        },
-    },
-      outputs: {
-          0: {
-              name: 'output',
-              type: ConnectionType.Number,
-          },
       },
-  },
-    IntegerConstant: {
-        description: 'Provides and integer constant. Used for testing attributes',
-        attributes: {
-            'Constant Value': {type: AttributeTypes.PinInNum},
-        },
-        code: {
-            init: '',
-            update: '{{ value }} = {{Constant Value}}',
-            isQuery: false,
-        },
-        inputs: {},
-        outputs: {
-            0: {
-                name: 'value',
-                type: ConnectionType.Number,
-            },
-        },
     },
-    LED: {
-        description: 'LED output',
-        attributes: {
-            'Pin Num': {type: AttributeTypes.PinOutNum},
-        },
-        code: {
-            init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',
-            update: 'self.led.value(1 if value else 0)',
-            isQuery: false,
-        },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  IntegerConstant: {
+    description: 'Provides and integer constant. Used for testing attributes',
+    attributes: {
+      'Constant Value': {type: AttributeTypes.PinInNum},
+    },
+    code: {
+      init: '',
+      update: '{{ value }} = {{Constant Value}}',
+      isQuery: false,
+    },
+    inputs: {},
+    outputs: {
+      0: {
+        name: 'value',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  LED: {
+    description: 'LED output',
+    attributes: {
+      'Pin Num': {type: AttributeTypes.PinOutNum},
+    },
+    code: {
+      init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',
+      update: 'self.led.value(1 if value else 0)',
+      isQuery: false,
+    },
     inputs: {
       0: {
         name: 'left',
