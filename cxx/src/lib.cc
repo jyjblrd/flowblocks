@@ -152,7 +152,9 @@ EMSCRIPTEN_BINDINGS(module) {
 
 	emscripten::enum_<AttributeTypes>("AttributeTypes")
 		.value("PinInNum", AttributeTypes::PinInNum)
-		.value("PinOutNum", AttributeTypes::PinOutNum);
+		.value("PinOutNum", AttributeTypes::PinOutNum)
+		.value("Bool", AttributeTypes::Bool)
+		.value("Number", AttributeTypes::Number);
 
 	emscripten::enum_<ConnectionType>("ConnectionType")
 		.value("Bool", ConnectionType::Bool)
