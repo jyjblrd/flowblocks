@@ -7,7 +7,7 @@ const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
     attributes: {
-      'Pin Num': {type: AttributeTypes.PinInNum},
+      'Pin Num': { type: AttributeTypes.PinInNum },
     },
     code: {
       init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -103,7 +103,7 @@ const defaultNodeTypes: NodeTypes = {
   IntegerConstant: {
     description: 'Provides and integer constant. Used for testing attributes',
     attributes: {
-      'Constant Value': {type: AttributeTypes.PinInNum},
+      'Constant Value': { type: AttributeTypes.PinInNum },
     },
     code: {
       init: '',
@@ -121,7 +121,7 @@ const defaultNodeTypes: NodeTypes = {
   LED: {
     description: 'LED output',
     attributes: {
-      'Pin Num': {type: AttributeTypes.PinOutNum},
+      'Pin Num': { type: AttributeTypes.PinOutNum },
     },
     code: {
       init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',
