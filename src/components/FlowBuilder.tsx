@@ -183,7 +183,7 @@ function FlowBuilder() {
         // Populate node attributes
         Object.entries(nodeType.attributes)
           .forEach(([attributeId, { type }]) => {
-            nodeInstance.attributes[attributeId] = attributeGenerator(type);
+            nodeInstance.attributes[attributeId] = attributeGenerator(type,nodeTypeId);
           });
         const nextNodeInstanceId = nodes.length === 0
           ? '0'

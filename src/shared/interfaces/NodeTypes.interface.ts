@@ -2,6 +2,7 @@ export enum AttributeTypes {
   digitalIn,
   digitalOut,
   analogueIn,
+  name,
 }
 export type Attributes = Record<string, { type: AttributeTypes }>;
 

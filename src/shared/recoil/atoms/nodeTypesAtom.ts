@@ -9,6 +9,7 @@ const defaultNodeTypes: NodeTypes = {
    
     attributes: {
       pin_num: { type: AttributeTypes.digitalIn },
+      blockName:{type:AttributeTypes.name},
     },
     code: {
       init: 'self.led = machine.Pin(pin_num, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -105,6 +106,7 @@ const defaultNodeTypes: NodeTypes = {
     description: 'LED output',
     attributes: {
       pin_num: { type: AttributeTypes.digitalOut },
+      blockName:{type:AttributeTypes.name},
     },
     code: {
       init: 'self.led = machine.Pin(pin_num, machine.Pin.OUT)',

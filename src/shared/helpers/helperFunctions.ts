@@ -45,6 +45,7 @@ let availiblePins = new Map<string, number[]>([
   ["dig", [0,1,2,3,4,,6,7]],
   ["an", [8,9,10]]
 ]);
+var nameNumber:number=0;
 export var used: number[]=[];
 
 function nextUnused(toUse:number[],used:number[]){
@@ -54,17 +55,24 @@ function nextUnused(toUse:number[],used:number[]){
   //throw new error("")
 }
 
-export function attributeGenerator(attributeType: AttributeTypes): string {
-  var out:number=0;
+export function attributeGenerator(attributeType: AttributeTypes,nodeType:string): string {
   switch (attributeType) {
     case AttributeTypes.digitalIn:
+      var out:number=0;
       out= nextUnused(availiblePins.get("dig"),used);
       used.push(out);
       return out as unknown as string;
     case AttributeTypes.digitalOut:
+      var out:number=0;
       out= nextUnused(availiblePins.get("dig"),used);
       used.push(out);
       return out as unknown as string;
+    case AttributeTypes.name:
+      nameNumber=nameNumber+1;
+      var name:string=nodeType;
+      name=name.concat(" ");
+      name=name.concat(nameNumber as string);
+      return name;
     default:
       return 'error';
   }
@@ -120,18 +128,24 @@ function compileCircuitHelper(){
   for (let key of nodesList.keys()){
     var node=nodesList[key];
     var type=(node.data.nodeTypeId);
+    //console.log(node);
 
     if (type=="Button"){
-      out=out.concat("connect a wire from pin x to pin ");
+      out=out.concat("connect a wire from pin ");
       out=out.concat(node.data.attributes.pin_num);
-      out=out.concat(" via a button\n");
+      out=out.concat(" to the button, ");
+      out=out.concat(node.data.attributes.blockName);
+      out=out.concat(" then to .......\n"); 
     }
     if(type=="LED"){
       out=out.concat("connect a wire from pin ");
       out=out.concat(node.data.attributes.pin_num);
-      out=out.concat(" to an LED then an LED to ground.\n");    }
+      out=out.concat(" to the LED, ");
+      out=out.concat(node.data.attributes.blockName);
+      out=out.concat(" then to a resistor, then connect that resistor to ground.\n");    }
 
     }
+  
   return out;
 };
 export function compileCircuit(){console.log(compileCircuitHelper());}
