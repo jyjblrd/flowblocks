@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
-import flowchartToJSON, { saveFlowInstance, loadFlowInstance } from '../shared/helpers/helperFunctions';
+import flowchartToJSON, { saveFlowInstance, loadFlowInstance ,compileCircuit} from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 
@@ -78,9 +78,9 @@ export default function Toolbar() {
       <Button
         className="mx-1"
         variant="outline-dark"
-        onClick={async () => {
-          await disconnectSerial();
-        }}
+        onClick={async () =>{
+          compileCircuit();}
+        } 
       >
         Generate Circut
       </Button>

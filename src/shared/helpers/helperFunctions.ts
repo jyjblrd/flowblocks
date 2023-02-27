@@ -1,7 +1,8 @@
+import React, { useCallback } from 'react';
 import { number } from 'prop-types';
-import { ReactFlowInstance } from 'reactflow';
+import { ReactFlowInstance ,useReactFlow} from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
-import { AttributeTypes } from '../interfaces/NodeTypes.interface';
+import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
 
 // TODO: delete this function !!!!
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
@@ -111,3 +112,26 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 }
+var nodesList;
+export function setNodesList(nodes:any){nodesList=nodes}
+function compileCircuitHelper(){
+  
+  var out="";
+  for (let key of nodesList.keys()){
+    var node=nodesList[key];
+    var type=(node.data.nodeTypeId);
+
+    if (type=="Button"){
+      out=out.concat("connect a wire from pin x to pin ");
+      out=out.concat(node.data.attributes.pin_num);
+      out=out.concat(" via a button\n");
+    }
+    if(type=="LED"){
+      out=out.concat("connect a wire from pin ");
+      out=out.concat(node.data.attributes.pin_num);
+      out=out.concat(" to an LED then an LED to ground.\n");    }
+
+    }
+  return out;
+};
+export function compileCircuit(){console.log(compileCircuitHelper());}
