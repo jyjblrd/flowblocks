@@ -145,12 +145,13 @@ function isUseablePin(pin:number, type:String):boolean {
 function compileCircuitHelper(nodesList) {
   const usedPins = new Map<String, String>();
   let out = '';
-  nodesList.keys().foreach((key) => {
+  // nodesList.keys().foreach((key) => {
+  for (const key of nodesList.keys()) {
     const node = nodesList[key];
     const type = (node.data.nodeTypeId);
     const pin = (node.data.attributes.pin_num);
     if (pin != undefined) {
-      console.log(usedPins);
+      console.log(typeof (pin), usedPins.get(pin), usedPins);
       if (usedPins.get(pin) != undefined) {
         out = 'It looks like ';
         out = out.concat(usedPins.get(pin));
@@ -187,7 +188,7 @@ function compileCircuitHelper(nodesList) {
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to a resistor, then connect that resistor to ground.\n');
     }
-  });
+  }
 
   return out;
 }
