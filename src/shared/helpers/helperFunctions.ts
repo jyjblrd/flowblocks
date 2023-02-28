@@ -73,6 +73,10 @@ export function attributeGenerator(attributeType: AttributeTypes,nodeType:string
       name=name.concat(" ");
       name=name.concat(nameNumber as string);
       return name;
+    case AttributeTypes.Bool:
+      return "true";
+    case AttributeTypes.Number:
+      return "0"
     default:
       return 'error';
   }

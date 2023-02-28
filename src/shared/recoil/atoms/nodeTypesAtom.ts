@@ -105,7 +105,7 @@ const defaultNodeTypes: NodeTypes = {
   IntegerConstant: {
     description: 'Provides and integer constant. Used for testing attributes',
     attributes: {
-      'Constant Value': { type: AttributeTypes.PinInNum },
+      'Constant Value': { type: AttributeTypes.Number },
     },
     code: {
       init: '',
