@@ -1,15 +1,15 @@
 import { atom } from 'recoil';
 import {
-  NodeTypes, ConnectionType, NodeTypeData, AttributeTypes,pinType
+  NodeTypes, ConnectionType, NodeTypeData, AttributeTypes,
 } from '../../interfaces/NodeTypes.interface';
 
 const defaultNodeTypes: NodeTypes = {
   Button: {
     description: 'Physical button input',
-   
+
     attributes: {
       pin_num: { type: AttributeTypes.digitalIn },
-      blockName:{type:AttributeTypes.name},
+      blockName: { type: AttributeTypes.name },
     },
     code: {
       init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -124,7 +124,7 @@ const defaultNodeTypes: NodeTypes = {
     description: 'LED output',
     attributes: {
       pin_num: { type: AttributeTypes.digitalOut },
-      blockName:{type:AttributeTypes.name},
+      blockName: { type: AttributeTypes.name },
     },
     code: {
       init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',

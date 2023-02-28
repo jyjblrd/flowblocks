@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, {
-  SyntheticEvent, useEffect, useState,
+  useEffect, useState,
 } from 'react';
 import {
   Button,
@@ -66,7 +66,7 @@ export default function NodeEditorModal() {
       ...nodeType,
     };
 
-    newNodeType.attributes[''] = { type: AttributeTypes.PinInNum };
+    newNodeType.attributes[''] = { type: AttributeTypes.digitalIn };
     setNodeType(newNodeType);
   };
 

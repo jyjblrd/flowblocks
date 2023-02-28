@@ -4,7 +4,9 @@ import Button from 'react-bootstrap/Button';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
-import flowchartToJSON, { saveFlowInstance, loadFlowInstance,ppKnownCharts,compileCircuit} from '../shared/helpers/helperFunctions';
+import flowchartToJSON, {
+  saveFlowInstance, loadFlowInstance, ppKnownCharts, compileCircuit,
+} from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
@@ -24,7 +26,7 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          //startTutorial();
+          // startTutorial();
         }}
       >
         Tutorial
@@ -34,9 +36,12 @@ export default function Toolbar() {
         className="mx-1"
         onClick={() => {
           // console.log("Save")
-          const name = 'flowchart2';
-          setSaveModal((prevSaveModal) => ({ ...prevSaveModal, isOpen: true, saveChart: (name) => {saveFlowInstance(reactFlowInstance, name)} }));
-          
+          setSaveModal((prevSaveModal) => ({
+            ...prevSaveModal,
+            isOpen: true,
+            saveChart: (name) => { saveFlowInstance(reactFlowInstance, name); },
+          }));
+
           // save blob
         }}
       >
@@ -46,10 +51,14 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          const name = 'default';
           const knownNames = ppKnownCharts();
-          setLoadModal((prevLoadModal) => ({ ...prevLoadModal, isOpen: true, loadChart: (name) => {loadFlowInstance(reactFlowInstance, name)}, knownNames: knownNames }));
-          //loadFlowInstance(reactFlowInstance, name);
+          setLoadModal((prevLoadModal) => ({
+            ...prevLoadModal,
+            isOpen: true,
+            loadChart: (name) => { loadFlowInstance(reactFlowInstance, name); },
+            knownNames,
+          }));
+          // loadFlowInstance(reactFlowInstance, name);
         }}
       >
         Load
@@ -60,7 +69,11 @@ export default function Toolbar() {
         onClick={() => {
           const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
           if (result.ok()) {
-            setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code: result.code() }));
+            setCodeModal((prevCodeModal) => ({
+              ...prevCodeModal,
+              isOpen: true,
+              code: result.code(),
+            }));
           } else {
             // TODO: replace console log errors with error box / other system at a later date
             console.log(`Error: ${result.error()}`);
@@ -107,9 +120,9 @@ export default function Toolbar() {
       <Button
         className="mx-1"
         variant="outline-dark"
-        onClick={async () =>{
-          compileCircuit();}
-        } 
+        onClick={async () => {
+          compileCircuit();
+        }}
       >
         Generate Circut
       </Button>
