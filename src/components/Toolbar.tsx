@@ -64,7 +64,7 @@ export default function Toolbar() {
             setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code: result.code() }));
           } else {
             // TODO: replace console log errors with error box / other system at a later date
-            console.log(result.error());
+            console.log(`Error: ${result.error()}`);
           }
           result.delete();
         }}
@@ -80,7 +80,7 @@ export default function Toolbar() {
             await runOnDevice(result.code());
           } else {
             // TODO: replace console log errors with error box / other system at a later date
-            console.log(result.error());
+            console.log(`Error: ${result.error()}`);
           }
           result.delete();
         }}
