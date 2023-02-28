@@ -121,6 +121,10 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
   downloadAnchorNode.remove();
 }
 var nodesList;
+
+function isUseablePin(pin:number,type:String):boolean{
+  return availiblePins.get(type).includes(pin);
+}
 export function setNodesList(nodes:any){nodesList=nodes}
 function compileCircuitHelper(){
   
@@ -130,14 +134,14 @@ function compileCircuitHelper(){
     var type=(node.data.nodeTypeId);
     //console.log(node);
 
-    if (type=="Button"){
+    if (type=="Button" && isUseablePin(parseInt(node.data.attributes.pin_num),"dig")){
       out=out.concat("connect a wire from pin ");
       out=out.concat(node.data.attributes.pin_num);
       out=out.concat(" to the button, ");
       out=out.concat(node.data.attributes.blockName);
       out=out.concat(" then to .......\n"); 
     }
-    if(type=="LED"){
+    if(type=="LED" && isUseablePin(parseInt(node.data.attributes.pin_num),"dig")){
       out=out.concat("connect a wire from pin ");
       out=out.concat(node.data.attributes.pin_num);
       out=out.concat(" to the LED, ");
