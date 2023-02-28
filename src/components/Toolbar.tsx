@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, {
@@ -15,7 +15,7 @@ import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
 
-  const nodeTypes = useRecoilValue(nodeTypesAtom);
+  const [nodeTypes, setNodeTypes] = useRecoilState(nodeTypesAtom);
   const setCodeModal = useSetRecoilState(codeModalAtom);
   const setSaveModal = useSetRecoilState(saveModalAtom);
   const setLoadModal = useSetRecoilState(loadModalAtom);
@@ -39,7 +39,7 @@ export default function Toolbar() {
           setSaveModal((prevSaveModal) => ({
             ...prevSaveModal,
             isOpen: true,
-            saveChart: (name) => { saveFlowInstance(reactFlowInstance, name); },
+            saveChart: (name) => { saveFlowInstance(reactFlowInstance, nodeTypes, name); },
           }));
 
           // save blob
@@ -55,7 +55,7 @@ export default function Toolbar() {
           setLoadModal((prevLoadModal) => ({
             ...prevLoadModal,
             isOpen: true,
-            loadChart: (name) => { loadFlowInstance(reactFlowInstance, name); },
+            loadChart: (name) => { loadFlowInstance(reactFlowInstance, setNodeTypes, name); },
             knownNames,
           }));
           // loadFlowInstance(reactFlowInstance, name);

@@ -3,6 +3,9 @@ import { number } from 'prop-types';
 import { ReactFlowInstance, useReactFlow } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
+import { nodeTypesAtom } from '../recoil/atoms/nodeTypesAtom';
+import { NodeTypes, NodeTypeData } from '../interfaces/NodeTypes.interface';
+import { RecoilState, SetterOrUpdater, useRecoilState } from 'recoil';
 
 export default function flowchartToJSON(
   reactFlowInstance: ReactFlowInstance,
@@ -73,37 +76,33 @@ export function attributeGenerator(attributeType: AttributeTypes, nodeType:strin
   }
 }
 
-function saveToLocal(exportObj: Object, exportName: string | null) {
+export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, nodeTypes: Object, exportName: string): void {
+
   console.log(`saveToLocal: ${exportName}`);
-  localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
+  const flowObjStr = JSON.stringify(reactFlowInstance.toObject());
+  const nodeTypesStr = JSON.stringify(nodeTypes);
+  const exportStr = JSON.stringify({"flow" : flowObjStr, "nodes" : nodeTypesStr });
+  localStorage.setItem(exportName ?? 'default', exportStr);
+
 }
 
-function loadFromLocal(exportName: string) {
+export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, setNodeTypes: SetterOrUpdater<Record<string, NodeTypeData>>, exportName: string): void {
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
-  if (load) {
-    return JSON.parse(load);
-  } else {
+  if (!load) {
     alert('No saved flowchart found of this name');
-    return null;
-  }
-}
+    return;
+  } 
 
-export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
-  /* var obj = reactFlowInstance.toObject();
-  var json = JSON.stringify(obj);
-  var exportData = "data:text/json;charset=utf-8," + json;
-  var blob = new Blob([json], {type: "application/json"});
-  var newWindow = window.open(encodeURI(exportData));
-  */
-  // downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
-  saveToLocal(reactFlowInstance.toObject(), name);
-}
+  const loaded = JSON.parse(load);
+  const flow = JSON.parse(loaded.flow);
+  const nodes = JSON.parse(loaded.nodes);
 
-export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
-  const loaded = loadFromLocal(exportName);
-  reactFlowInstance.setNodes(loaded.nodes);
-  reactFlowInstance.setEdges(loaded.edges);
+  reactFlowInstance.setNodes(flow.nodes);
+  reactFlowInstance.setEdges(flow.edges);
+
+  setNodeTypes(nodes);
+
 }
 
 function knownLocalCharts(): string[] {
