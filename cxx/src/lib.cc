@@ -84,11 +84,11 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 		}
 	}
 
-	std::unordered_set<std::string> visited_ids {};
+	std::size_t visited = 0;
 
 	while (!nodes_for_processing.empty()) {
 		auto const id = nodes_for_processing.front();
-		visited_ids.insert(id);
+		++visited;
 		//		if (auto const node_type = parse_node_type(id_to_node.at(id).type_str); node_type)
 		//			graph.node_types.insert(*node_type); // Is this still needed?
 		graph.argsorted_ids.push_back(id);
@@ -96,20 +96,16 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 		for (auto const &[output, successors] : graph.id_to_node[id].output_to_successors) {
 			for (auto const &successor : successors) {
-				if (!visited_ids.contains(successor.id)) {
-					if (id_to_unprocessed_predecessors[successor.id] == 1) {
-						nodes_for_processing.push_back(successor.id);
-					} else {
-						id_to_unprocessed_predecessors[successor.id] -= 1;
-					}
+				if (id_to_unprocessed_predecessors[successor.id] == 1) {
+					nodes_for_processing.push_back(successor.id);
 				} else {
-					// should be impossible to get here
+					--id_to_unprocessed_predecessors[successor.id];
 				}
 			}
 		}
 	}
 
-	if (visited_ids.size() != id_to_node.size()) {
+	if (visited != id_to_node.size()) {
 		error = "Loop detected";
 		return {};
 	}
