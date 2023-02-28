@@ -103,10 +103,15 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 						id_to_unprocessed_predecessors[successor.id] -= 1;
 					}
 				} else {
-					// FIXME: check for loops
+					// should be impossible to get here
 				}
 			}
 		}
+	}
+
+	if (visited_ids.size() != id_to_node.size()) {
+		error = "Loop detected";
+		return {};
 	}
 
 	return {graph};
