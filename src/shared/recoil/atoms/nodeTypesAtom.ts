@@ -12,7 +12,7 @@ const defaultNodeTypes: NodeTypes = {
       blockName: { type: AttributeTypes.name },
     },
     code: {
-      init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
+      init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
       update: 'output_value = True if self.led.value() else False',
       isQuery: true,
     },
@@ -103,7 +103,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   IntegerConstant: {
-    description: 'Provides and integer constant. Used for testing attributes',
+    description: 'Provides an integer constant. Used for testing attributes',
     attributes: {
       'Constant Value': { type: AttributeTypes.Number },
     },
@@ -127,7 +127,7 @@ const defaultNodeTypes: NodeTypes = {
       blockName: { type: AttributeTypes.name },
     },
     code: {
-      init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',
+      init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
       update: 'self.led.value(1 if value else 0)',
       isQuery: false,
     },

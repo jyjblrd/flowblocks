@@ -28,7 +28,7 @@ auto process_node_defs(std::map<std::string, marshalling::NodeType> const &defin
 // Topologically sorts the graph; returns nullopt if graph is ill-formed.
 auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, NodeDefinitions &defs, std::string &error) -> std::optional<SortedGraph> {
 	if (id_to_node.empty()) {
-		error = "Empty Graph\n";
+		error = "Empty Graph";
 		return {};
 	}
 
@@ -40,7 +40,7 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 		auto const node_type_idx = defs.parse_node_type_as_index(node.type_str);
 
 		if (!node_type_idx) {
-			error = "Graph References Non-existent Node Type\n";
+			error = "Graph References Non-existent Node Type";
 			return {};
 		}
 
@@ -60,7 +60,7 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 			auto input_type = node_type.get_input_type(input);
 			auto output_type = defs.node_type_from_string(id_to_node.at(predecessor.id).type_str).value().get().get_output_type(predecessor.output);
 			if (!input_type || !output_type || *input_type != *output_type || *input_type == ConnectionType::Invalid) {
-				error = "Type checking failed\n";
+				error = "Type checking failed";
 				return {};
 			}
 			graph.id_to_node[predecessor.id].output_to_successors[predecessor.output].insert(Successor {id, input});
@@ -79,16 +79,16 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 		// Ensure nodes have the expected amount of predecessors.
 		if (id_to_unprocessed_predecessors[id] != defs.node_type_from_string(node.type_str).value().get().expected_in_degree()) {
-			error = "Missing inputs\n";
+			error = "Missing inputs";
 			return {};
 		}
 	}
 
-	std::unordered_set<std::string> visited_ids {};
+	std::size_t visited = 0;
 
 	while (!nodes_for_processing.empty()) {
 		auto const id = nodes_for_processing.front();
-		visited_ids.insert(id);
+		++visited;
 		//		if (auto const node_type = parse_node_type(id_to_node.at(id).type_str); node_type)
 		//			graph.node_types.insert(*node_type); // Is this still needed?
 		graph.argsorted_ids.push_back(id);
@@ -96,17 +96,18 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 		for (auto const &[output, successors] : graph.id_to_node[id].output_to_successors) {
 			for (auto const &successor : successors) {
-				if (!visited_ids.contains(successor.id)) {
-					if (id_to_unprocessed_predecessors[successor.id] == 1) {
-						nodes_for_processing.push_back(successor.id);
-					} else {
-						id_to_unprocessed_predecessors[successor.id] -= 1;
-					}
+				if (id_to_unprocessed_predecessors[successor.id] == 1) {
+					nodes_for_processing.push_back(successor.id);
 				} else {
-					// FIXME: check for loops
+					--id_to_unprocessed_predecessors[successor.id];
 				}
 			}
 		}
+	}
+
+	if (visited != id_to_node.size()) {
+		error = "Loop detected";
+		return {};
 	}
 
 	return {graph};
