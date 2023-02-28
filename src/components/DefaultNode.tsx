@@ -29,9 +29,11 @@ const useConnectionValidator = () => {
         || connection.source === connection.target) return false;
       const target = getNode(connection.target);
       const edges = getConnectedEdges(target ? [target] : [], getEdges());
-      const inputType=nodeType[getNode(connection.target)?.data.nodeTypeId]["inputs"][connection.targetHandle]["type"];
-      const outputType=nodeType[getNode(connection.source)?.data.nodeTypeId]["inputs"][connection.sourceHandle]["type"];
-      if (inputType!==outputType){return false;}
+      const inputType = nodeType[getNode(connection.target)?.data.nodeTypeId]
+        .inputs[connection.targetHandle].type;
+      const outputType = nodeType[getNode(connection.source)?.data.nodeTypeId]
+        .inputs[connection.sourceHandle].type;
+      if (inputType !== outputType) { return false; }
       return edges.every((edge) =>
         !(edge.target === connection.target
           && edge.targetHandle === connection.targetHandle));
@@ -39,7 +41,6 @@ const useConnectionValidator = () => {
     [getNode, getEdges],
   );
 };
-
 
 export default function DefaultNode(
   {

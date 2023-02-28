@@ -24,7 +24,7 @@ import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import { attributeGenerator, setNodesList} from '../shared/helpers/helperFunctions';
+import { attributeGenerator, setNodesList } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeInstance>[] = [];
 const initialEdges: Edge[] = [];
@@ -41,7 +41,7 @@ function FlowBuilder() {
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
-  const onNodesChange = setNodesList(nodes);useCallback(
+  const onNodesChange = setNodesList(nodes); useCallback(
     (nodeChanges: NodeChange[]) => setNodes((nds) => applyNodeChanges(nodeChanges, nds)),
     [],
   );
@@ -183,7 +183,7 @@ function FlowBuilder() {
         // Populate node attributes
         Object.entries(nodeType.attributes)
           .forEach(([attributeId, { type }]) => {
-            nodeInstance.attributes[attributeId] = attributeGenerator(type,nodeTypeId);
+            nodeInstance.attributes[attributeId] = attributeGenerator(type, nodeTypeId);
           });
         const nextNodeInstanceId = nodes.length === 0
           ? '0'
