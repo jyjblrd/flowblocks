@@ -12,7 +12,7 @@ const defaultNodeTypes: NodeTypes = {
       blockName:{type:AttributeTypes.name},
     },
     code: {
-      init: 'self.led = machine.Pin(pin_num, machine.Pin.IN, machine.Pin.PULL_DOWN)',
+      init: 'self.led = machine.Pin({{ Pin Num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
       update: 'output_value = True if self.led.value() else False',
       isQuery: true,
     },
@@ -80,8 +80,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Add 2 numbers together.',
     attributes: {},
     code: {
-      init: 'self.left = 0\nself.right = 0',
-      update: 'return self.right+self.left',
+      init: '',
+      update: '{{ output }} = {{ left }} + {{ right }}',
       isQuery: false,
     },
     inputs: {
@@ -102,6 +102,24 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
+  IntegerConstant: {
+    description: 'Provides and integer constant. Used for testing attributes',
+    attributes: {
+      'Constant Value': { type: AttributeTypes.PinInNum },
+    },
+    code: {
+      init: '',
+      update: '{{ value }} = {{Constant Value}}',
+      isQuery: false,
+    },
+    inputs: {},
+    outputs: {
+      0: {
+        name: 'value',
+        type: ConnectionType.Number,
+      },
+    },
+  },
   LED: {
     description: 'LED output',
     attributes: {
@@ -109,7 +127,7 @@ const defaultNodeTypes: NodeTypes = {
       blockName:{type:AttributeTypes.name},
     },
     code: {
-      init: 'self.led = machine.Pin(pin_num, machine.Pin.OUT)',
+      init: 'self.led = machine.Pin({{Pin Num}}, machine.Pin.OUT)',
       update: 'self.led.value(1 if value else 0)',
       isQuery: false,
     },

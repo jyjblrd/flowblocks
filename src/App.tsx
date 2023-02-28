@@ -8,6 +8,9 @@ import FlowBuilder from './components/FlowBuilder';
 import NodePicker from './components/NodePicker';
 import Toolbar from './components/Toolbar';
 import NodeEditorModal from './components/NodeEditorComponents/NodeEditorModal';
+import SaveModal from './components/SaveModal';
+import LoadModal from './components/LoadModal';
+//TODO: make these imports a bit nicer
 
 library.add(fas, fab);
 
@@ -33,6 +36,8 @@ export default function App() {
         </Row>
       </Container>
       <CodeModal />
+      <SaveModal />
+      <LoadModal />
       <NodeEditorModal />
     </>
   );

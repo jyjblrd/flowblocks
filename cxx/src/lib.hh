@@ -13,7 +13,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
+
+// #include <iostream> // uncomment this and all `std::cout` in NodeType() for attribute and connection type marshalling debug print statements
 
 // TODO: maybe replace all instances of std::locale::classic() to use the local locale instead of C locale? Maybe have a global locale variable?
 
@@ -21,12 +24,18 @@
 
 enum class ConnectionType {
 	Bool,
-	Integer,
+	Number,
+
+	Invalid = -1,
 };
 
-enum class AttributeTypes {
+enum class AttributeType {
 	PinInNum,
 	PinOutNum,
+	Bool,
+	Number,
+
+	Invalid = -1,
 };
 
 // I moved the structs used in marshalling to this namespace
@@ -35,7 +44,7 @@ namespace marshalling {
 struct NodeType {
 	struct ConnectionEntry {
 		std::string name;
-		ConnectionType type;
+		int type;
 	};
 
 	struct CodeDef {
@@ -44,12 +53,12 @@ struct NodeType {
 		bool is_query;
 	};
 
-	struct AttributeType {
-		AttributeTypes type;
+	struct AttributeTypeStruct {
+		int type;
 	};
 
 	// std::string description; // commented out because we don't care about the description
-	std::map<std::string, AttributeType> attributes; // FIXME: unsure if attributes should be string or int; see NodeTypes.interface.ts
+	std::map<std::string, AttributeTypeStruct> attributes;
 	std::map<std::string, ConnectionEntry> inputs;
 	std::map<std::string, ConnectionEntry> outputs;
 	CodeDef code;
@@ -64,6 +73,34 @@ struct Node {
 	std::string type_str;
 	std::map<std::string, Predecessor> input_to_predecessor;
 	std::map<std::string, std::string> attributes;
+};
+
+class CompileResult {
+	struct ok_tag { };
+	struct err_tag { };
+
+	std::variant<std::string, std::string> result;
+
+public:
+	static constexpr ok_tag Ok;
+	static constexpr err_tag Err;
+
+	CompileResult(ok_tag, std::string code)
+		 : result(std::in_place_index<0>, std::move(code)) { }
+	CompileResult(err_tag, std::string msg)
+		 : result(std::in_place_index<1>, std::move(msg)) { }
+
+	auto ok() -> bool {
+		return result.index() == 0;
+	}
+
+	auto code() -> std::string {
+		return std::get<0>(result);
+	}
+
+	auto error() -> std::string {
+		return std::get<1>(result);
+	}
 };
 }
 
@@ -101,23 +138,90 @@ class AttributeInfo {
 public:
 	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
 	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
+	[[nodiscard]] auto type() const -> auto const { return attr_type; }
 	[[nodiscard]] auto used_in_update() const -> auto { return used; }
 
-	auto set_used() -> void { used = true; }
+	auto set_used_in_update() -> void { used = true; }
 
 	auto alpha_convert_name(std::size_t collision_no) -> void {
 		generated_name += std::to_string(collision_no);
 		generated_self_name += std::to_string(collision_no);
 	}
 
-	AttributeInfo(std::string &&n)
+	[[maybe_unused]] AttributeInfo(std::string &&n, AttributeType at)
 		 : generated_name {n}
-		 , generated_self_name {"self.__" + generated_name} { }
+		 , generated_self_name {"self.__" + generated_name}
+		 , attr_type {at} { }
+
+	AttributeInfo(std::string &&n, int attribute_type_int)
+		 : generated_name {n}
+		 , generated_self_name {"self.__" + generated_name} {
+		switch (attribute_type_int) {
+		case static_cast<int>(AttributeType::PinInNum):
+			attr_type = AttributeType::PinInNum;
+			break;
+		case static_cast<int>(AttributeType::PinOutNum):
+			attr_type = AttributeType::PinOutNum;
+			break;
+		case static_cast<int>(AttributeType::Bool):
+			attr_type = AttributeType::Bool;
+			break;
+		case static_cast<int>(AttributeType::Number):
+			attr_type = AttributeType::Number;
+			break;
+
+			// TODO: add more cases to switch statement if necessary (or fix enum marshalling)
+
+		default:
+			attr_type = AttributeType::Invalid;
+		}
+	}
 
 private:
 	std::string generated_name;
 	std::string generated_self_name;
+	AttributeType attr_type;
 	bool used {false};
+};
+
+class InputOutputInfo {
+public:
+	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
+	[[nodiscard]] auto type() const -> auto const { return con_type; }
+	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
+
+	auto alpha_convert_name(std::size_t collision_no) -> void {
+		generated_name += std::to_string(collision_no);
+		generated_self_name += std::to_string(collision_no);
+	}
+
+	[[maybe_unused]] InputOutputInfo(std::string &&n, ConnectionType ct)
+		 : generated_name {n}
+		 , generated_self_name {"self." + generated_name}
+		 , con_type {ct} { }
+
+	InputOutputInfo(std::string &&n, int connection_type_int)
+		 : generated_name {n}
+		 , generated_self_name {"self." + generated_name} {
+		switch (connection_type_int) {
+		case static_cast<int>(ConnectionType::Bool):
+			con_type = ConnectionType::Bool;
+			break;
+		case static_cast<int>(ConnectionType::Number):
+			con_type = ConnectionType::Number;
+			break;
+
+			// TODO: add more cases to switch statement if necessary (or fix enum marshalling)
+
+		default:
+			con_type = ConnectionType::Invalid;
+		}
+	}
+
+private:
+	std::string generated_name;
+	std::string generated_self_name;
+	ConnectionType con_type;
 };
 
 inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) {
@@ -193,7 +297,6 @@ inline auto make_init_attribute_pair(std::string_view const name, std::map<std::
 }
 
 class NodeType {
-public:
 	static auto generate_block_name(std::string const &n) -> std::string {
 		std::string g_name {n};
 
@@ -202,7 +305,7 @@ public:
 		std::erase_if(g_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
 
 		if (n.empty()) {
-			g_name = "UnnamedBlock" + n;
+			g_name = "UnnamedBlock";
 		} else {
 			g_name.front() = std::toupper(g_name.front(), std::locale::classic());
 			g_name = "Block" + g_name;
@@ -213,7 +316,7 @@ public:
 		return g_name;
 	}
 
-	static auto generate_attr_name(std::string const &n) -> std::string {
+	static auto generate_var_name(std::string const &n, std::string_view default_name) -> std::string {
 		std::string a_name {n};
 
 		// strip leading non-alphabet characters
@@ -221,9 +324,11 @@ public:
 		std::erase_if(a_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
 
 		if (n.empty()) {
-			a_name = "unnamed_attribute" + n;
+			a_name = default_name;
 		} else {
-			a_name.front() = std::tolower(a_name.front(), std::locale::classic());
+			std::replace_if(
+				a_name.begin(), a_name.end(), [](char c) { return std::isspace(c, std::locale::classic()); }, '_');
+			std::transform(a_name.begin(), a_name.end(), a_name.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
 		}
 
 		std::erase_if(a_name, [](char c) { return !(std::isalnum(c, std::locale::classic()) || c == '_'); });
@@ -231,19 +336,93 @@ public:
 		return a_name;
 	}
 
-	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
-		generated_name += std::to_string(collision_no);
+	auto substitute_identifiers(std::string const &original, bool &result_valid, bool is_update) -> std::string {
+		std::string result;
+
+		std::size_t index_lo {0};
+		while (index_lo < original.size()) {
+			std::size_t index_hi {original.find("{{", index_lo)};
+
+			// if index_hi == npos (i.e. '{{' not found), substr returns until the end of str
+			result += original.substr(index_lo, index_hi - index_lo);
+			index_lo = index_hi;
+
+			if (index_lo < original.size()) {
+				index_lo += 2; // length of "{{"
+				index_hi = original.find("}}", index_lo);
+
+				if (index_hi == std::string::npos) {
+					result_valid = false;
+					return ""; // ERROR: unclosed attribute/input/output in string
+					// TODO: return error message in the string
+					// we only throw an error if this class if we try to use an invalid block
+				}
+
+				while ((index_lo < index_hi) && original[index_lo] == ' ') {
+					index_lo++;
+				}
+
+				std::size_t index_tmp {index_hi};
+				while ((index_lo < index_tmp) && original[index_tmp - 1] == ' ') {
+					index_tmp--;
+				}
+
+				std::string const key {original.substr(index_lo, index_tmp - index_lo)};
+
+				if (auto c {result.back()}; c != ' ' && c != '(' && c != '[' && c != '\n' && c != '\t') { // note: result.back() cannot be '{'
+					result += " ";
+				}
+
+				// BIG NOTE: substitution for attributes, inputs, and outputs happens HERE:
+				// TODO: replace (inputs, outputs) replacements with necessary replacements for our execution model
+				if (attributes.contains(key)) {
+					if (is_update) {
+						result += attributes.at(key).self_name();
+						attributes.at(key).set_used_in_update();
+					} else {
+						result += attributes.at(key).name();
+					}
+
+				} else if (inputs.contains(key)) {
+					result += inputs.at(key).self_name();
+
+				} else if (outputs.contains(key)) {
+					result += outputs.at(key).self_name();
+
+				} else {
+					return ""; // ERROR: identifier not found
+					// TODO: return error string
+				}
+
+				index_hi += 2;
+				if (index_hi < original.size()) {
+					if (auto c {original[index_hi]}; c != ' ' && c != ',' && c != ')' && c != ']' && c != '\n' && c != '\t') {
+						result += " ";
+					}
+				}
+
+				index_lo = index_hi;
+			}
+		}
+
+		return result;
 	}
 
+public:
 	NodeType(std::string block_name, marshalling::NodeType const &m_node_type)
 		 : name {std::move(block_name)}
-		 , mnt {m_node_type} {
+		 , is_query {m_node_type.code.is_query} {
 		generated_name = generate_block_name(name);
 
 		// rename attributes, provide map from old attribute names to new attributes names
+		// and likewise for inputs and outputs
+
 		std::unordered_map<std::string, std::size_t> name_collisions {};
-		for (auto const &[attr_name, attr_type] : mnt.attributes) {
-			AttributeInfo ai {generate_attr_name(attr_name)};
+
+		for (auto const &[attr_name, attr_type] : m_node_type.attributes) {
+			//			std::cout << generated_name << " attr: " << attr_name << " " << static_cast<int>(attr_type.type) << '\n';
+
+			AttributeInfo ai {generate_var_name(attr_name, "unnamed_attribute"), attr_type.type};
 
 			if (name_collisions.contains(ai.name())) {
 				std::size_t const tmp = (name_collisions[ai.name()] += 1);
@@ -252,13 +431,49 @@ public:
 				name_collisions[ai.name()] = 0;
 			}
 
-			// also check if attribute is used in update function
-			// in c++23, this would just be mnt.code.update.contains(attr_name)
-			if (mnt.code.update.find(attr_name) != std::string::npos)
-				ai.set_used();
-
 			attributes.insert_or_assign(attr_name, std::move(ai));
 		}
+
+		for (auto const &[in_id, in_con_entry] : m_node_type.inputs) {
+			//			std::cout << generated_name << " in: " << in_id << " " << in_con_entry.name << " " << static_cast<int>(in_con_entry.type) << '\n';
+
+			InputOutputInfo ii {generate_var_name(in_con_entry.name, "unnamed_input"), in_con_entry.type};
+
+			if (name_collisions.contains(ii.name())) {
+				std::size_t const tmp = (name_collisions[ii.name()] += 1);
+				ii.alpha_convert_name(tmp);
+			} else {
+				name_collisions[ii.name()] = 0;
+			}
+
+			input_ids.insert_or_assign(in_id, in_con_entry.name);
+			inputs.insert_or_assign(in_con_entry.name, std::move(ii));
+		}
+
+		for (auto const &[out_id, out_con_entry] : m_node_type.outputs) {
+			//			std::cout << generated_name << " out: " << out_id << " " << out_con_entry.name << " " << static_cast<int>(out_con_entry.type) << '\n';
+
+			InputOutputInfo oi {generate_var_name(out_con_entry.name, "unnamed_output"), out_con_entry.type};
+
+			if (name_collisions.contains(oi.name())) {
+				std::size_t const tmp = (name_collisions[oi.name()] += 1);
+				oi.alpha_convert_name(tmp);
+			} else {
+				name_collisions[oi.name()] = 0;
+			}
+
+			output_ids.insert_or_assign(out_id, out_con_entry.name);
+			outputs.insert_or_assign(out_con_entry.name, std::move(oi));
+		}
+
+		// perform attribute/input/output name substitution
+
+		init_code = substitute_identifiers(m_node_type.code.init, init_code_valid, false);
+		update_code = substitute_identifiers(m_node_type.code.update, update_code_valid, true);
+	}
+
+	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
+		generated_name += std::to_string(collision_no);
 	}
 
 	auto emit_block_definition(std::string &code) const -> void {
@@ -268,31 +483,38 @@ public:
 		static constexpr std::string_view update_func {"def update(self, input, value):"};
 
 		if (used) {
-			auto [init_func, attr_init] = make_init_attribute_pair("__init__", attributes);
 
-			code.append("class " + get_generated_name() + ":");
-
-			// TODO: perform attribute name substitution in code update function
-
-			if (!mnt.outputs.empty()) {
-				generate_function(code, 1, init_func, init_begin, attr_init, mnt.code.init);
-
-				if (mnt.code.is_query) {
-					generate_function(code, 1, query_func, mnt.code.update, update_end);
-				} else {
-					generate_function(code, 1, update_func, mnt.code.update, update_end);
-				}
+			if (!init_code_valid) {
+				// TODO: throw error
+			} else if (!update_code_valid) {
+				// TODO: throw error
 			} else {
-				generate_function(code, 1, init_func, attr_init, mnt.code.init);
+				auto [init_func, attr_init] = make_init_attribute_pair("__init__", attributes);
 
-				if (mnt.code.is_query) {
-					generate_function(code, 1, query_func, mnt.code.update);
+				code.append("class " + get_generated_name() + ":");
+
+				// TODO: rewrite to produce code that obeys the correct model of execution
+
+				if (!outputs.empty()) {
+					generate_function(code, 1, init_func, init_begin, attr_init, init_code);
+
+					if (is_query) {
+						generate_function(code, 1, query_func, update_code, update_end);
+					} else {
+						generate_function(code, 1, update_func, update_code, update_end);
+					}
 				} else {
-					generate_function(code, 1, update_func, mnt.code.update);
-				}
-			}
+					generate_function(code, 1, init_func, attr_init, init_code);
 
-			code.append("\n");
+					if (is_query) {
+						generate_function(code, 1, query_func, update_code);
+					} else {
+						generate_function(code, 1, update_func, update_code);
+					}
+				}
+
+				code.append("\n");
+			}
 		}
 	}
 
@@ -316,34 +538,53 @@ public:
 		code += ")\n";
 	}
 
-	[[nodiscard]] auto get_input_type(std::string const &input_name) const -> std::optional<ConnectionType> {
-		if (mnt.inputs.contains(input_name))
-			return {mnt.inputs.at(input_name).type};
+	[[nodiscard]] auto get_input_type(std::string const &input_id) const -> std::optional<ConnectionType> {
+		if (input_ids.contains(input_id))
+			return {inputs.at(input_ids.at(input_id)).type()};
 		else
 			return {};
 	}
 
-	[[nodiscard]] auto get_output_type(std::string const &output_name) const -> std::optional<ConnectionType> {
-		if (mnt.outputs.contains(output_name))
-			return {mnt.outputs.at(output_name).type};
+	[[nodiscard]] auto get_output_type(std::string const &output_id) const -> std::optional<ConnectionType> {
+		if (output_ids.contains(output_id))
+			return {outputs.at(output_ids.at(output_id)).type()};
 		else
 			return {};
 	}
 
 	auto mark_used() -> void { used = true; }
-	[[nodiscard]] auto expected_in_degree() const -> std::size_t { return mnt.inputs.size(); }
-	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return mnt.outputs.size(); }
+	[[nodiscard]] auto expected_in_degree() const -> std::size_t { return inputs.size(); }
+	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return outputs.size(); }
 	[[nodiscard]] auto get_generated_name() const -> std::string const & { return generated_name; }
 	[[nodiscard]] auto get_real_name() const -> std::string const & { return name; }
 
 private:
 	std::string name;
 	std::string generated_name;
-	std::map<std::string, AttributeInfo> attributes;
-	bool used {false};
 
-	// raw data:
-	marshalling::NodeType const &mnt; // TODO: make safer? although lifetime of marshalled data type is longer
+	std::string init_code;
+	std::string update_code;
+	bool is_query;
+
+	// if true, init_code and update_code hold code. If false, these contain error messages
+	// TODO: check these whenever init_code and update_code are used
+	bool init_code_valid {true};
+	bool update_code_valid {true};
+
+	// these map from human readable-names to their related info class
+	// TODO: refactor so inputs uses an InputInfo class, and outputs uses OutputInfo
+	// that way, we can maybe directly access the outputs of predecessor nodes as inputs (?)
+	std::map<std::string, InputOutputInfo> inputs;
+	std::map<std::string, InputOutputInfo> outputs;
+	std::map<std::string, AttributeInfo> attributes;
+
+	// these map from the id of the inputs / outputs to human-readable names
+	std::map<std::string, std::string> input_ids;
+	std::map<std::string, std::string> output_ids;
+
+	std::unordered_set<std::string> identifiers_used;
+
+	bool used {false};
 };
 
 class NodeDefinitions {

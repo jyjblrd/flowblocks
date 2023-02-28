@@ -79,7 +79,7 @@ export function attributeGenerator(attributeType: AttributeTypes,nodeType:string
 }
 
 function saveToLocal(exportObj: Object, exportName: string | null) {
-  console.log('saveToLocal');
+  console.log('saveToLocal: ' + exportName);
   localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
 }
 
@@ -109,6 +109,19 @@ export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportNam
   const loaded = loadFromLocal(exportName);
   reactFlowInstance.setNodes(loaded.nodes);
   reactFlowInstance.setEdges(loaded.edges);
+}
+
+function knownLocalCharts(): string[] {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    keys.push(localStorage.key(i) ?? '');
+  }
+  return keys;
+}
+
+export function ppKnownCharts(): string {
+  const charts = knownLocalCharts();
+  return charts.join("\n");
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string) {

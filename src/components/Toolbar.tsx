@@ -4,15 +4,19 @@ import Button from 'react-bootstrap/Button';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
-import flowchartToJSON, { saveFlowInstance, loadFlowInstance ,compileCircuit} from '../shared/helpers/helperFunctions';
+import flowchartToJSON, { saveFlowInstance, loadFlowInstance,ppKnownCharts,compileCircuit} from '../shared/helpers/helperFunctions';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
+import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
+import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
 
   const nodeTypes = useRecoilValue(nodeTypesAtom);
   const setCodeModal = useSetRecoilState(codeModalAtom);
+  const setSaveModal = useSetRecoilState(saveModalAtom);
+  const setLoadModal = useSetRecoilState(loadModalAtom);
 
   return (
     <div style={{ float: 'right' }}>
@@ -20,9 +24,19 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
+          //startTutorial();
+        }}
+      >
+        Tutorial
+      </Button>
+      <Button
+        variant="outline-dark"
+        className="mx-1"
+        onClick={() => {
           // console.log("Save")
           const name = 'flowchart2';
-          saveFlowInstance(reactFlowInstance, name);
+          setSaveModal((prevSaveModal) => ({ ...prevSaveModal, isOpen: true, saveChart: (name) => {saveFlowInstance(reactFlowInstance, name)} }));
+          
           // save blob
         }}
       >
@@ -32,8 +46,10 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          const name = 'flowchart2';
-          loadFlowInstance(reactFlowInstance, name);
+          const name = 'default';
+          const knownNames = ppKnownCharts();
+          setLoadModal((prevLoadModal) => ({ ...prevLoadModal, isOpen: true, loadChart: (name) => {loadFlowInstance(reactFlowInstance, name)}, knownNames: knownNames }));
+          //loadFlowInstance(reactFlowInstance, name);
         }}
       >
         Load
@@ -42,8 +58,14 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={() => {
-          const code = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
-          setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code }));
+          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          if (result.ok()) {
+            setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code: result.code() }));
+          } else {
+            // TODO: replace console log errors with error box / other system at a later date
+            console.log(`Error: ${result.error()}`);
+          }
+          result.delete();
         }}
       >
         Show code
@@ -52,7 +74,14 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
+          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          if (result.ok()) {
+            await runOnDevice(result.code());
+          } else {
+            // TODO: replace console log errors with error box / other system at a later date
+            console.log(`Error: ${result.error()}`);
+          }
+          result.delete();
         }}
       >
         Run
