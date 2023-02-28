@@ -41,9 +41,9 @@ export default function flowchartToJSON(
   return project;
 }
 
-const availiblePins = new Map<string, number[]>([
-  ['dig', [0, 1, 2, 3, 4,,6, 7]],
-  ['an', [8, 9, 10]],
+const availiblePins = new Map<string, string[]>([
+  ['dig', ['0', '1', '2', '3', '4', '6', '7']],
+  ['an', ['8', '9', '10']],
 ]);
 let nameNumber:number = 0;
 export var used: number[] = [];
