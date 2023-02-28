@@ -163,7 +163,7 @@ function compileCircuitHelper(nodesList) {
       usedPins.set(pin, node.data.attributes.blockName);
     }
     if (type == 'Button') {
-      if (isUseablePin(parseInt(node.data.attributes.pin_num), 'dig')) {
+      if (isUseablePin((node.data.attributes.pin_num), 'dig')) {
         out = 'failed on button ';
         out = out.concat(node.data.attributes.blockName);
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
@@ -176,7 +176,7 @@ function compileCircuitHelper(nodesList) {
       out = out.concat(' then to .......\n');
     }
     if (type == 'LED') {
-      if (isUseablePin(parseInt(node.data.attributes.pin_num), 'dig')) {
+      if (isUseablePin((node.data.attributes.pin_num), 'dig')) {
         out = 'failed on LED ';
         out = out.concat(node.data.attributes.blockName);
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
