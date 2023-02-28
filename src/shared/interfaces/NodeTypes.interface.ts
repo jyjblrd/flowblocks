@@ -1,14 +1,18 @@
 export enum AttributeTypes {
-  digitalIn,
-  digitalOut,
-  analogueIn,
-  name,
-  Bool = 2,
-  Number = 3,
+  // Warning: C++ code needs to be updated if these are altered
+  DigitalIn,
+  DigitalOut,
+  AnalogIn,
+  AnalogOut,
+  Bool,
+  Number,
+  BlockName, // pls remove
+
 }
 export type Attributes = Record<string, { type: AttributeTypes }>;
 
 export enum ConnectionType {
+  // Warning: C++ code needs to be updated if these are altered
   Bool,
   Number,
 }

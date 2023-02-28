@@ -8,8 +8,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Physical button input',
 
     attributes: {
-      pin_num: { type: AttributeTypes.digitalIn },
-      blockName: { type: AttributeTypes.name },
+      pin_num: {type: AttributeTypes.DigitalIn},
+      blockName: {type: AttributeTypes.BlockName},
     },
     code: {
       init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -120,11 +120,27 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
+  DbgPrintInt: {
+    description: 'Prints an int. Used for test model of execution',
+    attributes: {},
+    code: {
+      init: '',
+      update: 'print({{ value }})',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'value',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {},
+  },
   LED: {
     description: 'LED output',
     attributes: {
-      pin_num: { type: AttributeTypes.digitalOut },
-      blockName: { type: AttributeTypes.name },
+      pin_num: {type: AttributeTypes.DigitalOut},
+      blockName: {type: AttributeTypes.BlockName},
     },
     code: {
       init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.OUT)',

@@ -66,7 +66,7 @@ export default function NodeEditorModal() {
       ...nodeType,
     };
 
-    newNodeType.attributes[''] = { type: AttributeTypes.digitalIn };
+    newNodeType.attributes[''] = {type: AttributeTypes.DigitalIn};
     setNodeType(newNodeType);
   };
 

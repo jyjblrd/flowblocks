@@ -142,17 +142,36 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	// add instances of block classes to code
 	for (auto it = graph->argsorted_ids.rbegin(); it != graph->argsorted_ids.rend(); ++it) {
 		auto const &id = *it;
-		node_defs->get_node_type(graph->id_to_node.at(id)).emit_block_instantiation(code, graph->id_to_node.at(id), id);
+		node_defs->emit_block_instantiations(code, *graph, id);
 	}
 
-	code.append("while True:\n");
+	//	code.append("while True:\n");
+	//
+	//	for (auto const &id : graph->nonsuccessor_ids) {
+	//		code
+	//			.append("    a")
+	//			.append(id)
+	//			.append(".update()\n");
+	//	}
 
-	for (auto const &id : graph->nonsuccessor_ids) {
-		code
-			.append("    a")
-			.append(id)
-			.append(".query()\n");
+	// WARNING: highly unoptimised version here:
+	// TODO: add mark and visit algorithm
+
+	code.append("\na_list = [");
+	for (auto const &id : graph->argsorted_ids) {
+		code += "a";
+		code += id;
+		code += ", ";
 	}
+
+	if (code.ends_with(", ")) {
+		code.pop_back();
+		code.pop_back();
+	}
+
+	code += "]\n\n";
+	code += "while True:\n    for a in a_list:\n        a.update()";
+
 	return {CompileResult::Ok, code};
 }
 

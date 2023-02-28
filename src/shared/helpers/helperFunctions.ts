@@ -51,19 +51,19 @@ function nextUnused(toUse:number[], used:number[]) {
 
 export function attributeGenerator(attributeType: AttributeTypes, nodeType:string): string {
   switch (attributeType) {
-    case AttributeTypes.digitalIn:
-      var out:number = 0;
+    case AttributeTypes.DigitalIn:
+      var out: number = 0;
       out = nextUnused(availablePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
-    case AttributeTypes.digitalOut:
-      var out:number = 0;
+    case AttributeTypes.DigitalOut:
+      var out: number = 0;
       out = nextUnused(availablePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
-    case AttributeTypes.name:
+    case AttributeTypes.BlockName:
       nameNumber += 1;
-      var name:string = nodeType;
+      var name: string = nodeType;
       name = name.concat(' ');
       name = name.concat(nameNumber as string);
       return name;
