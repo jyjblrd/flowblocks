@@ -8,9 +8,8 @@
 #include <optional>
 
 #include <iostream>
-// TODO: replace console log errors with error box / other system at a later date
 
-auto process_node_defs(std::map<std::string, marshalling::NodeType> const &definitions) -> std::optional<NodeDefinitions> {
+auto process_node_defs(std::map<std::string, marshalling::NodeType> const &definitions, std::string &error) -> std::optional<NodeDefinitions> {
 	NodeDefinitions defs {};
 
 	for (auto const &[name, marshalled_node_type] : definitions) {
@@ -27,10 +26,10 @@ auto process_node_defs(std::map<std::string, marshalling::NodeType> const &defin
 }
 
 // Topologically sorts the graph; returns nullopt if graph is ill-formed.
-auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, NodeDefinitions &defs) -> std::optional<SortedGraph> {
+auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, NodeDefinitions &defs, std::string &error) -> std::optional<SortedGraph> {
 	if (id_to_node.empty()) {
-		std::cerr << "Error: Empty Graph\n";
-		return {}; // "# Empty graph"; // TODO: actual error handling
+		error = "Error: Empty Graph\n";
+		return {};
 	}
 
 	SortedGraph graph {};
@@ -41,8 +40,8 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 		auto const node_type_idx = defs.parse_node_type_as_index(node.type_str);
 
 		if (!node_type_idx) {
-			std::cerr << "Error: Graph References Non-existent Node Type\n";
-			return {}; // error: node_instance references non-existent node_type // TODO: add error handling
+			error = "Error: Graph References Non-existent Node Type\n";
+			return {};
 		}
 
 		graph.id_to_node[id].node_type_index = *node_type_idx;
@@ -61,8 +60,8 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 			auto input_type = node_type.get_input_type(input);
 			auto output_type = defs.node_type_from_string(id_to_node.at(predecessor.id).type_str).value().get().get_output_type(predecessor.output);
 			if (!input_type || !output_type || *input_type != *output_type || *input_type == ConnectionType::Invalid) {
-				std::cerr << "Error: Type checking failed\n";
-				return {}; // "# Type checking failed"; // TODO: actual error handling
+				error = "Error: Type checking failed\n";
+				return {};
 			}
 			graph.id_to_node[predecessor.id].output_to_successors[predecessor.output].insert(Successor {id, input});
 			++id_to_unprocessed_predecessors[id];
@@ -80,8 +79,8 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 		// Ensure nodes have the expected amount of predecessors.
 		if (id_to_unprocessed_predecessors[id] != defs.node_type_from_string(node.type_str).value().get().expected_in_degree()) {
-			std::cerr << "Error: Missing inputs\n";
-			return {}; // "# Missing input(s)"; // TODO: actual error handling
+			error = "Error: Missing inputs\n";
+			return {};
 		}
 	}
 
@@ -115,7 +114,8 @@ auto process_graph(std::map<std::string, marshalling::Node> const &id_to_node, N
 
 auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	std::map<std::string, marshalling::NodeType> const &node_types)
-	-> std::string {
+	-> marshalling::CompileResult {
+	using marshalling::CompileResult;
 	using std::deque;
 	using std::map;
 	using std::string;
@@ -123,15 +123,17 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	using std::unordered_set;
 	using std::vector;
 
-	auto node_defs = process_node_defs(node_types);
+	std::string error;
+
+	auto node_defs = process_node_defs(node_types, error);
 
 	if (!node_defs)
-		return "";
+		return {CompileResult::Err, error};
 
-	auto const graph = process_graph(id_to_node, *node_defs);
+	auto const graph = process_graph(id_to_node, *node_defs, error);
 
 	if (!graph)
-		return ""; // TODO - Reapply error message
+		return {CompileResult::Err, error};
 
 	string code {"import machine\n"};
 
@@ -152,7 +154,7 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 			.append(id)
 			.append(".query()\n");
 	}
-	return code;
+	return {CompileResult::Ok, code};
 }
 
 EMSCRIPTEN_BINDINGS(module) {
@@ -203,6 +205,11 @@ EMSCRIPTEN_BINDINGS(module) {
 		.field("inputs", &marshalling::NodeType::inputs)
 		.field("outputs", &marshalling::NodeType::outputs)
 		.field("code", &marshalling::NodeType::code);
+
+	emscripten::class_<marshalling::CompileResult>("CompileResult")
+		.function("ok", &marshalling::CompileResult::ok)
+		.function("code", &marshalling::CompileResult::code)
+		.function("error", &marshalling::CompileResult::error);
 
 	emscripten::function("compile", &compile);
 }

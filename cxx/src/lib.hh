@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // #include <iostream> // uncomment this and all `std::cout` in NodeType() for attribute and connection type marshalling debug print statements
@@ -72,6 +73,34 @@ struct Node {
 	std::string type_str;
 	std::map<std::string, Predecessor> input_to_predecessor;
 	std::map<std::string, std::string> attributes;
+};
+
+class CompileResult {
+	struct ok_tag { };
+	struct err_tag { };
+
+	std::variant<std::string, std::string> result;
+
+public:
+	static constexpr ok_tag Ok;
+	static constexpr err_tag Err;
+
+	CompileResult(ok_tag, std::string code)
+		 : result(std::in_place_index<0>, std::move(code)) { }
+	CompileResult(err_tag, std::string msg)
+		 : result(std::in_place_index<1>, std::move(msg)) { }
+
+	auto ok() -> bool {
+		return result.index() == 0;
+	}
+
+	auto code() -> std::string {
+		return std::get<0>(result);
+	}
+
+	auto error() -> std::string {
+		return std::get<1>(result);
+	}
 };
 }
 

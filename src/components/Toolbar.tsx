@@ -59,8 +59,14 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={() => {
-          const code = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
-          setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code }));
+          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          if (result.ok()) {
+            setCodeModal((prevCodeModal) => ({ ...prevCodeModal, isOpen: true, code: result.code() }));
+          } else {
+            // TODO: replace console log errors with error box / other system at a later date
+            console.log(result.error());
+          }
+          result.delete();
         }}
       >
         Show code
@@ -69,7 +75,14 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          await runOnDevice(cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes));
+          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          if (result.ok()) {
+            await runOnDevice(result.code());
+          } else {
+            // TODO: replace console log errors with error box / other system at a later date
+            console.log(result.error());
+          }
+          result.delete();
         }}
       >
         Run
