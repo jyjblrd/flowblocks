@@ -41,7 +41,7 @@ function FlowBuilder() {
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
-  const onNodesChange = setNodesList(nodes); useCallback(
+  const onNodesChange = useCallback(
     (nodeChanges: NodeChange[]) => setNodes((nds) => applyNodeChanges(nodeChanges, nds)),
     [],
   );
