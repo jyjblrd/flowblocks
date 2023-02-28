@@ -7,9 +7,7 @@
 #include <deque>
 #include <optional>
 
-#include <iostream>
-
-auto process_node_defs(std::map<std::string, marshalling::NodeType> const &definitions, std::string &error) -> std::optional<NodeDefinitions> {
+auto process_node_defs(std::map<std::string, marshalling::NodeType> const &definitions, std::string &) -> std::optional<NodeDefinitions> {
 	NodeDefinitions defs {};
 
 	for (auto const &[name, marshalled_node_type] : definitions) {
