@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { number } from 'prop-types';
-import { ReactFlowInstance ,useReactFlow} from 'reactflow';
+import { ReactFlowInstance, useReactFlow } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
 
@@ -41,49 +41,49 @@ export default function flowchartToJSON(
   return project;
 }
 
-let availiblePins = new Map<string, number[]>([
-  ["dig", [0,1,2,3,4,,6,7]],
-  ["an", [8,9,10]]
+const availiblePins = new Map<string, number[]>([
+  ['dig', [0, 1, 2, 3, 4,,6, 7]],
+  ['an', [8, 9, 10]],
 ]);
-var nameNumber:number=0;
-export var used: number[]=[];
+let nameNumber:number = 0;
+export var used: number[] = [];
 
-function nextUnused(toUse:number[],used:number[]){
-  for (var i in toUse){
-    if (used.indexOf(toUse[i])==-1){return toUse[i];}
+function nextUnused(toUse:number[], used:number[]) {
+  for (const i in toUse) {
+    if (used.indexOf(toUse[i]) == -1) { return toUse[i]; }
   }
-  //throw new error("")
+  // throw new error("")
 }
 
-export function attributeGenerator(attributeType: AttributeTypes,nodeType:string): string {
+export function attributeGenerator(attributeType: AttributeTypes, nodeType:string): string {
   switch (attributeType) {
     case AttributeTypes.digitalIn:
-      var out:number=0;
-      out= nextUnused(availiblePins.get("dig"),used);
+      var out:number = 0;
+      out = nextUnused(availiblePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
     case AttributeTypes.digitalOut:
-      var out:number=0;
-      out= nextUnused(availiblePins.get("dig"),used);
+      var out:number = 0;
+      out = nextUnused(availiblePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
     case AttributeTypes.name:
-      nameNumber=nameNumber+1;
-      var name:string=nodeType;
-      name=name.concat(" ");
-      name=name.concat(nameNumber as string);
+      nameNumber += 1;
+      var name:string = nodeType;
+      name = name.concat(' ');
+      name = name.concat(nameNumber as string);
       return name;
     case AttributeTypes.Bool:
-      return "true";
+      return 'true';
     case AttributeTypes.Number:
-      return "0"
+      return '0';
     default:
       return 'error';
   }
 }
 
 function saveToLocal(exportObj: Object, exportName: string | null) {
-  console.log('saveToLocal: ' + exportName);
+  console.log(`saveToLocal: ${exportName}`);
   localStorage.setItem(exportName ?? 'default', JSON.stringify(exportObj));
 }
 
@@ -125,7 +125,7 @@ function knownLocalCharts(): string[] {
 
 export function ppKnownCharts(): string {
   const charts = knownLocalCharts();
-  return charts.join("\n");
+  return charts.join('\n');
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string) {
@@ -137,36 +137,58 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 }
-var nodesList;
 
-function isUseablePin(pin:number,type:String):boolean{
-  return availiblePins.get(type).includes(pin);
+function isUseablePin(pin:number, type:String):boolean {
+  return !availiblePins.get(type).includes(pin);
 }
-export function setNodesList(nodes:any){nodesList=nodes}
-function compileCircuitHelper(){
-  
-  var out="";
-  for (let key of nodesList.keys()){
-    var node=nodesList[key];
-    var type=(node.data.nodeTypeId);
-    //console.log(node);
 
-    if (type=="Button" && isUseablePin(parseInt(node.data.attributes.pin_num),"dig")){
-      out=out.concat("connect a wire from pin ");
-      out=out.concat(node.data.attributes.pin_num);
-      out=out.concat(" to the button, ");
-      out=out.concat(node.data.attributes.blockName);
-      out=out.concat(" then to .......\n"); 
+function compileCircuitHelper(nodesList) {
+  const usedPins = new Map<String, String>();
+  let out = '';
+  nodesList.keys().foreach((key) => {
+    const node = nodesList[key];
+    const type = (node.data.nodeTypeId);
+    const pin = (node.data.attributes.pin_num);
+    if (pin != undefined) {
+      console.log(usedPins);
+      if (usedPins.get(pin) != undefined) {
+        out = 'It looks like ';
+        out = out.concat(usedPins.get(pin));
+        out = out.concat(' and ');
+        out = out.concat(node.data.attributes.blockName);
+        out = out.concat(' use the same pin this is not allowed.');
+        return out;
+      }
+      usedPins.set(pin, node.data.attributes.blockName);
     }
-    if(type=="LED" && isUseablePin(parseInt(node.data.attributes.pin_num),"dig")){
-      out=out.concat("connect a wire from pin ");
-      out=out.concat(node.data.attributes.pin_num);
-      out=out.concat(" to the LED, ");
-      out=out.concat(node.data.attributes.blockName);
-      out=out.concat(" then to a resistor, then connect that resistor to ground.\n");    }
+    if (type == 'Button') {
+      if (isUseablePin(parseInt(node.data.attributes.pin_num), 'dig')) {
+        out = 'failed on button ';
+        out = out.concat(node.data.attributes.blockName);
+        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+        return out;
+      }
+      out = out.concat('connect a wire from pin ');
+      out = out.concat(node.data.attributes.pin_num);
+      out = out.concat(' to the button, ');
+      out = out.concat(node.data.attributes.blockName);
+      out = out.concat(' then to .......\n');
+    }
+    if (type == 'LED') {
+      if (isUseablePin(parseInt(node.data.attributes.pin_num), 'dig')) {
+        out = 'failed on LED ';
+        out = out.concat(node.data.attributes.blockName);
+        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+        return out;
+      }
+      out = out.concat('connect a wire from pin ');
+      out = out.concat(node.data.attributes.pin_num);
+      out = out.concat(' to the LED, ');
+      out = out.concat(node.data.attributes.blockName);
+      out = out.concat(' then to a resistor, then connect that resistor to ground.\n');
+    }
+  });
 
-    }
-  
   return out;
-};
-export function compileCircuit(){console.log(compileCircuitHelper());}
+}
+export function compileCircuit(nodesList) { console.log(compileCircuitHelper(nodesList)); }

@@ -121,7 +121,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          compileCircuit();
+          compileCircuit(reactFlowInstance.getNodes());
         }}
       >
         Generate Circut
