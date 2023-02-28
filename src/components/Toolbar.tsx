@@ -124,7 +124,7 @@ export default function Toolbar() {
           compileCircuit(reactFlowInstance.getNodes());
         }}
       >
-        Generate Circut
+        Generate Circuit
       </Button>
     </div>
   );

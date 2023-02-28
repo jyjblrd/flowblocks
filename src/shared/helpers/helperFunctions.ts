@@ -41,7 +41,7 @@ export default function flowchartToJSON(
   return project;
 }
 
-const availiblePins = new Map<string, string[]>([
+const availablePins = new Map<string, string[]>([
   ['dig', ['0', '1', '2', '3', '4', '6', '7']],
   ['an', ['8', '9', '10']],
 ]);
@@ -59,12 +59,12 @@ export function attributeGenerator(attributeType: AttributeTypes, nodeType:strin
   switch (attributeType) {
     case AttributeTypes.digitalIn:
       var out:number = 0;
-      out = nextUnused(availiblePins.get('dig'), used);
+      out = nextUnused(availablePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
     case AttributeTypes.digitalOut:
       var out:number = 0;
-      out = nextUnused(availiblePins.get('dig'), used);
+      out = nextUnused(availablePins.get('dig'), used);
       used.push(out);
       return out as unknown as string;
     case AttributeTypes.name:
@@ -139,7 +139,7 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
 }
 
 function isUseablePin(pin:number, type:String):boolean {
-  return !availiblePins.get(type).includes(pin);
+  return !availablePins.get(type).includes(pin);
 }
 
 function compileCircuitHelper(nodesList) {
