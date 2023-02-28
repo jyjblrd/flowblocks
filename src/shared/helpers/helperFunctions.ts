@@ -4,12 +4,6 @@ import { ReactFlowInstance, useReactFlow } from 'reactflow';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
 
-// TODO: delete this function !!!!
-function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
-  return nodeTypeId;
-  // TODO: remove all instances of the function
-}
-
 export default function flowchartToJSON(
   reactFlowInstance: ReactFlowInstance,
 ): Record<string, NodeInstance> {
@@ -20,9 +14,6 @@ export default function flowchartToJSON(
 
   nodes.forEach((node) => {
     project[node.id] = JSON.parse(JSON.stringify(node.data));
-
-    // TODO: please make the c++ backend consistent so I can get rid of this
-    project[node.id].nodeTypeId = jsNodeTypeIdToVertexKind(project[node.id].nodeTypeId);
   });
 
   // Populate node connections
