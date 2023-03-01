@@ -20,7 +20,7 @@ export default function CodeModal() {
         </Button>
       </Modal.Header>
       <Modal.Body>
-        <Form.Control as="textarea" className="font-monospace" value={codeModal.code} style={{ width: '100%', height: '100%', resize: 'none' }} readOnly />
+        <Form.Control as="textarea" className="font-monospace" value={codeModal.code} style={{ width: '100%', height: '70vh', resize: 'none' }} readOnly />
       </Modal.Body>
     </Modal>
   );

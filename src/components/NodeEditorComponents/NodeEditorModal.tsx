@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import {
   Button,
+  Card,
   Col, Form, Modal, Row,
 } from 'react-bootstrap';
 import { useRecoilState } from 'recoil';
@@ -59,6 +60,8 @@ export default function NodeEditorModal() {
     newNodeTypes[newNodeTypeId] = nodeType;
 
     setNodeTypes(newNodeTypes);
+
+    handleClose();
   };
 
   const addAttribute = () => {
@@ -66,7 +69,7 @@ export default function NodeEditorModal() {
       ...nodeType,
     };
 
-    newNodeType.attributes[''] = {type: AttributeTypes.DigitalIn};
+    newNodeType.attributes[''] = { type: AttributeTypes.DigitalIn };
     setNodeType(newNodeType);
   };
 
@@ -80,6 +83,9 @@ export default function NodeEditorModal() {
       : Math.max(
         ...Object.keys(nodeType.inputs).map((x) => parseInt(x, 10)),
       ) + 1;
+
+    if (newNodeType.inputs[nextInputId - 1].name === '') return;
+
     newNodeType.inputs[nextInputId] = { name: '', type: ConnectionType.Bool };
 
     setNodeType(newNodeType);
@@ -95,8 +101,38 @@ export default function NodeEditorModal() {
       : Math.max(
         ...Object.keys(nodeType.outputs).map((x) => parseInt(x, 10)),
       ) + 1;
+
+    if (newNodeType.outputs[nextInputId - 1].name === '') return;
+
     newNodeType.outputs[nextInputId] = { name: '', type: ConnectionType.Bool };
 
+    setNodeType(newNodeType);
+  };
+
+  const deleteAttribute = (name: string) => {
+    const newNodeType = {
+      ...nodeType,
+    };
+
+    delete newNodeType.attributes[name];
+    setNodeType(newNodeType);
+  };
+
+  const deleteInput = (id: string) => {
+    const newNodeType = {
+      ...nodeType,
+    };
+
+    delete newNodeType.inputs[parseInt(id, 10)];
+    setNodeType(newNodeType);
+  };
+
+  const deleteOutput = (id: string) => {
+    const newNodeType = {
+      ...nodeType,
+    };
+
+    delete newNodeType.outputs[parseInt(id, 10)];
     setNodeType(newNodeType);
   };
 
@@ -135,152 +171,172 @@ export default function NodeEditorModal() {
       </Modal.Header>
 
       <Modal.Body>
-        <Row className="h-100 px-2 py-1">
-          <Col xs={12} md={6} lg={5} xl={4} xxl={3} className="d-flex h-100 flex-column me-4">
+        <Row className="px-2 py-1 gx-1 h-100">
+          <Col xs={12} md={5} lg={5} xl={4} xxl={3} className="me-4">
 
             <Row>
               <Col xs={12}>
-                <h5>Name</h5>
-                <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} />
+                <Card className="shadow p-3">
+                  <h5>Name & Description</h5>
+                  <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} placeholder="Name" />
+                  <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" />
+                </Card>
               </Col>
             </Row>
 
-            <Row className="pt-4">
+            <Row className="pt-3">
               <Col xs={12}>
-                <h5>Description</h5>
-                <Form.Control name="description" onChange={handleChange} as="textarea" rows={3} value={nodeType.description} />
+                <Card className="shadow p-3 pe-1">
+                  <h5>Attributes</h5>
+                  <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
+                    {
+                        Object.entries(nodeType.attributes).map(([name, value]) => (
+                          <AttributeListItem
+                            key={name}
+                            name={name}
+                            type={value.type}
+                            deleteItem={deleteAttribute}
+                          />
+                        ))
+                      }
+                    <Row
+                      className="gx-2"
+                      style={{ cursor: 'pointer' }}
+                      onClick={addAttribute}
+                    >
+                      <Col xs="auto">
+                        <FontAwesomeIcon
+                          icon="plus"
+                          className="text-secondary ps-2 my-auto"
+                          size="sm"
+                        />
+                      </Col>
+                      <Col>
+                        <h6 className="text-secondary small" style={{ paddingTop: '3.5px' }}>Add Attribute</h6>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
               </Col>
             </Row>
 
-            <Row className="pt-4 flex-grow-1">
+            <Row className="pt-3">
               <Col xs={12}>
-                <h5>Attributes</h5>
-                {
-                  Object.entries(nodeType.attributes).map(([name, value]) => (
-                    <AttributeListItem
-                      key={name}
-                      name={name}
-                      type={value.type}
-                    />
-                  ))
-                }
-                <Row
-                  className="gx-2"
-                  style={{ cursor: 'pointer' }}
-                  onClick={addAttribute}
-                >
-                  <Col sm="auto">
-                    <FontAwesomeIcon
-                      icon="plus"
-                      className="text-secondary ps-2 my-auto"
-                    />
-                  </Col>
-                  <Col>
-                    <h6 className="text-secondary" style={{ paddingTop: '2.5px' }}>Add Attribute</h6>
-                  </Col>
-                </Row>
+                <Card className="shadow p-3 pe-1">
+                  <h5>Inputs</h5>
+                  <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
+                    {
+                        Object.entries(nodeType.inputs).map(([inputId, { name, type }]) => (
+                          <IOListItem
+                            isInput
+                            key={inputId}
+                            name={name}
+                            type={type}
+                            id={inputId}
+                            deleteItem={deleteInput}
+                          />
+                        ))
+                      }
+                    <Row
+                      className="gx-2"
+                      style={{ cursor: 'pointer' }}
+                      onClick={addInput}
+                    >
+                      <Col xs="auto">
+                        <FontAwesomeIcon
+                          icon="plus"
+                          className="text-secondary ps-2 my-auto"
+                          size="sm"
+                        />
+                      </Col>
+                      <Col>
+                        <h6 className="text-secondary small" style={{ paddingTop: '3.5px' }}>Add Input</h6>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
               </Col>
             </Row>
 
-            <Row className="pt-2 flex-grow-1">
+            <Row className="pt-3">
               <Col xs={12}>
-                <h5>Inputs</h5>
-                {
-                  Object.entries(nodeType.inputs).map(([inputId, { name, type }]) => (
-                    <IOListItem
-                      isInput
-                      key={inputId}
-                      name={name}
-                      type={type}
-                    />
-                  ))
-                }
-                <Row
-                  className="gx-2"
-                  style={{ cursor: 'pointer' }}
-                  onClick={addInput}
-                >
-                  <Col sm="auto">
-                    <FontAwesomeIcon
-                      icon="plus"
-                      className="text-secondary ps-2 my-auto"
-                    />
-                  </Col>
-                  <Col>
-                    <h6 className="text-secondary" style={{ paddingTop: '2.5px' }}>Add Input</h6>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-
-            <Row className="pt-2 flex-grow-1">
-              <Col xs={12}>
-                <h5>Ouputs</h5>
-                {
-                  Object.entries(nodeType.outputs).map(([ouputId, { name, type }]) => (
-                    <IOListItem
-                      key={ouputId}
-                      name={name}
-                      type={type}
-                    />
-                  ))
-                }
-                <Row
-                  className="gx-2"
-                  style={{ cursor: 'pointer' }}
-                  onClick={addOutput}
-                >
-                  <Col sm="auto">
-                    <FontAwesomeIcon
-                      icon="plus"
-                      className="text-secondary ps-2 my-auto"
-                    />
-                  </Col>
-                  <Col>
-                    <h6 className="text-secondary" style={{ paddingTop: '2.5px' }}>Add Output</h6>
-                  </Col>
-                </Row>
+                <Card className="shadow p-3 pe-1">
+                  <h5>Ouputs</h5>
+                  <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
+                    {
+                        Object.entries(nodeType.outputs).map(([ouputId, { name, type }]) => (
+                          <IOListItem
+                            key={ouputId}
+                            name={name}
+                            type={type}
+                            id={ouputId}
+                            deleteItem={deleteOutput}
+                          />
+                        ))
+                      }
+                    <Row
+                      className="gx-2"
+                      style={{ cursor: 'pointer' }}
+                      onClick={addOutput}
+                    >
+                      <Col xs="auto">
+                        <FontAwesomeIcon
+                          icon="plus"
+                          className="text-secondary ps-2 my-auto"
+                          size="sm"
+                        />
+                      </Col>
+                      <Col>
+                        <h6 className="text-secondary small" style={{ paddingTop: '3.5px' }}>Add Output</h6>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
               </Col>
             </Row>
 
           </Col>
 
-          <Col className="d-flex h-100 flex-column">
+          <Col className="d-flex flex-column pt-3 pt-md-0">
 
             <Row>
               <Col xs={12}>
-                <h5>Init Code</h5>
-                <Editor
-                  value={nodeType.code.init}
-                  onValueChange={(code) => { handleChange({ target: { name: 'initCode', value: code } }); }}
-                  highlight={(code) => Prism.highlight(code, Prism.languages.python)}
-                  padding={10}
-                  insertSpaces={false}
-                  className="code-editor"
-                  style={{
-                    fontFamily: 'monospace',
-                    fontSize: 16,
-                    minHeight: '120px',
-                  }}
-                />
+                <Card className="shadow p-3">
+                  <h5>Init Code</h5>
+                  <Editor
+                    value={nodeType.code.init}
+                    onValueChange={(code) => { handleChange({ target: { name: 'initCode', value: code } }); }}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    padding={10}
+                    insertSpaces={false}
+                    className="code-editor"
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: 16,
+                      minHeight: '120px',
+                    }}
+                  />
+                </Card>
               </Col>
             </Row>
 
             <Row className="h-100 pt-4">
               <Col xs={12} className="d-flex flex-column">
-                <h5>Code</h5>
-                <Editor
-                  value={nodeType.code.update}
-                  onValueChange={(code) => { handleChange({ target: { name: 'updateCode', value: code } }); }}
-                  highlight={(code) => Prism.highlight(code, Prism.languages.python)}
-                  padding={10}
-                  insertSpaces={false}
-                  className="code-editor flex-grow-1"
-                  style={{
-                    fontFamily: 'monospace',
-                    fontSize: 16,
-                  }}
-                />
+                <Card className="shadow p-3 flex-grow-1">
+                  <h5>Code</h5>
+                  <Editor
+                    value={nodeType.code.update}
+                    onValueChange={(code) => { handleChange({ target: { name: 'updateCode', value: code } }); }}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    padding={10}
+                    insertSpaces={false}
+                    className="code-editor h-100"
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: 16,
+                    }}
+                  />
+                </Card>
               </Col>
             </Row>
 
@@ -288,7 +344,7 @@ export default function NodeEditorModal() {
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="outline-secondary">Cancel</Button>
+        <Button variant="outline-secondary" onClick={handleClose}>Cancel</Button>
         <Button variant="outline-primary" onClick={saveNode}>Save</Button>
       </Modal.Footer>
     </Modal>
