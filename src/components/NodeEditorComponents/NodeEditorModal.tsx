@@ -33,6 +33,7 @@ export default function NodeEditorModal() {
   });
   const defaultNodeName = 'New Node';
   const [newNodeTypeId, setNewNodeTypeId] = useState(nodeTypeId ?? defaultNodeName);
+  const [activeAttribute, setActiveAttribute] = useState<string | undefined>(undefined);
 
   // Update state on nodeEditorModalAtom change
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function NodeEditorModal() {
         code: { init: '', update: '', isQuery: false },
       });
     setNewNodeTypeId(nodeTypeId ?? defaultNodeName);
+    setActiveAttribute(undefined);
   }, [nodeEditorModal]);
 
   const handleClose = () => setNodeEditorModal((prev) => ({ ...prev, isOpen: false }));
@@ -84,8 +86,6 @@ export default function NodeEditorModal() {
         ...Object.keys(nodeType.inputs).map((x) => parseInt(x, 10)),
       ) + 1;
 
-    if (newNodeType.inputs[nextInputId - 1].name === '') return;
-
     newNodeType.inputs[nextInputId] = { name: '', type: ConnectionType.Bool };
 
     setNodeType(newNodeType);
@@ -102,7 +102,7 @@ export default function NodeEditorModal() {
         ...Object.keys(nodeType.outputs).map((x) => parseInt(x, 10)),
       ) + 1;
 
-    if (newNodeType.outputs[nextInputId - 1].name === '') return;
+    if (nextInputId !== 0 && newNodeType.outputs[nextInputId - 1].name === '') return;
 
     newNodeType.outputs[nextInputId] = { name: '', type: ConnectionType.Bool };
 
@@ -153,6 +153,32 @@ export default function NodeEditorModal() {
       case 'updateCode':
         newNodeType.code.update = target.value;
         break;
+      case 'attributeName': {
+        const newKey = target.value;
+        const oldKey = target.dataset.attributeName!;
+        delete Object
+          .assign(newNodeType.attributes, { [newKey]: newNodeType.attributes[oldKey] })[oldKey];
+        setActiveAttribute(newKey);
+        break;
+      }
+      case 'attributeType':
+        newNodeType.attributes[target.dataset.attributeName!].type = AttributeTypes[target.value];
+        break;
+      case 'ioName': {
+        if (target.dataset.ioIsInput === 'true') {
+          newNodeType.inputs[target.dataset.ioId].name = target.value;
+        } else {
+          newNodeType.outputs[target.dataset.ioId].name = target.value;
+        }
+        break;
+      }
+      case 'ioType':
+        if (target.dataset.ioIsInput === 'true') {
+          newNodeType.inputs[target.dataset.ioId].type = ConnectionType[target.value];
+        } else {
+          newNodeType.outputs[target.dataset.ioId].type = ConnectionType[target.value];
+        }
+        break;
       default:
         break;
     }
@@ -196,6 +222,8 @@ export default function NodeEditorModal() {
                             name={name}
                             type={value.type}
                             deleteItem={deleteAttribute}
+                            onChange={handleChange}
+                            isActive={name === activeAttribute} // super hacky im so sorry
                           />
                         ))
                       }
@@ -234,6 +262,7 @@ export default function NodeEditorModal() {
                             type={type}
                             id={inputId}
                             deleteItem={deleteInput}
+                            onChange={handleChange}
                           />
                         ))
                       }
@@ -271,6 +300,7 @@ export default function NodeEditorModal() {
                             type={type}
                             id={ouputId}
                             deleteItem={deleteOutput}
+                            onChange={handleChange}
                           />
                         ))
                       }

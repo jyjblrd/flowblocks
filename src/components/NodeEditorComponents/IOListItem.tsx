@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { ChangeEventHandler } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 import { ConnectionType } from '../../shared/interfaces/NodeTypes.interface';
 
 export default function IOListItem(
   {
-    isInput = false, name, type, id, deleteItem,
+    isInput = false, name, type, id, deleteItem, onChange,
   }:
   {
     isInput?: boolean,
@@ -13,15 +13,16 @@ export default function IOListItem(
     type: ConnectionType,
     id: string,
     deleteItem: (id: string) => void
+    onChange: ChangeEventHandler
   },
 ) {
   return (
     <Row className="gx-2 pb-2">
       <Col xs={7} md={4} lg={5} xxl={6}>
-        <Form.Control size="sm" placeholder={isInput ? 'Input Name' : 'Output Name'} defaultValue={name} />
+        <Form.Control size="sm" placeholder={isInput ? 'Input Name' : 'Output Name'} name="ioName" data-io-id={id} data-io-is-input={isInput} value={name} onChange={onChange} />
       </Col>
       <Col>
-        <Form.Select size="sm" defaultValue={ConnectionType[type]}>
+        <Form.Select size="sm" value={ConnectionType[type]} name="ioType" data-io-id={id} data-io-is-input={isInput} onChange={onChange}>
           <option value="">Type</option>
           {
             Object.keys(ConnectionType)
