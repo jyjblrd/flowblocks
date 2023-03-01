@@ -24,7 +24,7 @@ import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import { attributeGenerator, setNodesList } from '../shared/helpers/helperFunctions';
+import { attributeGenerator } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeInstance>[] = [];
 const initialEdges: Edge[] = [];

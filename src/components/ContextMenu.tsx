@@ -29,9 +29,9 @@ export default function ContextMenu(
 
   const deleteItem = () => {
     if (clickedNode) {
-      const oldPin:number = parseInt(clickedNode.data.attributes.pin_num, 10);
+      const oldPin: number = parseInt(clickedNode.data.attributes.pin_num, 10);
       if (!Number.isNaN(oldPin)) {
-        used.pop(used.indexOf(oldPin));
+        used.splice(used.indexOf(oldPin), 1);
       }
       reactFlowInstance.deleteElements({ nodes: [clickedNode] });
       hideMenu();
@@ -64,7 +64,7 @@ export default function ContextMenu(
             used.push(newPin);
           }
           if (!Number.isNaN(oldPin)) {
-            used.pop(used.indexOf(oldPin));
+            used.splice(used.indexOf(oldPin), 1);
           }
           return newNode;
         }

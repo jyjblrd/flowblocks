@@ -1,11 +1,9 @@
-import React, { useCallback } from 'react';
-import { number } from 'prop-types';
-import { ReactFlowInstance, useReactFlow } from 'reactflow';
+import { ReactFlowInstance, Node } from 'reactflow';
+import { SetterOrUpdater } from 'recoil';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
-import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
-import { nodeTypesAtom } from '../recoil/atoms/nodeTypesAtom';
-import { NodeTypes, NodeTypeData } from '../interfaces/NodeTypes.interface';
-import { RecoilState, SetterOrUpdater, useRecoilState } from 'recoil';
+import {
+  AttributeTypes, NodeTypeData,
+} from '../interfaces/NodeTypes.interface';
 
 export default function flowchartToJSON(
   reactFlowInstance: ReactFlowInstance,
@@ -35,38 +33,36 @@ export default function flowchartToJSON(
   return project;
 }
 
-const availablePins = new Map<string, string[]>([
-  ['dig', ['0', '1', '2', '3', '4', '6', '7']],
-  ['an', ['8', '9', '10']],
-]);
-let nameNumber:number = 0;
-export var used: number[] = [];
+const availablePins = {
+  dig: [0, 1, 2, 3, 4, 5, 6, 7],
+  an: [8, 9, 10],
+};
 
-function nextUnused(toUse:number[], used:number[]) {
-  for (const i in toUse) {
-    if (used.indexOf(toUse[i]) == -1) { return toUse[i]; }
-  }
-  // throw new error("")
+let nameNumber: number = 0;
+export const used: number[] = [];
+
+function nextUnused(toUse: number[]) {
+  return toUse.find((pin) => !used.includes(pin));
 }
 
-export function attributeGenerator(attributeType: AttributeTypes, nodeType:string): string {
+export function attributeGenerator(attributeType: AttributeTypes, nodeType: string): string {
   switch (attributeType) {
     case AttributeTypes.DigitalIn:
-      var out: number = 0;
-      out = nextUnused(availablePins.get('dig'), used);
+    case AttributeTypes.DigitalOut: {
+      const out: number | undefined = nextUnused(availablePins.dig);
+      if (out === undefined) {
+        return 'error';
+      }
       used.push(out);
-      return out as unknown as string;
-    case AttributeTypes.DigitalOut:
-      var out: number = 0;
-      out = nextUnused(availablePins.get('dig'), used);
-      used.push(out);
-      return out as unknown as string;
-    case AttributeTypes.BlockName:
+      return String(out);
+    }
+    case AttributeTypes.BlockName: {
       nameNumber += 1;
-      var name: string = nodeType;
+      let name: string = nodeType;
       name = name.concat(' ');
-      name = name.concat(nameNumber as string);
+      name = name.concat(String(nameNumber));
       return name;
+    }
     case AttributeTypes.Bool:
       return 'true';
     case AttributeTypes.Number:
@@ -76,23 +72,29 @@ export function attributeGenerator(attributeType: AttributeTypes, nodeType:strin
   }
 }
 
-export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, nodeTypes: Object, exportName: string): void {
-
+export function saveFlowInstance(
+  reactFlowInstance: ReactFlowInstance,
+  nodeTypes: Object,
+  exportName: string,
+): void {
   console.log(`saveToLocal: ${exportName}`);
   const flowObjStr = JSON.stringify(reactFlowInstance.toObject());
   const nodeTypesStr = JSON.stringify(nodeTypes);
-  const exportStr = JSON.stringify({"flow" : flowObjStr, "nodes" : nodeTypesStr });
+  const exportStr = JSON.stringify({ flow: flowObjStr, nodes: nodeTypesStr });
   localStorage.setItem(exportName ?? 'default', exportStr);
-
 }
 
-export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, setNodeTypes: SetterOrUpdater<Record<string, NodeTypeData>>, exportName: string): void {
+export function loadFlowInstance(
+  reactFlowInstance: ReactFlowInstance,
+  setNodeTypes: SetterOrUpdater<Record<string, NodeTypeData>>,
+  exportName: string,
+): void {
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
   if (!load) {
     alert('No saved flowchart found of this name');
     return;
-  } 
+  }
 
   const loaded = JSON.parse(load);
   const flow = JSON.parse(loaded.flow);
@@ -102,12 +104,11 @@ export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, setNodeTy
   reactFlowInstance.setEdges(flow.edges);
 
   setNodeTypes(nodes);
-
 }
 
 function knownLocalCharts(): string[] {
   const keys: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
+  for (let i = 0; i < localStorage.length; i += 1) {
     keys.push(localStorage.key(i) ?? '');
   }
   return keys;
@@ -118,6 +119,7 @@ export function ppKnownCharts(): string {
   return charts.join('\n');
 }
 
+/*
 function downloadObjectAsJson(exportObj: Object, exportName: string) {
   const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(exportObj))}`;
   const downloadAnchorNode = document.createElement('a');
@@ -127,24 +129,25 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 }
+*/
 
-function isUseablePin(pin:number, type:String):boolean {
-  return !availablePins.get(type).includes(pin);
+function isUseablePin(pin: number, type: keyof typeof availablePins): boolean {
+  return !availablePins[type].includes(pin);
 }
 
-function compileCircuitHelper(nodesList) {
-  const usedPins = new Map<String, String>();
+function compileCircuitHelper(nodesList: Node<NodeInstance>[]) {
+  const usedPins = new Map<string, string>();
   let out = '';
-  // nodesList.keys().foreach((key) => {
-  for (const key of nodesList.keys()) {
-    const node = nodesList[key];
-    const type = (node.data.nodeTypeId);
-    const pin = (node.data.attributes.pin_num);
-    if (pin != undefined) {
-      console.log(typeof (pin), usedPins.get(pin), usedPins);
-      if (usedPins.get(pin) != undefined) {
+  for (let i = 0; i < nodesList.length; i += 1) {
+    const node = nodesList[i];
+    const type = node.data.nodeTypeId;
+    const pin = node.data.attributes.pin_num;
+    if (pin !== undefined) {
+      const pinUsedBy = usedPins.get(pin);
+      console.log(typeof (pin), pinUsedBy, usedPins);
+      if (pinUsedBy !== undefined) {
         out = 'It looks like ';
-        out = out.concat(usedPins.get(pin));
+        out = out.concat(pinUsedBy);
         out = out.concat(' and ');
         out = out.concat(node.data.attributes.blockName);
         out = out.concat(' use the same pin this is not allowed.');
@@ -152,8 +155,8 @@ function compileCircuitHelper(nodesList) {
       }
       usedPins.set(pin, node.data.attributes.blockName);
     }
-    if (type == 'Button') {
-      if (isUseablePin((node.data.attributes.pin_num), 'dig')) {
+    if (type === 'Button') {
+      if (isUseablePin(parseInt(node.data.attributes.pin_num, 10), 'dig')) {
         out = 'failed on button ';
         out = out.concat(node.data.attributes.blockName);
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
@@ -165,8 +168,8 @@ function compileCircuitHelper(nodesList) {
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to .......\n');
     }
-    if (type == 'LED') {
-      if (isUseablePin((node.data.attributes.pin_num), 'dig')) {
+    if (type === 'LED') {
+      if (isUseablePin(parseInt(node.data.attributes.pin_num, 10), 'dig')) {
         out = 'failed on LED ';
         out = out.concat(node.data.attributes.blockName);
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
@@ -182,4 +185,6 @@ function compileCircuitHelper(nodesList) {
 
   return out;
 }
-export function compileCircuit(nodesList) { console.log(compileCircuitHelper(nodesList)); }
+export function compileCircuit(nodesList: Node<NodeInstance>[]) {
+  console.log(compileCircuitHelper(nodesList));
+}
