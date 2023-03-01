@@ -59,6 +59,7 @@ export default function DefaultNode(
 
   const typeToColor: Record<ConnectionType, string> = {
     [ConnectionType.Bool]: 'var(--bs-blue)',
+    [ConnectionType.Number]: 'var(--bs-orange)',
   };
 
   return (
