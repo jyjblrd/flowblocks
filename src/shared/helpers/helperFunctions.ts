@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
 import { number } from 'prop-types';
 import { ReactFlowInstance, useReactFlow } from 'reactflow';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import { AttributeTypes, Attributes } from '../interfaces/NodeTypes.interface';
+import { nodeEditorModalAtom } from '../recoil/atoms/nodeEditorModal';
 
 // TODO: delete this function !!!!
 function jsNodeTypeIdToVertexKind(nodeTypeId: string) {
@@ -150,6 +152,7 @@ function compileCircuitHelper(nodesList) {
     const node = nodesList[key];
     const type = (node.data.nodeTypeId);
     const pin = (node.data.attributes.pin_num);
+    console.log(node.data.attributes);
     if (pin != undefined) {
       console.log(typeof (pin), usedPins.get(pin), usedPins);
       if (usedPins.get(pin) != undefined) {
@@ -173,10 +176,10 @@ function compileCircuitHelper(nodesList) {
       out = out.concat(node.data.attributes.pin_num);
       out = out.concat(' to the button, ');
       out = out.concat(node.data.attributes.blockName);
-      out = out.concat(' then to .......\n');
+      out = out.concat(' then to the 3.3v power\n');
     }
     if (type == 'LED') {
-      if (isUseablePin((node.data.attributes.pin_num), 'dig')) {
+      if (isUseablePin((node.data.attributes.pin_num), 'dig') && node.data.attributes.pin_num != '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.attributes.blockName);
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
@@ -192,4 +195,8 @@ function compileCircuitHelper(nodesList) {
 
   return out;
 }
-export function compileCircuit(nodesList) { console.log(compileCircuitHelper(nodesList)); }
+export function compileCircuit(nodesList) {
+  const setNodeEditorModal = useSetRecoilState(nodeEditorModalAtom);
+  setNodeEditorModal();
+  console.log(compileCircuitHelper(nodesList));
+}
