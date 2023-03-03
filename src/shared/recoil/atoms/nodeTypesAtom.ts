@@ -8,12 +8,12 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Physical button input',
 
     attributes: {
-      pin_num: { type: AttributeTypes.digitalIn },
-      blockName: { type: AttributeTypes.name },
+      pin_num: {type: AttributeTypes.DigitalIn},
+      blockName: {type: AttributeTypes.BlockName},
     },
     code: {
       init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
-      update: 'output_value = True if self.led.value() else False',
+      update: '{{output}} = self.led.value()',
       isQuery: true,
     },
     inputs: {},
@@ -28,8 +28,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Logical AND requires all inputs to be true to output true',
     attributes: {},
     code: {
-      init: 'self.left = False\nself.right = False',
-      update: 'if input == "0":\n\tself.left = value\nelif input == "1":\n\tself.right = value\noutput_value = True if self.left and self.right else False',
+      init: '',
+      update: '{{output}} = {{left}} and {{right}}',
       isQuery: false,
     },
     inputs: {
@@ -54,8 +54,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Logical OR, requires one of the inputs to be true.',
     attributes: {},
     code: {
-      init: 'self.left = False\nself.right = False',
-      update: 'if input == "0":\n\tself.left = value\nelif input == "1":\n\tself.right = value\noutput_value = True if self.left or self.right else False',
+      init: '',
+      update: '{{output}} = {{left}} or {{right}}',
       isQuery: false,
     },
     inputs: {
@@ -109,7 +109,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: '',
-      update: '{{ value }} = {{Constant Value}}',
+      update: '{{ value }} = {{ Constant Value }}',
       isQuery: false,
     },
     inputs: {},
@@ -120,20 +120,36 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
-  LED: {
-    description: 'LED output',
-    attributes: {
-      pin_num: { type: AttributeTypes.digitalOut },
-      blockName: { type: AttributeTypes.name },
-    },
+  DbgPrintInt: {
+    description: 'Prints an int. Used for test model of execution',
+    attributes: {},
     code: {
-      init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
-      update: 'self.led.value(1 if value else 0)',
+      init: '',
+      update: 'print({{ value }})',
       isQuery: false,
     },
     inputs: {
       0: {
-        name: 'left',
+        name: 'value',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {},
+  },
+  LED: {
+    description: 'LED output',
+    attributes: {
+      pin_num: {type: AttributeTypes.DigitalOut},
+      blockName: {type: AttributeTypes.BlockName},
+    },
+    code: {
+      init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
+      update: 'self.led.value({{ input }})',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
         type: ConnectionType.Bool,
       },
     },

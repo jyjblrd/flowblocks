@@ -10,7 +10,7 @@ import Toolbar from './components/Toolbar';
 import NodeEditorModal from './components/NodeEditorComponents/NodeEditorModal';
 import SaveModal from './components/SaveModal';
 import LoadModal from './components/LoadModal';
-//TODO: make these imports a bit nicer
+// TODO: make these imports a bit nicer
 
 library.add(fas, fab);
 
@@ -26,8 +26,8 @@ export default function App() {
             <Toolbar />
           </Col>
         </Row>
-        <Row>
-          <Col xs={5} md={4} xl={3}>
+        <Row style={{ height: 'calc(100vh - 100px)' }}>
+          <Col xs={6} md={5} xl={4} className="h-100">
             <NodePicker />
           </Col>
           <Col>

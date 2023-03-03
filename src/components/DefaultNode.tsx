@@ -32,11 +32,14 @@ const useConnectionValidator = () => {
       if (!connection.target
         || !connection.targetHandle
         || !connection.source
+        || !connection.sourceHandle
         || connection.source === connection.target) return false;
       const target = getNode(connection.target);
       const edges = getConnectedEdges(target ? [target] : [], getEdges());
-      const inputType = nodeType[getNode(connection.target)?.data.nodeTypeId].inputs[connection.targetHandle].type;
-      const outputType = nodeType[getNode(connection.source)?.data.nodeTypeId].outputs[connection.sourceHandle].type;
+      const inputType = nodeType[getNode(connection.target)?.data.nodeTypeId]
+        .inputs[parseInt(connection.targetHandle, 10)].type;
+      const outputType = nodeType[getNode(connection.source)?.data.nodeTypeId]
+        .outputs[parseInt(connection.sourceHandle, 10)].type;
 
       if (inputType !== outputType) { return false; }
       return edges.every((edge) =>
@@ -59,6 +62,7 @@ export default function DefaultNode(
 
   const typeToColor: Record<ConnectionType, string> = {
     [ConnectionType.Bool]: 'var(--bs-blue)',
+    [ConnectionType.Number]: 'var(--bs-orange)',
   };
 
   return (

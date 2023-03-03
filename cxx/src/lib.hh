@@ -30,8 +30,10 @@ enum class ConnectionType {
 };
 
 enum class AttributeType {
-	PinInNum,
-	PinOutNum,
+	DigitalIn,
+	DigitalOut,
+	AnalogIn,
+	AnalogOut,
 	Bool,
 	Number,
 
@@ -106,7 +108,7 @@ public:
 
 struct Successor {
 	std::string id;
-	std::string input;
+	std::string input_id;
 
 	auto operator==(Successor const &) const -> bool = default;
 };
@@ -115,7 +117,7 @@ template <>
 struct std::hash<Successor> {
 	std::size_t operator()(Successor const &successor) const noexcept {
 		std::size_t const h1 = std::hash<std::string> {}(successor.id);
-		std::size_t const h2 = std::hash<std::string> {}(successor.input);
+		std::size_t const h2 = std::hash<std::string> {}(successor.input_id);
 		return h1 ^ (h2 << 1);
 	}
 };
@@ -137,31 +139,34 @@ struct SortedGraph {
 class AttributeInfo {
 public:
 	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
-	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
-	[[nodiscard]] auto type() const -> auto const { return attr_type; }
+	[[nodiscard]] auto self_name() const -> std::string { return "self._" + generated_name; }
+	[[nodiscard]] auto type() const -> auto { return attr_type; }
 	[[nodiscard]] auto used_in_update() const -> auto { return used; }
 
 	auto set_used_in_update() -> void { used = true; }
 
 	auto alpha_convert_name(std::size_t collision_no) -> void {
 		generated_name += std::to_string(collision_no);
-		generated_self_name += std::to_string(collision_no);
 	}
 
 	[[maybe_unused]] AttributeInfo(std::string &&n, AttributeType at)
 		 : generated_name {n}
-		 , generated_self_name {"self.__" + generated_name}
 		 , attr_type {at} { }
 
 	AttributeInfo(std::string &&n, int attribute_type_int)
-		 : generated_name {n}
-		 , generated_self_name {"self.__" + generated_name} {
+		 : generated_name {n} {
 		switch (attribute_type_int) {
-		case static_cast<int>(AttributeType::PinInNum):
-			attr_type = AttributeType::PinInNum;
+		case static_cast<int>(AttributeType::DigitalIn):
+			attr_type = AttributeType::DigitalIn;
 			break;
-		case static_cast<int>(AttributeType::PinOutNum):
-			attr_type = AttributeType::PinOutNum;
+		case static_cast<int>(AttributeType::DigitalOut):
+			attr_type = AttributeType::DigitalOut;
+			break;
+		case static_cast<int>(AttributeType::AnalogIn):
+			attr_type = AttributeType::AnalogIn;
+			break;
+		case static_cast<int>(AttributeType::AnalogOut):
+			attr_type = AttributeType::AnalogOut;
 			break;
 		case static_cast<int>(AttributeType::Bool):
 			attr_type = AttributeType::Bool;
@@ -179,7 +184,6 @@ public:
 
 private:
 	std::string generated_name;
-	std::string generated_self_name;
 	AttributeType attr_type;
 	bool used {false};
 };
@@ -187,22 +191,38 @@ private:
 class InputOutputInfo {
 public:
 	[[nodiscard]] auto name() const -> auto const & { return generated_name; }
-	[[nodiscard]] auto type() const -> auto const { return con_type; }
-	[[nodiscard]] auto self_name() const -> auto const & { return generated_self_name; }
+	[[nodiscard]] auto type() const -> auto { return con_type; }
+	[[nodiscard]] auto self_name() const -> std::string { return "self." + generated_name; }
+	[[nodiscard]] auto self_u_name() const -> std::string { return "self._" + generated_name; }
+	[[nodiscard]] auto temp_name() const -> std::string { return "_" + generated_name; }
+	[[nodiscard]] auto used_in_update() const -> auto { return used; }
+
+	auto set_used_in_update() -> void { used = true; }
 
 	auto alpha_convert_name(std::size_t collision_no) -> void {
 		generated_name += std::to_string(collision_no);
-		generated_self_name += std::to_string(collision_no);
+	}
+
+	[[nodiscard]] auto get_default_value() const -> std::string {
+		switch (con_type) {
+		case ConnectionType::Bool:
+			return "False";
+		case ConnectionType::Number:
+			return "0";
+
+			// TODO: add more cases to switch statement if necessary
+
+		default:
+			return "None";
+		}
 	}
 
 	[[maybe_unused]] InputOutputInfo(std::string &&n, ConnectionType ct)
 		 : generated_name {n}
-		 , generated_self_name {"self." + generated_name}
 		 , con_type {ct} { }
 
 	InputOutputInfo(std::string &&n, int connection_type_int)
-		 : generated_name {n}
-		 , generated_self_name {"self." + generated_name} {
+		 : generated_name {n} {
 		switch (connection_type_int) {
 		case static_cast<int>(ConnectionType::Bool):
 			con_type = ConnectionType::Bool;
@@ -220,195 +240,41 @@ public:
 
 private:
 	std::string generated_name;
-	std::string generated_self_name;
 	ConnectionType con_type;
+	bool used {false};
 };
 
-inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) {
-	for (std::size_t body_pos {0}; body_pos < body.length(); ++body_pos) {
-		auto substr_end_idx = body.find('\n', body_pos);
-
-		if (substr_end_idx == std::string_view::npos) {
-			substr_end_idx = body.length();
-		}
-
-		auto substr = body.substr(body_pos, substr_end_idx - body_pos);
-
-		int local_indent {indent_amt};
-		while (!substr.empty() && substr.front() == '\t') {
-			substr.remove_prefix(1);
-			++local_indent;
-		}
-
-		output += "\n";
-		for (int i {0}; i < local_indent; ++i) {
-			output += "    ";
-		}
-
-		output += substr;
-		body_pos = substr_end_idx;
-	}
-}
-
-template <typename... Ts>
-	requires((sizeof...(Ts) > 0) && ... && std::convertible_to<Ts, std::string_view>)
-inline auto generate_function(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
-	output.append("\n");
-	for (int i {0}; i < indent_amt; ++i) {
-		output += "    ";
-	}
-	output.append(header);
-	indent_amt += 1;
-
-	std::array<std::string_view, sizeof...(Ts)> const code_snippets = {snippets...};
-	for (auto const &snip : code_snippets) {
-		generate_py_lines(output, indent_amt, snip);
-	}
-
-	output += "\n";
-}
-
-inline auto make_init_attribute_pair(std::string_view const name, std::map<std::string, AttributeInfo> const &attrs) -> std::pair<std::string, std::string> {
-	std::string function_name {"def "};
-	std::string attribute_init {};
-
-	function_name += name;
-	function_name += "(self, successors"; // todo: update with new system later
-
-	for (auto const &entry : attrs) {
-		function_name += ", ";
-		function_name += entry.second.name();
-
-		// as a runtime memory space optimisation, only save attributes that are used in the body of the update block
-		if (entry.second.used_in_update()) {
-			attribute_init += entry.second.self_name();
-			attribute_init += " = ";
-			attribute_init += entry.second.name();
-			attribute_init += "\n";
-		}
-	}
-
-	function_name += "):";
-
-	if (!attribute_init.empty())
-		attribute_init.pop_back(); // at least one line added; remove trailing newline
-
-	return std::make_pair(std::move(function_name), std::move(attribute_init));
-}
+class NodeDefinitions;
 
 class NodeType {
-	static auto generate_block_name(std::string const &n) -> std::string {
-		std::string g_name {n};
-
-		// strip leading non-alphabet characters
-		bool done {false};
-		std::erase_if(g_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
-
-		if (n.empty()) {
-			g_name = "UnnamedBlock";
-		} else {
-			g_name.front() = std::toupper(g_name.front(), std::locale::classic());
-			g_name = "Block" + g_name;
-		}
-
-		std::erase_if(g_name, [](char c) { return !std::isalnum(c, std::locale::classic()); });
-
-		return g_name;
-	}
-
-	static auto generate_var_name(std::string const &n, std::string_view default_name) -> std::string {
-		std::string a_name {n};
-
-		// strip leading non-alphabet characters
-		bool done {false};
-		std::erase_if(a_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
-
-		if (n.empty()) {
-			a_name = default_name;
-		} else {
-			std::replace_if(
-				a_name.begin(), a_name.end(), [](char c) { return std::isspace(c, std::locale::classic()); }, '_');
-			std::transform(a_name.begin(), a_name.end(), a_name.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
-		}
-
-		std::erase_if(a_name, [](char c) { return !(std::isalnum(c, std::locale::classic()) || c == '_'); });
-
-		return a_name;
-	}
-
-	auto substitute_identifiers(std::string const &original, bool &result_valid, bool is_update) -> std::string {
-		std::string result;
-
-		std::size_t index_lo {0};
-		while (index_lo < original.size()) {
-			std::size_t index_hi {original.find("{{", index_lo)};
-
-			// if index_hi == npos (i.e. '{{' not found), substr returns until the end of str
-			result += original.substr(index_lo, index_hi - index_lo);
-			index_lo = index_hi;
-
-			if (index_lo < original.size()) {
-				index_lo += 2; // length of "{{"
-				index_hi = original.find("}}", index_lo);
-
-				if (index_hi == std::string::npos) {
-					result_valid = false;
-					return ""; // ERROR: unclosed attribute/input/output in string
-					// TODO: return error message in the string
-					// we only throw an error if this class if we try to use an invalid block
-				}
-
-				while ((index_lo < index_hi) && original[index_lo] == ' ') {
-					index_lo++;
-				}
-
-				std::size_t index_tmp {index_hi};
-				while ((index_lo < index_tmp) && original[index_tmp - 1] == ' ') {
-					index_tmp--;
-				}
-
-				std::string const key {original.substr(index_lo, index_tmp - index_lo)};
-
-				if (auto c {result.back()}; c != ' ' && c != '(' && c != '[' && c != '\n' && c != '\t') { // note: result.back() cannot be '{'
-					result += " ";
-				}
-
-				// BIG NOTE: substitution for attributes, inputs, and outputs happens HERE:
-				// TODO: replace (inputs, outputs) replacements with necessary replacements for our execution model
-				if (attributes.contains(key)) {
-					if (is_update) {
-						result += attributes.at(key).self_name();
-						attributes.at(key).set_used_in_update();
-					} else {
-						result += attributes.at(key).name();
-					}
-
-				} else if (inputs.contains(key)) {
-					result += inputs.at(key).self_name();
-
-				} else if (outputs.contains(key)) {
-					result += outputs.at(key).self_name();
-
-				} else {
-					return ""; // ERROR: identifier not found
-					// TODO: return error string
-				}
-
-				index_hi += 2;
-				if (index_hi < original.size()) {
-					if (auto c {original[index_hi]}; c != ' ' && c != ',' && c != ')' && c != ']' && c != '\n' && c != '\t') {
-						result += " ";
-					}
-				}
-
-				index_lo = index_hi;
-			}
-		}
-
-		return result;
-	}
-
 public:
+	auto emit_block_definition(std::string &code) const -> void;
+	auto emit_block_instantiation(std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void;
+
+	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
+		generated_name += std::to_string(collision_no);
+	}
+
+	[[nodiscard]] auto get_input_type(std::string const &input_id) const -> std::optional<ConnectionType> {
+		if (input_ids.contains(input_id))
+			return {inputs.at(input_ids.at(input_id)).type()};
+		else
+			return {};
+	}
+
+	[[nodiscard]] auto get_output_type(std::string const &output_id) const -> std::optional<ConnectionType> {
+		if (output_ids.contains(output_id))
+			return {outputs.at(output_ids.at(output_id)).type()};
+		else
+			return {};
+	}
+
+	auto mark_used() -> void { used = true; }
+	[[nodiscard]] auto expected_in_degree() const -> std::size_t { return inputs.size(); }
+	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return outputs.size(); }
+	[[nodiscard]] auto get_generated_name() const -> std::string const & { return generated_name; }
+	[[nodiscard]] auto get_real_name() const -> std::string const & { return name; }
+
 	NodeType(std::string block_name, marshalling::NodeType const &m_node_type)
 		 : name {std::move(block_name)}
 		 , is_query {m_node_type.code.is_query} {
@@ -466,99 +332,19 @@ public:
 			outputs.insert_or_assign(out_con_entry.name, std::move(oi));
 		}
 
+		// TODO: check if the 'return' is present in init_code or update_code, and error if present
+
 		// perform attribute/input/output name substitution
 
 		init_code = substitute_identifiers(m_node_type.code.init, init_code_valid, false);
 		update_code = substitute_identifiers(m_node_type.code.update, update_code_valid, true);
 	}
 
-	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
-		generated_name += std::to_string(collision_no);
-	}
-
-	auto emit_block_definition(std::string &code) const -> void {
-		static constexpr std::string_view init_begin {"self.successors = successors"};
-		static constexpr std::string_view update_end {"for successor in self.successors['0']:\n\tsuccessor['vertex'].update(successor['input'], output_value)"};
-		static constexpr std::string_view query_func {"def query(self):"};
-		static constexpr std::string_view update_func {"def update(self, input, value):"};
-
-		if (used) {
-
-			if (!init_code_valid) {
-				// TODO: throw error
-			} else if (!update_code_valid) {
-				// TODO: throw error
-			} else {
-				auto [init_func, attr_init] = make_init_attribute_pair("__init__", attributes);
-
-				code.append("class " + get_generated_name() + ":");
-
-				// TODO: rewrite to produce code that obeys the correct model of execution
-
-				if (!outputs.empty()) {
-					generate_function(code, 1, init_func, init_begin, attr_init, init_code);
-
-					if (is_query) {
-						generate_function(code, 1, query_func, update_code, update_end);
-					} else {
-						generate_function(code, 1, update_func, update_code, update_end);
-					}
-				} else {
-					generate_function(code, 1, init_func, attr_init, init_code);
-
-					if (is_query) {
-						generate_function(code, 1, query_func, update_code);
-					} else {
-						generate_function(code, 1, update_func, update_code);
-					}
-				}
-
-				code.append("\n");
-			}
-		}
-	}
-
-	auto emit_block_instantiation(std::string &code, SortedNode const &sn, std::string const &id) const -> void {
-		code += "a" + id + " = " + get_generated_name() + "(successors = {";
-		for (auto const &[output, successors] : sn.output_to_successors) {
-			code += "'" + output + "' : [";
-			for (auto const &successor : successors) {
-				code += "{'vertex' : a" + successor.id + ", 'input' : '" + successor.input + "'}, ";
-			}
-			code += "], ";
-		}
-
-		code += "},";
-
-		for (auto const &[a_name, value] : sn.attributes) {
-			code += " " + attributes.at(a_name).name() + " = " + value + ",";
-		}
-
-		code.pop_back(); // remove final comma
-		code += ")\n";
-	}
-
-	[[nodiscard]] auto get_input_type(std::string const &input_id) const -> std::optional<ConnectionType> {
-		if (input_ids.contains(input_id))
-			return {inputs.at(input_ids.at(input_id)).type()};
-		else
-			return {};
-	}
-
-	[[nodiscard]] auto get_output_type(std::string const &output_id) const -> std::optional<ConnectionType> {
-		if (output_ids.contains(output_id))
-			return {outputs.at(output_ids.at(output_id)).type()};
-		else
-			return {};
-	}
-
-	auto mark_used() -> void { used = true; }
-	[[nodiscard]] auto expected_in_degree() const -> std::size_t { return inputs.size(); }
-	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return outputs.size(); }
-	[[nodiscard]] auto get_generated_name() const -> std::string const & { return generated_name; }
-	[[nodiscard]] auto get_real_name() const -> std::string const & { return name; }
-
 private:
+	static auto generate_block_name(std::string const &n) -> std::string;
+	static auto generate_var_name(std::string const &n, std::string_view default_name) -> std::string;
+	auto substitute_identifiers(std::string const &original, bool &result_valid, bool is_update) -> std::string;
+
 	std::string name;
 	std::string generated_name;
 
@@ -572,8 +358,6 @@ private:
 	bool update_code_valid {true};
 
 	// these map from human readable-names to their related info class
-	// TODO: refactor so inputs uses an InputInfo class, and outputs uses OutputInfo
-	// that way, we can maybe directly access the outputs of predecessor nodes as inputs (?)
 	std::map<std::string, InputOutputInfo> inputs;
 	std::map<std::string, InputOutputInfo> outputs;
 	std::map<std::string, AttributeInfo> attributes;
@@ -592,6 +376,10 @@ public:
 	auto emit_block_definitions(std::string &code) const -> void {
 		for (auto const &def : definitions)
 			def.emit_block_definition(code);
+	}
+
+	auto emit_block_instantiations(std::string &code, SortedGraph const &graph, std::string const &id) const -> void {
+		get_node_type(graph.id_to_node.at(id)).emit_block_instantiation(code, graph, id, *this);
 	}
 
 	auto insert_type(NodeType &&nt) -> void {
@@ -643,3 +431,336 @@ private:
 	std::unordered_map<std::string, std::size_t> names {};
 	std::unordered_map<std::string, std::size_t> name_collisions {};
 };
+
+// Code for generating micropython:
+
+inline auto NodeType::generate_block_name(std::string const &n) -> std::string {
+	std::string g_name {n};
+
+	// strip leading non-alphabet characters
+	bool done {false};
+	std::erase_if(g_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
+
+	if (n.empty()) {
+		g_name = "UnnamedBlock";
+	} else {
+		g_name.front() = std::toupper(g_name.front(), std::locale::classic());
+		g_name = "Block" + g_name;
+	}
+
+	std::erase_if(g_name, [](char c) { return !std::isalnum(c, std::locale::classic()); });
+
+	return g_name;
+}
+
+inline auto NodeType::generate_var_name(std::string const &n, std::string_view default_name) -> std::string {
+	std::string a_name {n};
+
+	// strip leading non-alphabet characters
+	bool done {false};
+	std::erase_if(a_name, [&done](char c) { if (done) return false; else { done = std::isalpha(c, std::locale::classic()); return !done; } });
+
+	if (n.empty()) {
+		a_name = default_name;
+	} else {
+		std::replace_if(
+			a_name.begin(), a_name.end(), [](char c) { return std::isspace(c, std::locale::classic()); }, '_');
+		std::transform(a_name.begin(), a_name.end(), a_name.begin(), [](char c) { return std::tolower(c, std::locale::classic()); });
+	}
+
+	std::erase_if(a_name, [](char c) { return !(std::isalnum(c, std::locale::classic()) || c == '_'); });
+
+	return a_name;
+}
+
+inline auto NodeType::substitute_identifiers(std::string const &original, bool &result_valid, bool is_update) -> std::string {
+	std::string result;
+
+	std::size_t index_lo {0};
+	while (index_lo < original.size()) {
+		std::size_t index_hi {original.find("{{", index_lo)};
+
+		// if index_hi == npos (i.e. '{{' not found), substr returns until the end of str
+		result += original.substr(index_lo, index_hi - index_lo);
+		index_lo = index_hi;
+
+		if (index_lo < original.size()) {
+			index_lo += 2; // length of "{{"
+			index_hi = original.find("}}", index_lo);
+
+			if (index_hi == std::string::npos) {
+				result_valid = false;
+				return ""; // ERROR: unclosed attribute/input/output in string
+				// TODO: return error message in the string
+				// we only throw an error if this class if we try to use an invalid block
+			}
+
+			while ((index_lo < index_hi) && original[index_lo] == ' ') {
+				index_lo++;
+			}
+
+			std::size_t index_tmp {index_hi};
+			while ((index_lo < index_tmp) && original[index_tmp - 1] == ' ') {
+				index_tmp--;
+			}
+
+			std::string const key {original.substr(index_lo, index_tmp - index_lo)};
+
+			if (!result.empty()) {
+				if (auto c {result.back()}; c != ' ' && c != '(' && c != '[' && c != '\n' && c != '\t') { // note: result.back() cannot be '{'
+					result += " ";
+				}
+			}
+
+			// BIG NOTE: substitution for attributes, inputs, and outputs happens HERE:
+			// TODO: replace (inputs, outputs) replacements with necessary replacements for our execution model
+			if (attributes.contains(key)) {
+				if (is_update) {
+					result += attributes.at(key).self_name();
+					attributes.at(key).set_used_in_update();
+				} else {
+					result += attributes.at(key).name();
+				}
+
+			} else if (inputs.contains(key)) {
+				if (is_update) {
+					result += inputs.at(key).self_name();
+					inputs.at(key).set_used_in_update();
+				} else {
+					return ""; // ERROR: input mentioned in init code
+					// TODO: return error string
+				}
+
+			} else if (outputs.contains(key)) {
+				if (is_update) {
+					result += outputs.at(key).self_u_name();
+					outputs.at(key).set_used_in_update();
+				} else {
+					return ""; // ERROR: output mentioned in init code
+					// TODO: return error string
+				}
+
+			} else {
+				return ""; // ERROR: identifier not found
+				// TODO: return error string
+			}
+
+			index_hi += 2;
+			if (index_hi < original.size()) {
+				if (auto c {original[index_hi]}; c != ' ' && c != ',' && c != ')' && c != ']' && c != '\n' && c != '\t') {
+					result += " ";
+				}
+			}
+
+			index_lo = index_hi;
+		}
+	}
+
+	return result;
+}
+
+inline auto generate_py_lines(std::string &output, int indent_amt, std::string_view const body) -> void {
+	if (!body.empty()) {
+		for (std::size_t body_pos {0}; body_pos < body.length(); ++body_pos) {
+			auto substr_end_idx = body.find('\n', body_pos);
+
+			if (substr_end_idx == std::string_view::npos) {
+				substr_end_idx = body.length();
+			}
+
+			auto substr = body.substr(body_pos, substr_end_idx - body_pos);
+
+			int local_indent {indent_amt};
+			while (!substr.empty() && substr.front() == '\t') {
+				substr.remove_prefix(1);
+				++local_indent;
+			}
+
+			output += "\n";
+			for (int i {0}; i < local_indent; ++i) {
+				output += "    ";
+			}
+
+			output += substr;
+			body_pos = substr_end_idx;
+		}
+	}
+}
+
+template <typename... Ts>
+	requires((sizeof...(Ts) > 0) && ... && std::convertible_to<Ts, std::string_view>)
+inline auto generate_function(std::string &output, int indent_amt, std::string_view const header, Ts const &...snippets) -> void {
+	output.append("\n");
+	for (int i {0}; i < indent_amt; ++i) {
+		output += "    ";
+	}
+	output.append(header);
+	indent_amt += 1;
+
+	std::array<std::string_view, sizeof...(Ts)> const code_snippets = {snippets...};
+	for (auto const &snip : code_snippets) {
+		generate_py_lines(output, indent_amt, snip);
+	}
+
+	output += "\n";
+}
+
+inline auto make_init_attribute_pair(std::string_view const name, std::map<std::string, AttributeInfo> const &attrs) -> std::pair<std::string, std::string> {
+	std::string function_name {"def "};
+	std::string attribute_init {};
+
+	function_name += name;
+	function_name += "(self, successors";
+
+	for (auto const &[_, entry] : attrs) {
+		function_name += ", ";
+		function_name += entry.name();
+
+		// as a runtime memory space optimisation, only save attributes that are used in the body of the update block
+		if (entry.used_in_update()) {
+			attribute_init += entry.self_name();
+			attribute_init += " = ";
+			attribute_init += entry.name();
+			attribute_init += "\n";
+		}
+	}
+
+	function_name += "):";
+
+	if (!attribute_init.empty())
+		attribute_init.pop_back(); // at least one line added; remove trailing newline
+
+	return std::make_pair(std::move(function_name), std::move(attribute_init));
+}
+
+template <typename F1, typename F2>
+	requires(
+		requires(F1 f, InputOutputInfo const &ioi) { {std::invoke(f, ioi)} -> std::same_as<std::string>; } && requires(F2 f, InputOutputInfo const &ioi) { {std::invoke(f, ioi)} -> std::same_as<std::string>; })
+inline auto make_var_init(std::map<std::string, InputOutputInfo> const &var_map, F1 &&lhs, F2 &&rhs) {
+	std::string var_init {};
+
+	for (auto const &[_, entry] : var_map) {
+		var_init += std::invoke(lhs, entry);
+		var_init += " = ";
+		var_init += std::invoke(rhs, entry);
+		;
+		var_init += "\n";
+	}
+
+	if (!var_init.empty())
+		var_init.pop_back(); // at least one line added; remove trailing newline
+
+	return var_init;
+}
+
+inline auto make_update_successors(std::map<std::string, InputOutputInfo> const &outputs) -> std::string {
+	static constexpr std::size_t threshold {1};
+	std::string update_successors {};
+
+	if (!outputs.empty()) {
+
+		for (auto const &[_, entry] : outputs) {
+			update_successors += "\nif ";
+			update_successors += entry.self_u_name();
+			update_successors += " != ";
+			update_successors += entry.temp_name();
+			update_successors += ":\n\tif '";
+			update_successors += entry.name();
+			update_successors += "' in self.__successors:\n\t\t__list = self.__successors['";
+			update_successors += entry.name();
+			update_successors += "']\n\t\tfor (__node, __input) in __list:\n\t\t\tsetattr(__node, __input, ";
+			update_successors += entry.self_u_name();
+			update_successors += ")\n";
+		}
+
+		update_successors.pop_back(); // strip trailing newline
+	}
+
+	//		// alternative method (UNUSED)
+	//
+	//		update_successors += "\nfor (_value, _output) in [";
+	//		for (auto const &[_ , entry] : outputs) {
+	//			update_successors += "(";
+	//			update_successors += entry.temp_name();
+	//			update_successors += ", '";
+	//			update_successors += entry.name();
+	//			update_successors += "'), ";
+	//		}
+	//		// update_successors is non-empty because outputs has at least one element
+	//		update_successors.pop_back();
+	//		update_successors.pop_back();
+	//		update_successors += "]:\n\tfor (_node, _input) in self.__successors[_output]:\n\t\tsetattr(_node, _input, _value)";
+
+	return update_successors;
+}
+
+inline auto NodeType::emit_block_definition(std::string &code) const -> void {
+	static constexpr std::string_view successor_init {"self.__successors = successors"};
+	static constexpr std::string_view update_func {"def update(self):"};
+	//	static constexpr std::string_view propagate_func {"def propagate(self, output_name, value):"};
+	//	static constexpr std::string_view propagate_code {"if output_name in self.__successors:\n\tl = self.__successors[output_name]\n\tfor (node, input_name) in l:\n\t\tsetattr(node, input_name, value)"};
+
+	if (used) {
+		if (!init_code_valid) {
+			// TODO: throw error
+		} else if (!update_code_valid) {
+			// TODO: throw error
+		} else {
+			using ioi_t = InputOutputInfo const &;
+
+			auto [init_func, attr_init] {make_init_attribute_pair("__init__", attributes)};
+			auto input_init {make_var_init(
+				inputs, [](ioi_t ioi) { return ioi.self_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
+			auto output_init {make_var_init(
+				outputs, [](ioi_t ioi) { return ioi.self_u_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
+			auto output_tmp_init {make_var_init(
+				outputs, [](ioi_t ioi) { return ioi.temp_name(); }, [](ioi_t ioi) { return ioi.self_u_name(); })};
+			auto update_end {make_update_successors(outputs)};
+
+			code.append("class " + get_generated_name() + ":");
+
+			// TODO: rewrite to produce code that obeys the correct model of execution
+
+			generate_function(code, 1, init_func, successor_init, attr_init, output_init, input_init, init_code);
+			generate_function(code, 1, update_func, output_tmp_init, update_code, update_end);
+			//			generate_function(code, 1, propagate_func, propagate_code);
+
+			code.append("\n");
+		}
+	}
+}
+
+inline auto NodeType::emit_block_instantiation(std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void {
+	auto node {graph.id_to_node.at(id)};
+
+	code += "a" + id + " = " + get_generated_name() + "(successors = {";
+	for (auto const &[output_id, successors] : node.output_to_successors) {
+		code += "'" + outputs.at(output_ids.at(output_id)).name() + "' : [";
+
+		for (auto const &s : successors) {
+			auto const &s_node_type {defs.get_node_type(graph.id_to_node.at(s.id))};
+			code += "(a" + s.id + ", '" + s_node_type.inputs.at(s_node_type.input_ids.at(s.input_id)).name() + "'), ";
+		}
+
+		if (code.ends_with(", ")) {
+			code.pop_back();
+			code.pop_back();
+		}
+
+		code += "], ";
+	}
+
+	if (code.ends_with(", ")) {
+		code.pop_back();
+		code.pop_back();
+	}
+
+	code += "},";
+
+	for (auto const &[a_name, value] : node.attributes) {
+		code += " " + attributes.at(a_name).name() + " = " + value + ",";
+	}
+
+	code.pop_back(); // remove final comma
+	code += ")\n";
+}

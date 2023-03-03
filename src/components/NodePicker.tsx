@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { createRef, RefObject, useState } from 'react';
 import { Card, Col, Row } from 'react-bootstrap';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
@@ -56,10 +56,11 @@ export default function NodePicker() {
                 </Draggable>
               </div>
             </Col>
-            <Col sm="auto">
+            <Col sm="auto" className="pe-1">
               <FontAwesomeIcon
                 icon="sliders"
                 size="sm"
+                className="text-secondary"
                 style={{ cursor: 'pointer' }}
                 onClick={() => { editNode(nodeTypeId); }}
               />
@@ -68,8 +69,7 @@ export default function NodePicker() {
         ))
       }
       <Row
-        className="pt-4"
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', padding: '40px 0 30px 0' }}
         onClick={createNewNode}
       >
         <Col sm="auto">

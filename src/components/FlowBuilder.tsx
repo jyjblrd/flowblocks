@@ -24,7 +24,7 @@ import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import { attributeGenerator, setNodesList } from '../shared/helpers/helperFunctions';
+import { attributeGenerator } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeInstance>[] = [];
 const initialEdges: Edge[] = [];
@@ -209,9 +209,9 @@ function FlowBuilder() {
   });
 
   return (
-    <div ref={selfRef as React.RefObject<HTMLDivElement>}>
-      <Droppable id="flow-builder">
-        <Card className="shadow-sm" style={{ height: '90vh' }}>
+    <div ref={selfRef as React.RefObject<HTMLDivElement>} className="h-100">
+      <Droppable id="flow-builder" className="h-100">
+        <Card className="shadow-sm h-100">
           {userDragging && (
             <div
               style={{
