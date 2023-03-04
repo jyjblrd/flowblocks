@@ -666,6 +666,24 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
+  PulseGenerator: {
+    description: 'Generate a pulse with a fixed delay',
+    attributes: {
+      delay_ms: { type: AttributeTypes.Number },
+    },
+    code: {
+      init: 'import time\nself.time = time\nself.prev_pulse = time.ticks_ms()\n',
+      update: 'if self.time.ticks_diff(self.time.ticks_ms(), self.prev_pulse) >= {{ delay_ms }}:\n    {{ output }} = True\n    self.prev_pulse = self.time.ticks_ms()\nelse:\n    {{ output }} = False\n',
+      isQuery: true,
+    },
+    inputs: {},
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
