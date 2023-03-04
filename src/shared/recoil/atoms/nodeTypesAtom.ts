@@ -141,7 +141,25 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
-  DbgPrintInt: {
+  BoolConstant: {
+    description: 'Provides an boolean constant. Used for testing attributes',
+    attributes: {
+      'Constant Value': {type: AttributeTypes.Bool},
+    },
+    code: {
+      init: '',
+      update: '{{ value }} = {{ Constant Value }}',
+      isQuery: false,
+    },
+    inputs: {},
+    outputs: {
+      0: {
+        name: 'value',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  PrintNumber: {
     description: 'Prints an int. Used for test model of execution',
     attributes: {},
     code: {
@@ -181,7 +199,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.edge = False\n{{ output }} = 0',
-      update: 'if self.edge == False and {{ incr }} == 1:\n  self.edge = True\n  {{ output }} = {{ output }} + 1\nelif self.edge == True and {{ incr }} == 0:\n  self.edge = False\nif {{ reset }} == 1:\n  {{ output }} = 0',
+      update: 'if self.edge == False and {{ incr }} == 1:\n\tself.edge = True\n\t{{ output }} = {{ output }} + 1\nelif self.edge == True and {{ incr }} == 0:\n\tself.edge = False\nif {{ reset }} == 1:\n\t{{ output }} = 0',
       isQuery: false,
     },
     inputs: {
@@ -493,7 +511,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: '',
-      update: '{{ output }} = {{ choice }} ? {{ left }} : {{ right }}',
+      update: '{{ output }} = {{ left }} if {{ choice }} else {{ right }}',
       isQuery: false,
     },
     inputs: {
@@ -522,7 +540,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: '',
-      update: '{{ output }} = {{ choice }} ? {{ left }} : {{ right }}',
+      update: '{{ output }} = {{ left }} if {{ choice }} else {{ right }}',
       isQuery: false,
     },
     inputs: {
@@ -551,7 +569,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.edge = False',
-      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = 1\nelif self.edge == True:\n  self.edge = False\n  {{ output }} = 0',
+      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = 1\nelif self.edge == True:\n\tself.edge = False\n\t{{ output }} = 0',
       isQuery: false,
     },
     inputs: {
@@ -572,7 +590,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     code: {
       init: 'self.edge = False',
-      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = not {{ output }}\nelif self.edge == True:\n  self.edge = False',
+      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = not {{ output }}\nelif self.edge == True:\n\tself.edge = False',
       isQuery: false,
     },
     inputs: {
@@ -602,7 +620,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: 'self.led_a = machine.Pin({{ pin_num_a }}, machine.Pin.OUT)\nself.led_b = machine.Pin({{ pin_num_b }}, machine.Pin.OUT)\nself.led_c = machine.Pin({{ pin_num_c }}, machine.Pin.OUT)\nself.led_d = machine.Pin({{ pin_num_d }}, machine.Pin.OUT)\nself.led_e = machine.Pin({{ pin_num_e }}, machine.Pin.OUT)\nself.led_f = machine.Pin({{ pin_num_f }}, machine.Pin.OUT)\nself.led_g = machine.Pin({{ pin_num_g }}, machine.Pin.OUT)\n\nself.leds = [self.led_a, self.led_b, self.led_c, self.led_d, self.led_e, self.led_f, self.led_g]\n\nself.outs=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]]',
-      update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n  self.leds[i].value(int(self.out[i]))',
+      update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n\tself.leds[i].value(int(self.out[i]))',
       isQuery: false,
     },
     inputs: {
@@ -650,7 +668,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: 'self.edge = False\n',
-      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n  self.edge = False\n',
+      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n\tself.edge = False\n',
       isQuery: false,
     },
     inputs: {
@@ -673,7 +691,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: 'import time\nself.time = time\nself.prev_pulse = time.ticks_ms()\n',
-      update: 'if self.time.ticks_diff(self.time.ticks_ms(), self.prev_pulse) >= {{ delay_ms }}:\n    {{ output }} = True\n    self.prev_pulse = self.time.ticks_ms()\nelse:\n    {{ output }} = False\n',
+      update: 'if self.time.ticks_diff(self.time.ticks_ms(), self.prev_pulse) >= {{ delay_ms }}:\n\t{{ output }} = True\n\tself.prev_pulse = self.time.ticks_add(self.prev_pulse, {{ delay_ms }})\nelse:\n\t{{ output }} = False\n',
       isQuery: true,
     },
     inputs: {},
