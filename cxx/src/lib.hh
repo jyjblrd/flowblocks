@@ -285,6 +285,8 @@ public:
 		// and likewise for inputs and outputs
 
 		std::unordered_map<std::string, std::size_t> name_collisions {};
+		name_collisions["successors"] = 0;
+		name_collisions["marked"] = 0;
 
 		for (auto const &[attr_name, attr_type] : m_node_type.attributes) {
 			//			std::cout << generated_name << " attr: " << attr_name << " " << static_cast<int>(attr_type.type) << '\n';
@@ -355,8 +357,8 @@ private:
 
 	// if true, init_code and update_code hold code. If false, these contain error messages
 	// TODO: check these whenever init_code and update_code are used
-	bool init_code_valid {true};
-	bool update_code_valid {true};
+	bool init_code_valid {false};
+	bool update_code_valid {false};
 
 	// these map from human readable-names to their related info class
 	std::map<std::string, InputOutputInfo> inputs;
@@ -475,7 +477,15 @@ inline auto NodeType::generate_var_name(std::string const &n, std::string_view d
 }
 
 inline auto NodeType::substitute_identifiers(std::string const &original, bool &result_valid, bool is_update) -> std::string {
+	// note: result_valid should be false by default
 	std::string result;
+
+	if (original.find("self._") != std::string::npos) {
+		return ""; // ERROR: user-specified code attempts to access or change a reserved variable name
+					  // (we reserve all python class attributes beginning with _ or __)
+		// TODO: return error message in the string
+		// of course, we only throw an error if this class if we try to use an invalid block
+	}
 
 	std::size_t index_lo {0};
 	while (index_lo < original.size()) {
@@ -490,7 +500,6 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 			index_hi = original.find("}}", index_lo);
 
 			if (index_hi == std::string::npos) {
-				result_valid = false;
 				return ""; // ERROR: unclosed attribute/input/output in string
 				// TODO: return error message in the string
 				// we only throw an error if this class if we try to use an invalid block
@@ -528,8 +537,12 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 					result += inputs.at(key).self_name();
 					inputs.at(key).set_used_in_update();
 				} else {
-					return ""; // ERROR: input mentioned in init code
-					// TODO: return error string
+					result += inputs.at(key).self_name();
+
+					// change of plan: we allow init_statement to interact with inputs
+					//					result_valid = false;
+					//					return ""; // ERROR: input mentioned in init code
+					//					// MAYBE: return error string
 				}
 
 			} else if (outputs.contains(key)) {
@@ -537,8 +550,12 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 					result += outputs.at(key).self_u_name();
 					outputs.at(key).set_used_in_update();
 				} else {
-					return ""; // ERROR: output mentioned in init code
-					// TODO: return error string
+					result += outputs.at(key).self_u_name();
+
+					// change of plan: we allow init_statement to interact with output
+					//					result_valid = false;
+					//					return ""; // ERROR: output mentioned in init code
+					//					// MAYBE: return error string
 				}
 
 			} else {
@@ -557,6 +574,7 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 		}
 	}
 
+	result_valid = true;
 	return result;
 }
 
@@ -582,7 +600,14 @@ inline auto generate_py_lines(std::string &output, int indent_amt, std::string_v
 				output += "    ";
 			}
 
-			output += substr;
+			if (substr.empty()) {
+				while (output.ends_with(" ")) {
+					output.pop_back();
+				}
+			} else {
+				output += substr;
+			}
+
 			body_pos = substr_end_idx;
 		}
 	}
@@ -644,7 +669,6 @@ inline auto make_var_init(std::map<std::string, InputOutputInfo> const &var_map,
 		var_init += std::invoke(lhs, entry);
 		var_init += " = ";
 		var_init += std::invoke(rhs, entry);
-		;
 		var_init += "\n";
 	}
 
@@ -667,14 +691,14 @@ inline auto make_update_successors(std::map<std::string, InputOutputInfo> const 
 			update_successors += entry.temp_name();
 			update_successors += ":\n\tif '";
 			update_successors += entry.name();
-			update_successors += "' in self.__successors:\n\t\t__list = self.__successors['";
+			update_successors += "' in self._successors:\n\t\t__list = self._successors['";
 			update_successors += entry.name();
 			update_successors += "']\n\t\tfor (__node, __input) in __list:\n\t\t\tsetattr(__node, __input, ";
 			update_successors += entry.self_u_name();
 			update_successors += ")\n";
-			update_successors += "\t\t\tif not __node.marked:\n";
-			update_successors += "\t\t\t\tmarked.append(__node)\n";
-			update_successors += "\t\t\t\t__node.marked = True\n";
+			update_successors += "\t\t\tif not __node._marked:\n";
+			update_successors += "\t\t\t\t__marked.append(__node)\n";
+			update_successors += "\t\t\t\t__node._marked = True\n";
 		}
 
 		update_successors.pop_back(); // strip trailing newline
@@ -693,17 +717,15 @@ inline auto make_update_successors(std::map<std::string, InputOutputInfo> const 
 	//		// update_successors is non-empty because outputs has at least one element
 	//		update_successors.pop_back();
 	//		update_successors.pop_back();
-	//		update_successors += "]:\n\tfor (_node, _input) in self.__successors[_output]:\n\t\tsetattr(_node, _input, _value)";
+	//		update_successors += "]:\n\tfor (_node, _input) in self._successors[_output]:\n\t\tsetattr(_node, _input, _value)";
 
 	return update_successors;
 }
 
 inline auto NodeType::emit_block_definition(std::string &code) const -> void {
-	static constexpr std::string_view successor_init {"self.__successors = successors"};
-	static constexpr std::string_view marked_init {"self.marked = True"};
-	static constexpr std::string_view update_func {"def update(self, marked):"};
-	//	static constexpr std::string_view propagate_func {"def propagate(self, output_name, value):"};
-	//	static constexpr std::string_view propagate_code {"if output_name in self.__successors:\n\tl = self.__successors[output_name]\n\tfor (node, input_name) in l:\n\t\tsetattr(node, input_name, value)"};
+	static constexpr std::string_view successor_init {"self._successors = successors"};
+	static constexpr std::string_view marked_init {"self._marked = True"};
+	static constexpr std::string_view update_func {"def update(self, __marked):"};
 
 	if (used) {
 		if (!init_code_valid) {
@@ -713,14 +735,14 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 		} else {
 			using ioi_t = InputOutputInfo const &;
 
-			auto [init_func, attr_init] {make_init_attribute_pair("__init__", attributes)};
-			auto input_init {make_var_init(
+			auto const [init_func, attr_init] {make_init_attribute_pair("__init__", attributes)};
+			auto const input_init {make_var_init(
 				inputs, [](ioi_t ioi) { return ioi.self_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
-			auto output_init {make_var_init(
+			auto const output_init {make_var_init(
 				outputs, [](ioi_t ioi) { return ioi.self_u_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
-			auto output_tmp_init {make_var_init(
+			auto const output_tmp_init {make_var_init(
 				outputs, [](ioi_t ioi) { return ioi.temp_name(); }, [](ioi_t ioi) { return ioi.self_u_name(); })};
-			std::string_view unmark_self = expected_in_degree() == 0 ? "" : "self.marked = False";
+			std::string_view const unmark_self = expected_in_degree() == 0 ? "" : "\nself._marked = False";
 			auto update_end {make_update_successors(outputs)};
 
 			code.append("class " + get_generated_name() + ":");
@@ -729,7 +751,6 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 
 			generate_function(code, 1, init_func, successor_init, marked_init, attr_init, output_init, input_init, init_code);
 			generate_function(code, 1, update_func, output_tmp_init, update_code, unmark_self, update_end);
-			//			generate_function(code, 1, propagate_func, propagate_code);
 
 			code.append("\n");
 		}

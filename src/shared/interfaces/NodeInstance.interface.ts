@@ -5,4 +5,5 @@ export type NodeInstance = {
   // Counts the number of edges connected to each input/output node
   isInputConnected: Array<number>,
   isOutputConnected: Array<number>,
+  blockName: string
 };
