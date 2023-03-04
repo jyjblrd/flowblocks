@@ -641,8 +641,31 @@ const defaultNodeTypes: NodeTypes = {
         type: ConnectionType.Bool,
       },
     },
-  }
-
+  },
+  RandomNumber: {
+    description: 'Output a random number between given attribute values lower and higher inclusively when given a signal',
+    attributes: {
+        lower: {type: AttributeTypes.Number},
+        higher: {type: AttributeTypes.Number},
+    },
+    code: {
+        init: 'self.edge = False\n',
+        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n  self.edge = False\n',
+        isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+    },
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
