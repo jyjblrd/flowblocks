@@ -11,6 +11,7 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
+import SaveModal from './SaveModal';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
@@ -51,12 +52,12 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          const knownNames = ppKnownCharts();
+          const knownnames = ppKnownCharts();
           setLoadModal((prevLoadModal) => ({
             ...prevLoadModal,
             isOpen: true,
             loadChart: (name) => { loadFlowInstance(reactFlowInstance, setNodeTypes, name); },
-            knownNames,
+            knownNames: knownnames,
           }));
           // loadFlowInstance(reactFlowInstance, name);
         }}

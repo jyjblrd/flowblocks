@@ -114,9 +114,9 @@ function knownLocalCharts(): string[] {
   return keys;
 }
 
-export function ppKnownCharts(): string {
-  const charts = knownLocalCharts();
-  return charts.join('\n');
+export function ppKnownCharts(): string[] {
+  const charts = knownLocalCharts().sort();
+  return charts;//.join('\n');
 }
 
 /*
