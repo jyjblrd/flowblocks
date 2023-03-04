@@ -50,6 +50,27 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
+  Not: {
+    description: 'Logical NOT inverts input (true becomes false, false becomes true)',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{output}} = not {{inp}}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'inp',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
   Or: {
     description: 'Logical OR, requires one of the inputs to be true.',
     attributes: {},
@@ -155,6 +176,473 @@ const defaultNodeTypes: NodeTypes = {
     },
     outputs: {},
   },
+  Counter: {
+    description: 'Increments a counter when triggered, resetting when reset is triggered',
+    attributes: {},
+    code: {
+      init: 'self.edge = False\n{{ output }} = 0',
+      update: 'if self.edge == False and {{ incr }} == 1:\n  self.edge = True\n  {{ output }} = {{ output }} + 1\nelif self.edge == True and {{ incr }} == 0:\n  self.edge = False\nif {{ reset }} == 1:\n  {{ output }} = 0',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'incr',
+        type: ConnectionType.Bool,
+      },
+      1: {
+        name: 'reset',
+        type: ConnectionType.Bool,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Xor: {
+    description: 'Xor 2 numbers together.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} ^ {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Multiply: {
+    description: 'Multiply 2 numbers together.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} * {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Divide: {
+    description: 'Divide left input by second input TODO: Div by zero.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} / {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Subtract: {
+    description: 'Subtract right number from left.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} - {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Modulo: {
+    description: 'Modulo left input by right input.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} % {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Equals: {
+    description: 'Check if 2 numbers are equal.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} == {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  GreaterThan: {
+    description: 'Check if left input is greater than right input.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} > {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  LessThan: {
+    description: 'Check if left input is less than right input.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} < {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  GreaterThanEquals: {
+    description: 'Check if left input is greater than or equal to right input.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} >= {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  LessThanEquals: {
+    description: 'Check if left input is less than or equal to right input.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} <= {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  NotEquals: {
+    description: 'Check if 2 numbers are not equal.',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ left }} != {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'right',
+        type: ConnectionType.Number,
+
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  PickInputBool: {
+    description: 'Pick one of two boolean inputs to output (True for left, False for right)',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ choice }} ? {{ left }} : {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'choice',
+        type: ConnectionType.Bool,
+      },
+      1: {
+        name: 'left',
+        type: ConnectionType.Bool,
+      },
+      2: {
+        name: 'right',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  PickInputNum: {
+    description: 'Pick one of two numerical inputs to output (True for left, False for right)',
+    attributes: {},
+    code: {
+      init: '',
+      update: '{{ output }} = {{ choice }} ? {{ left }} : {{ right }}',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'choice',
+        type: ConnectionType.Bool,
+      },
+      1: {
+        name: 'left',
+        type: ConnectionType.Number,
+      },
+      2: {
+        name: 'right',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Number,
+      },
+    },
+  },
+  Monostable: {
+    description: 'Output True for a single frame when input is True.',
+    attributes: {},
+    code: {
+        init: 'self.edge = False',
+        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = 1\nelif self.edge == True:\n  self.edge = False\n  {{ output }} = 0',
+        isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  FlipFlop: {
+    description: 'Flips output value whenever input becomes True.',
+    attributes: {},
+    code: {
+        init: 'self.edge = False',
+        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = not {{ output }}\nelif self.edge == True:\n  self.edge = False',
+        isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
+  SevenSegmentDisplay: {
+    description: 'Convert number input (mod 10) into 7 outputs for a 7 segment display.',
+    attributes: {
+        blockName: {type: AttributeTypes.BlockName},
+        pin_num_a: {type: AttributeTypes.DigitalOut},
+        pin_num_b: {type: AttributeTypes.DigitalOut},
+        pin_num_c: {type: AttributeTypes.DigitalOut},
+        pin_num_d: {type: AttributeTypes.DigitalOut},
+        pin_num_e: {type: AttributeTypes.DigitalOut},
+        pin_num_f: {type: AttributeTypes.DigitalOut},
+        pin_num_g: {type: AttributeTypes.DigitalOut},
+    },
+    code: {
+      init: 'self.led_a = machine.Pin({{ pin_num_a }}, machine.Pin.OUT)\nself.led_b = machine.Pin({{ pin_num_b }}, machine.Pin.OUT)\nself.led_c = machine.Pin({{ pin_num_c }}, machine.Pin.OUT)\nself.led_d = machine.Pin({{ pin_num_d }}, machine.Pin.OUT)\nself.led_e = machine.Pin({{ pin_num_e }}, machine.Pin.OUT)\nself.led_f = machine.Pin({{ pin_num_f }}, machine.Pin.OUT)\nself.led_g = machine.Pin({{ pin_num_g }}, machine.Pin.OUT)\n\nself.leds = [self.led_a, self.led_b, self.led_c, self.led_d, self.led_e, self.led_f, self.led_g]\n\n\self.outs=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]]',
+      update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n  self.leds[i].value(int(self.out[i]))',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'a',
+        type: ConnectionType.Bool,
+      },
+      1: {
+        name: 'b',
+        type: ConnectionType.Bool,
+      },
+      2: {
+        name: 'c',
+        type: ConnectionType.Bool,
+      },
+      3: {
+        name: 'd',
+        type: ConnectionType.Bool,
+      },
+      4: {
+        name: 'e',
+        type: ConnectionType.Bool,
+      },
+      5: {
+        name: 'f',
+        type: ConnectionType.Bool,
+      },
+      6: {
+        name: 'g',
+        type: ConnectionType.Bool,
+      },
+    },
+  }
+
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
