@@ -274,6 +274,7 @@ public:
 	[[nodiscard]] auto expected_out_degree() const -> std::size_t { return outputs.size(); }
 	[[nodiscard]] auto get_generated_name() const -> std::string const & { return generated_name; }
 	[[nodiscard]] auto get_real_name() const -> std::string const & { return name; }
+	[[nodiscard]] auto get_is_query() const -> bool { return is_query; }
 
 	NodeType(std::string block_name, marshalling::NodeType const &m_node_type)
 		 : name {std::move(block_name)}
@@ -671,6 +672,9 @@ inline auto make_update_successors(std::map<std::string, InputOutputInfo> const 
 			update_successors += "']\n\t\tfor (__node, __input) in __list:\n\t\t\tsetattr(__node, __input, ";
 			update_successors += entry.self_u_name();
 			update_successors += ")\n";
+			update_successors += "\t\t\tif not __node.marked:\n";
+			update_successors += "\t\t\t\tmarked.append(__node)\n";
+			update_successors += "\t\t\t\t__node.marked = True\n";
 		}
 
 		update_successors.pop_back(); // strip trailing newline
@@ -696,7 +700,8 @@ inline auto make_update_successors(std::map<std::string, InputOutputInfo> const 
 
 inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 	static constexpr std::string_view successor_init {"self.__successors = successors"};
-	static constexpr std::string_view update_func {"def update(self):"};
+	static constexpr std::string_view marked_init {"self.marked = True"};
+	static constexpr std::string_view update_func {"def update(self, marked):"};
 	//	static constexpr std::string_view propagate_func {"def propagate(self, output_name, value):"};
 	//	static constexpr std::string_view propagate_code {"if output_name in self.__successors:\n\tl = self.__successors[output_name]\n\tfor (node, input_name) in l:\n\t\tsetattr(node, input_name, value)"};
 
@@ -715,14 +720,15 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 				outputs, [](ioi_t ioi) { return ioi.self_u_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
 			auto output_tmp_init {make_var_init(
 				outputs, [](ioi_t ioi) { return ioi.temp_name(); }, [](ioi_t ioi) { return ioi.self_u_name(); })};
+			std::string_view unmark_self = expected_in_degree() == 0 ? "" : "self.marked = False";
 			auto update_end {make_update_successors(outputs)};
 
 			code.append("class " + get_generated_name() + ":");
 
 			// TODO: rewrite to produce code that obeys the correct model of execution
 
-			generate_function(code, 1, init_func, successor_init, attr_init, output_init, input_init, init_code);
-			generate_function(code, 1, update_func, output_tmp_init, update_code, update_end);
+			generate_function(code, 1, init_func, successor_init, marked_init, attr_init, output_init, input_init, init_code);
+			generate_function(code, 1, update_func, output_tmp_init, update_code, unmark_self, update_end);
 			//			generate_function(code, 1, propagate_func, propagate_code);
 
 			code.append("\n");

@@ -154,23 +154,44 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	//			.append(".update()\n");
 	//	}
 
-	// WARNING: highly unoptimised version here:
-	// TODO: add mark and visit algorithm
-
-	code.append("\na_list = [");
+	// Run unoptimised once at the start
+	code += "\na_list = [";
 	for (auto const &id : graph->argsorted_ids) {
 		code += "a";
 		code += id;
 		code += ", ";
 	}
 
+	// graph cannot be empty
+	code.pop_back();
+	code.pop_back();
+
+	code += "]\ninitial_marked = [";
+	for (auto const &id : graph->argsorted_ids) {
+		if (auto const &node_type = node_defs->get_node_type(graph->id_to_node.at(id)); node_type.get_is_query()) {
+			code += "a";
+			code += id;
+			code += ", ";
+			if (node_type.expected_in_degree() != 0) {
+				return {CompileResult::Err, "Query node with inputs not yet supported"};
+			}
+		}
+	}
 	if (code.ends_with(", ")) {
 		code.pop_back();
 		code.pop_back();
 	}
 
-	code += "]\n\n";
-	code += "while True:\n    for a in a_list:\n        a.update()";
+	code +=
+		"]\n\n"
+		"for a in a_list:\n    a.update([])"
+		"\n\n"
+		"while True:\n"
+		"    marked = initial_marked.copy()\n"
+		"    i = 0\n"
+		"    while i < len(marked):\n"
+		"        marked[i].update(marked)\n"
+		"        i += 1";
 
 	return {CompileResult::Ok, code};
 }
