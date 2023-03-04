@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, {
@@ -11,7 +11,6 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
-import SaveModal from './SaveModal';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();

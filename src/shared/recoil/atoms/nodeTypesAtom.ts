@@ -8,8 +8,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Physical button input',
 
     attributes: {
-      pin_num: {type: AttributeTypes.DigitalIn},
-      blockName: {type: AttributeTypes.BlockName},
+      pin_num: { type: AttributeTypes.DigitalIn },
+      blockName: { type: AttributeTypes.BlockName },
     },
     code: {
       init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
@@ -160,8 +160,8 @@ const defaultNodeTypes: NodeTypes = {
   LED: {
     description: 'LED output',
     attributes: {
-      pin_num: {type: AttributeTypes.DigitalOut},
-      blockName: {type: AttributeTypes.BlockName},
+      pin_num: { type: AttributeTypes.DigitalOut },
+      blockName: { type: AttributeTypes.BlockName },
     },
     code: {
       init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
@@ -550,9 +550,9 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Output True for a single frame when input is True.',
     attributes: {},
     code: {
-        init: 'self.edge = False',
-        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = 1\nelif self.edge == True:\n  self.edge = False\n  {{ output }} = 0',
-        isQuery: false,
+      init: 'self.edge = False',
+      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = 1\nelif self.edge == True:\n  self.edge = False\n  {{ output }} = 0',
+      isQuery: false,
     },
     inputs: {
       0: {
@@ -571,9 +571,9 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Flips output value whenever input becomes True.',
     attributes: {},
     code: {
-        init: 'self.edge = False',
-        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = not {{ output }}\nelif self.edge == True:\n  self.edge = False',
-        isQuery: false,
+      init: 'self.edge = False',
+      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = not {{ output }}\nelif self.edge == True:\n  self.edge = False',
+      isQuery: false,
     },
     inputs: {
       0: {
@@ -591,17 +591,17 @@ const defaultNodeTypes: NodeTypes = {
   SevenSegmentDisplay: {
     description: 'Convert number input (mod 10) into 7 outputs for a 7 segment display.',
     attributes: {
-        blockName: {type: AttributeTypes.BlockName},
-        pin_num_a: {type: AttributeTypes.DigitalOut},
-        pin_num_b: {type: AttributeTypes.DigitalOut},
-        pin_num_c: {type: AttributeTypes.DigitalOut},
-        pin_num_d: {type: AttributeTypes.DigitalOut},
-        pin_num_e: {type: AttributeTypes.DigitalOut},
-        pin_num_f: {type: AttributeTypes.DigitalOut},
-        pin_num_g: {type: AttributeTypes.DigitalOut},
+      blockName: { type: AttributeTypes.BlockName },
+      pin_num_a: { type: AttributeTypes.DigitalOut },
+      pin_num_b: { type: AttributeTypes.DigitalOut },
+      pin_num_c: { type: AttributeTypes.DigitalOut },
+      pin_num_d: { type: AttributeTypes.DigitalOut },
+      pin_num_e: { type: AttributeTypes.DigitalOut },
+      pin_num_f: { type: AttributeTypes.DigitalOut },
+      pin_num_g: { type: AttributeTypes.DigitalOut },
     },
     code: {
-      init: 'self.led_a = machine.Pin({{ pin_num_a }}, machine.Pin.OUT)\nself.led_b = machine.Pin({{ pin_num_b }}, machine.Pin.OUT)\nself.led_c = machine.Pin({{ pin_num_c }}, machine.Pin.OUT)\nself.led_d = machine.Pin({{ pin_num_d }}, machine.Pin.OUT)\nself.led_e = machine.Pin({{ pin_num_e }}, machine.Pin.OUT)\nself.led_f = machine.Pin({{ pin_num_f }}, machine.Pin.OUT)\nself.led_g = machine.Pin({{ pin_num_g }}, machine.Pin.OUT)\n\nself.leds = [self.led_a, self.led_b, self.led_c, self.led_d, self.led_e, self.led_f, self.led_g]\n\n\self.outs=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]]',
+      init: 'self.led_a = machine.Pin({{ pin_num_a }}, machine.Pin.OUT)\nself.led_b = machine.Pin({{ pin_num_b }}, machine.Pin.OUT)\nself.led_c = machine.Pin({{ pin_num_c }}, machine.Pin.OUT)\nself.led_d = machine.Pin({{ pin_num_d }}, machine.Pin.OUT)\nself.led_e = machine.Pin({{ pin_num_e }}, machine.Pin.OUT)\nself.led_f = machine.Pin({{ pin_num_f }}, machine.Pin.OUT)\nself.led_g = machine.Pin({{ pin_num_g }}, machine.Pin.OUT)\n\nself.leds = [self.led_a, self.led_b, self.led_c, self.led_d, self.led_e, self.led_f, self.led_g]\n\nself.outs=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]]',
       update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n  self.leds[i].value(int(self.out[i]))',
       isQuery: false,
     },
@@ -645,13 +645,13 @@ const defaultNodeTypes: NodeTypes = {
   RandomNumber: {
     description: 'Output a random number between given attribute values lower and higher inclusively when given a signal',
     attributes: {
-        lower: {type: AttributeTypes.Number},
-        higher: {type: AttributeTypes.Number},
+      lower: { type: AttributeTypes.Number },
+      higher: { type: AttributeTypes.Number },
     },
     code: {
-        init: 'self.edge = False\n',
-        update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n  self.edge = False\n',
-        isQuery: false,
+      init: 'self.edge = False\n',
+      update: 'if self.edge == False and {{ input }} == 1:\n  self.edge = True\n  {{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n  self.edge = False\n',
+      isQuery: false,
     },
     inputs: {
       0: {
@@ -665,7 +665,7 @@ const defaultNodeTypes: NodeTypes = {
         type: ConnectionType.Number,
       },
     },
-    },
+  },
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { createRef, RefObject, useState } from 'react';
+import React from 'react';
 import { Card, Col, Row } from 'react-bootstrap';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';

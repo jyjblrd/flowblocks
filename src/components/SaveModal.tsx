@@ -24,8 +24,8 @@ export default function SaveModal() {
         <Button
           variant="outline-dark"
           onClick={async () => {
-            if(name == "" || name == null) {
-              alert("Please enter a name");
+            if (name === '' || name == null) {
+              alert('Please enter a name');
             } else {
               saveModal.saveChart(name);
               handleClose();
@@ -37,9 +37,9 @@ export default function SaveModal() {
         </Button>
       </Modal.Header>
       <Card className="shadow p-3">
-                  <h5>Enter name to save chart as</h5>
-                  <Form.Control name="nodeTypeId" onChange={updateName} value={name} placeholder="Name" />
-                  {/* <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" /> */}
+        <h5>Enter name to save chart as</h5>
+        <Form.Control name="nodeTypeId" onChange={updateName} value={name} placeholder="Name" />
+        {/* <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" /> */}
       </Card>
       {/* <Modal.Body>
         <Form.Control name="Save" as="textarea" className="font-monospace" value={name} onChange={updateName} style={{ width: '100%', height: '100%', resize: 'none' }} />

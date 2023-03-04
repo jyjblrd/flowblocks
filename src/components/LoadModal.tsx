@@ -17,20 +17,20 @@ export default function LoadModal() {
     setName(target.value);
   };
 
+  const loadChart = async () => {
+    if (name === '' || name == null) {
+      alert('Please enter a name');
+    } else {
+      loadModal.loadChart(name);
+      handleClose();
+    }
+  };
+
   const handleKeyDown = (event: any) => {
     if (event.key === 'Enter') {
       loadChart();
     }
   };
-
-  const loadChart = async () => {
-    if(name == "" || name == null) {
-      alert("Please enter a name");
-    } else {
-      loadModal.loadChart(name);
-      handleClose();
-    }
-  }
 
   // Change dialogClassName
   return (
@@ -38,27 +38,27 @@ export default function LoadModal() {
       <Modal.Header closeButton>
         <Button
           variant="outline-dark"
-          onClick={() => {loadChart();}}
+          onClick={() => { loadChart(); }}
         >
           Load
         </Button>
       </Modal.Header>
       <Modal.Body>
-          <h5>File name to load in</h5>
-          <Form.Control name="nodeTypeId" className="mb-3" onChange={updateName} value={name} placeholder="Name" onKeyDown={handleKeyDown}/>
-          <h5>Existing files</h5>
-          <Card className="shadow p-3 pe-1">
-                  <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
-                    {
+        <h5>File name to load in</h5>
+        <Form.Control name="nodeTypeId" className="mb-3" onChange={updateName} value={name} placeholder="Name" onKeyDown={handleKeyDown} />
+        <h5>Existing files</h5>
+        <Card className="shadow p-3 pe-1">
+          <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
+            {
                         loadModal.knownNames.map((l: string) => (
-                          <div style={{cursor: "pointer"}} key={l}>
+                          <div style={{ cursor: 'pointer' }} key={l}>
                             <h5 onClick={() => setName(l)}>{l}</h5>
-                          </div>                       
+                          </div>
                         ))
                     }
-                  </div>
-          </Card>
-          {/* <Form.Control name="description" className="mt-2" size="sm" as="textarea" rows={2} value={loadModal.knownNames} placeholder="Description" /> */}
+          </div>
+        </Card>
+        {/* <Form.Control name="description" className="mt-2" size="sm" as="textarea" rows={2} value={loadModal.knownNames} placeholder="Description" /> */}
       </Modal.Body>
       {/* <Modal.Body>
         <Form.Control name="Load" as="textarea" className="font-monospace" value={name} onChange={updateName} style={{ width: '100%', height: '100%', resize: 'none' }} />
