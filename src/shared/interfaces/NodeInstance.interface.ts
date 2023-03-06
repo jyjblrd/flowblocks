@@ -4,6 +4,5 @@ export type NodeInstance = {
   attributes: Record<string, string>,
   // Counts the number of edges connected to each input/output node
   isInputConnected: Array<number>,
-  isOutputConnected: Array<number>,
-  blockName: string
+  isOutputConnected: Array<number>
 };

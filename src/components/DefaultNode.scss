@@ -1,6 +1,9 @@
 @import "../../node_modules/bootstrap/scss/functions";
 @import '../../node_modules/bootstrap/scss/variables.scss';
 
+$slide-distance: 20px;
+$slide-time: 300ms;
+
 .react-flow__handle {
     width: 10px;
     height: 10px;
@@ -21,10 +24,12 @@
 
 .react-flow__handle-left {
     left: -4px;
+    transition: left $slide-time;
 }
 
 .react-flow__handle-right {
     right: -4px;
+    transition: right $slide-time;
 }
 
 path.react-flow__edge-path, path.react-flow__connection-path {
@@ -35,9 +40,57 @@ path.react-flow__edge-path, path.react-flow__connection-path {
     border-color: $gray-900;
 }
 
+.handle-label {
+    margin-top: 2px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    height: 20px;
+    line-height: 17px;
+    background-color: var(--bs-white);
+    position: absolute;
+    opacity: 0.5;
+    transition: all $slide-time;
+    font-size: 10px;
+
+    &.left {
+        right: calc(100% + 0px);
+        z-index: -100 !important;
+        padding: 0 4px 0 4px;
+    }
+
+    &.right {
+        left: calc(100% + 0px);
+        padding: 0 4px 0 4px;
+    }
+}
+
+.node-wrapper {
+    &:hover {
+        .handle-label {
+            opacity: 1;
+            margin-top: 0px;
+            font-size: 14px;
+            height: 24px;
+            line-height: 20px;
+
+            &.left {
+                right: calc(100% + 6px);
+                padding: 0 4px 0 4px;
+            }
+        
+            &.right {
+                left: calc(100% + 6px);
+                padding: 0 4px 0 4px;
+            }
+        }
+
+    }
+}
+
 .node {
-    padding: 16px;
     background-color: white;
-    border: 2px solid grey;
+    border: 3px solid grey;
     border-radius: 10px;
+    min-width: 150px;
 }

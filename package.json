@@ -22,6 +22,7 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",
+    "react-paginate": "^8.1.4",
     "react-simple-code-editor": "^0.13.1",
     "reactflow": "^11.5.2",
     "recoil": "^0.7.6",

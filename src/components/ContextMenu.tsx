@@ -79,14 +79,14 @@ export default function ContextMenu(
 
   return (
     <Dropdown show={show} style={{ position: 'absolute', transform: `translate(${position.x}px, ${position.y}px)` }}>
-      <Dropdown.Menu>
+      <Dropdown.Menu style={{ width: '300px' }}>
         {Object.keys(attributes).length !== 0 && (
           <>
             <Form className="px-3 pt-2 pb-1" onSubmit={handleSubmit}>
               <h6 style={{ paddingTop: '4px' }}>Attributes</h6>
               {Object.entries(attributes).map(([attributeId, value]) => (
                 <InputGroup key={attributeId} as={Row} className="g-0">
-                  <Col xs={8}>
+                  <Col xs={7}>
                     <Form.Label className="mt-1">{attributeId}</Form.Label>
                   </Col>
                   <Col>
