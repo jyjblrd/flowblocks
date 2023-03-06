@@ -64,7 +64,7 @@ export function attributeGenerator(attributeType: AttributeTypes, nodeType: stri
       return name;
     }
     case AttributeTypes.Bool:
-      return 'true';
+      return 'True';
     case AttributeTypes.Number:
       return '0';
     default:
