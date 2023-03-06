@@ -92,7 +92,7 @@ export function loadFlowInstance(
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
   if (!load) {
-    alert('No saved flowchart found of this name');
+    alert('File loading error occured');
     return;
   }
 
@@ -104,6 +104,11 @@ export function loadFlowInstance(
   reactFlowInstance.setEdges(flow.edges);
 
   setNodeTypes(nodes);
+}
+
+export function getDeleteFlowInstance(exportName: string): string[] {
+  localStorage.removeItem(exportName);
+  return knownLocalCharts();
 }
 
 function knownLocalCharts(): string[] {
