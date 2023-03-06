@@ -187,8 +187,7 @@ function compileCircuitHelper(nodesList,setNodeData) {
       out = out.concat(' to the button, ');
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to the 3.3v power\n');
-    }
-    if (type == 'LED') {
+    }else if (type == 'LED') {
       if (isUseablePin((pins.get("pin_num")), 'dig') && node.data.attributes.pin_num != '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.attributes.blockName);
@@ -200,8 +199,7 @@ function compileCircuitHelper(nodesList,setNodeData) {
       out = out.concat(' to the LED, ');
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to a resistor, then connect that resistor to ground on the pico.\n');
-    }
-    if (type=="SevenSegmentDisplay"){
+    }else if (type=="SevenSegmentDisplay"){
       console.log(pins)
       for(const pin of pins.keys()){
         if (isUseablePin((pins.get(pin)), 'dig') && node.data.attributes.pin_num != '25') {
@@ -241,8 +239,7 @@ function compileCircuitHelper(nodesList,setNodeData) {
       out=out.concat(pins.get("pin_num_g"))
       out =out.concat(" to the middle horizontal segment of the display\n")
       out=out.concat("then connect the ground to a 75-220 ohm resistor then to ground on the pico.\n\n")
-    }
-    if (type == 'Buzzer') {
+    }else if (type == 'Buzzer') {
       if (isUseablePin((pins.get("pin_num")), 'dig')) {
         out = 'failed on buzzer ';
         out = out.concat(node.data.attributes.blockName);
@@ -254,7 +251,28 @@ function compileCircuitHelper(nodesList,setNodeData) {
       out = out.concat(' to the buzzer, ');
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to the ground on the pico\n');
+    }else if(pins.size!==0){
+      for(const pin of pins.keys()){
+        if (isUseablePin((pins.get(pin)), 'dig') && node.data.attributes.pin_num != '25') {
+          out = 'failed on  ';
+          out=out
+          out = out.concat(node.data.attributes.blockName);
+          out=out.concat(" on pin ")
+          out=out.concat(pin)
+          out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+          return out;
+        }
+        out=out.concat("connect pin ")
+        out=out.concat(pins.get(pin))
+        out=out.concat(" to ")
+        out=out.concat(pin)
+        out=out.concat(" on ")
+        out=out.concat(type)
+        out=out.concat("\n")
+      }
+
     }
+
   }
 
 
