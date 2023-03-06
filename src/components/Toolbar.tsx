@@ -11,6 +11,8 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
+import { useRecoilValue } from 'recoil';
+
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
@@ -121,7 +123,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          compileCircuit(reactFlowInstance.getNodes());
+          compileCircuit(reactFlowInstance.getNodes(),nodeTypes);
         }}
       >
         Generate Circuit

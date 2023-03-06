@@ -142,7 +142,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   BoolConstant: {
-    description: 'Provides an boolean constant. Used for testing attributes',
+    description: 'Provides an boolean constant. (true or False) Used for testing attributes',
     attributes: {
       'Constant Value': { type: AttributeTypes.Bool },
     },
@@ -324,8 +324,8 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
-  Modulo: {
-    description: 'Modulo left input by right input.',
+  Remainder: {
+    description: 'remainder of left input divided by right input.',
     attributes: {},
     code: {
       init: '',
@@ -608,7 +608,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   SevenSegmentDisplay: {
-    description: 'Convert number input (mod 10) into 7 outputs for a 7 segment display.',
+    description: 'Convert number inpu into 7 outputs for a 7 segment display.',
     attributes: {
       blockName: { type: AttributeTypes.BlockName },
       pin_num_a: { type: AttributeTypes.DigitalOut },
