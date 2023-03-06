@@ -242,7 +242,21 @@ function compileCircuitHelper(nodesList,setNodeData) {
       out =out.concat(" to the middle horizontal segment of the display\n")
       out=out.concat("then connect the ground to a 75-220 ohm resistor then to ground on the pico.\n\n")
     }
+    if (type == 'Buzzer') {
+      if (isUseablePin((pins.get("pin_num")), 'dig')) {
+        out = 'failed on buzzer ';
+        out = out.concat(node.data.attributes.blockName);
+        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+        return out;
+      }
+      out = out.concat('connect a wire from pin ');
+      out = out.concat(pins.get("pin_num"));
+      out = out.concat(' to the buzzer, ');
+      out = out.concat(node.data.attributes.blockName);
+      out = out.concat(' then to the ground on the pico\n');
+    }
   }
+
 
   return out;
 }
