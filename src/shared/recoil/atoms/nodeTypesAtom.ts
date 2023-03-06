@@ -1,12 +1,12 @@
 import { atom } from 'recoil';
 import {
-  NodeTypes, ConnectionType, NodeTypeData, AttributeTypes,
+  NodeTypes, ConnectionType, NodeTypeData, AttributeTypes, NodeGroups,
 } from '../../interfaces/NodeTypes.interface';
 
 const defaultNodeTypes: NodeTypes = {
   Button: {
+    group: NodeGroups.Input,
     description: 'Physical button input',
-
     attributes: {
       pin_num: { type: AttributeTypes.DigitalIn },
       blockName: { type: AttributeTypes.BlockName },
@@ -25,6 +25,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   And: {
+    group: NodeGroups.Logic,
     description: 'Logical AND requires all inputs to be true to output true',
     attributes: {},
     code: {
@@ -51,6 +52,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Not: {
+    group: NodeGroups.Logic,
     description: 'Logical NOT inverts input (true becomes false, false becomes true)',
     attributes: {},
     code: {
@@ -72,6 +74,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Or: {
+    group: NodeGroups.Logic,
     description: 'Logical OR, requires one of the inputs to be true.',
     attributes: {},
     code: {
@@ -98,6 +101,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Add: {
+    group: NodeGroups.Numerical,
     description: 'Add 2 numbers together.',
     attributes: {},
     code: {
@@ -124,6 +128,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   IntegerConstant: {
+    group: NodeGroups.Input,
     description: 'Provides an integer constant. Used for testing attributes',
     attributes: {
       'Constant Value': { type: AttributeTypes.Number },
@@ -142,6 +147,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   BoolConstant: {
+    group: NodeGroups.Input,
     description: 'Provides an boolean constant. (true or False) Used for testing attributes',
     attributes: {
       'Constant Value': { type: AttributeTypes.Bool },
@@ -160,6 +166,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   PrintNumber: {
+    group: NodeGroups.Output,
     description: 'Prints an int. Used for test model of execution',
     attributes: {},
     code: {
@@ -176,6 +183,7 @@ const defaultNodeTypes: NodeTypes = {
     outputs: {},
   },
   LED: {
+    group: NodeGroups.Output,
     description: 'LED output',
     attributes: {
       pin_num: { type: AttributeTypes.DigitalOut },
@@ -195,6 +203,7 @@ const defaultNodeTypes: NodeTypes = {
     outputs: {},
   },
   Counter: {
+    group: NodeGroups.Numerical,
     description: 'Increments a counter when triggered, resetting when reset is triggered',
     attributes: {},
     code: {
@@ -221,6 +230,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Xor: {
+    group: NodeGroups.Numerical,
     description: 'Xor 2 numbers together.',
     attributes: {},
     code: {
@@ -247,6 +257,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Multiply: {
+    group: NodeGroups.Numerical,
     description: 'Multiply 2 numbers together.',
     attributes: {},
     code: {
@@ -273,6 +284,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Divide: {
+    group: NodeGroups.Numerical,
     description: 'Divide left input by right input TODO: Div by zero.',
     attributes: {},
     code: {
@@ -299,6 +311,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Subtract: {
+    group: NodeGroups.Numerical,
     description: 'Subtract right number from left.',
     attributes: {},
     code: {
@@ -325,6 +338,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Remainder: {
+    group: NodeGroups.Numerical,
     description: 'remainder of left input divided by right input.',
     attributes: {},
     code: {
@@ -351,6 +365,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Equals: {
+    group: NodeGroups.Comparison,
     description: 'Check if 2 numbers are equal.',
     attributes: {},
     code: {
@@ -377,6 +392,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   GreaterThan: {
+    group: NodeGroups.Comparison,
     description: 'Check if left input is greater than right input.',
     attributes: {},
     code: {
@@ -403,6 +419,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   LessThan: {
+    group: NodeGroups.Comparison,
     description: 'Check if left input is less than right input.',
     attributes: {},
     code: {
@@ -429,6 +446,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   GreaterThanEquals: {
+    group: NodeGroups.Comparison,
     description: 'Check if left input is greater than or equal to right input.',
     attributes: {},
     code: {
@@ -455,6 +473,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   LessThanEquals: {
+    group: NodeGroups.Comparison,
     description: 'Check if left input is less than or equal to right input.',
     attributes: {},
     code: {
@@ -481,6 +500,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   NotEquals: {
+    group: NodeGroups.Comparison,
     description: 'Check if 2 numbers are not equal.',
     attributes: {},
     code: {
@@ -507,6 +527,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   PickInputBool: {
+    group: NodeGroups.ControlFlow,
     description: 'Pick one of two boolean inputs to output (True for left, False for right)',
     attributes: {},
     code: {
@@ -536,6 +557,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   PickInputNum: {
+    group: NodeGroups.ControlFlow,
     description: 'Pick one of two numerical inputs to output (True for left, False for right)',
     attributes: {},
     code: {
@@ -608,6 +630,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   SevenSegmentDisplay: {
+    group: NodeGroups.Output,
     description: 'Convert number inpu into 7 outputs for a 7 segment display.',
     attributes: {
       blockName: { type: AttributeTypes.BlockName },
@@ -662,6 +685,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   RandomNumber: {
+    group: NodeGroups.Input,
     description: 'Output a random number between given attribute values lower and higher inclusively when given a signal',
     attributes: {
       lower: { type: AttributeTypes.Number },
@@ -687,6 +711,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   PulseGenerator: {
+    group: NodeGroups.Input,
     description: 'Generate a pulse with a fixed delay',
     attributes: {
       delay_ms: { type: AttributeTypes.Number },
@@ -705,6 +730,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   LCDDisplay: {
+    group: NodeGroups.Output,
     description: 'I2C LCD Display',
     attributes: {
       SCL_pin: { type: AttributeTypes.DigitalOut },
@@ -724,6 +750,7 @@ const defaultNodeTypes: NodeTypes = {
     outputs: {},
   },
   DistanceSensor: {
+    group: NodeGroups.Input,
     description: 'HC-SR04 Distance Sensor',
     attributes: {
       trigger_pin: { type: AttributeTypes.DigitalOut },
@@ -743,6 +770,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Buzzer: {
+    group: NodeGroups.Output,
     description: 'Passive buzzer',
     attributes: {
       pin_num: { type: AttributeTypes.DigitalOut },

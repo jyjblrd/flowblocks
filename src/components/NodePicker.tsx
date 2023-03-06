@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { createRef, useLayoutEffect, useState } from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import {
+  Card, Col, Row, Tab, Tabs,
+} from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import { NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
+import { NodeGroups, NodeTypeData } from '../shared/interfaces/NodeTypes.interface';
 import { nodeEditorModalAtom } from '../shared/recoil/atoms/nodeEditorModal';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import DefaultNode from './DefaultNode';
@@ -26,16 +28,27 @@ export default function NodePicker() {
   const nodeListElementRef = createRef<HTMLDivElement>();
 
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [selectedPage, setSelectedPage] = useState(0);
+  const [selectedGroup, setSelectedGroup] = useState('Input');
   const nodeTypes = Object.entries(useRecoilValue(nodeTypesAtom));
   const setNodeEditorModal = useSetRecoilState(nodeEditorModalAtom);
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsPerPage;
-  const currentItems = nodeTypes.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(nodeTypes.length / itemsPerPage);
+  const filteredItems = nodeTypes
+    .filter(([, value]) => {
+      if (value.group !== undefined) {
+        return NodeGroups[value.group] === selectedGroup;
+      } else {
+        return selectedGroup === NodeGroups[NodeGroups.Other];
+      }
+    });
+  const currentItems = filteredItems.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(filteredItems.length / itemsPerPage);
 
   // Invoke when user click to request another page.
   const handlePageClick = (event: any) => {
     const newOffset = (event.selected * itemsPerPage) % nodeTypes.length;
+    setSelectedPage(selectedPage + 1);
     setItemOffset(newOffset);
   };
 
@@ -61,11 +74,32 @@ export default function NodePicker() {
     }
   }, []);
 
+  const onTabSelect = (eventKey: any) => {
+    setSelectedPage(0);
+    setItemOffset(0);
+    setSelectedGroup(eventKey);
+  };
+
   return (
     <Card className="h-100 shadow-sm py-2 px-3 d-flex flex-column">
+      <div style={{ overflowX: 'scroll' }}>
+        <Tabs
+          defaultActiveKey={selectedGroup}
+          justify
+          className="mt-2"
+          onSelect={onTabSelect}
+          variant="pills"
+          style={{ minWidth: '800px' }}
+        >
+          {Object.keys(NodeGroups)
+            .filter((key: any) => !Number.isNaN(Number(NodeGroups[key]))).map((name) => (
+              <Tab key={name} eventKey={name} title={name} className="mb-3" />
+            ))}
+        </Tabs>
+      </div>
 
-      <Row ref={nodeListRef} style={{ overflowY: 'clip' }} className="flex-grow-1">
-        <Col className="d-flex flex-column">
+      <Row ref={nodeListRef} style={{ overflowY: 'clip' }} className="flex-grow-1 border-top">
+        <Col className="d-flex flex-column" style={{ marginTop: '-16px' }}>
           {currentItems.map(([nodeTypeId, nodeType], index) => (
             <Row
               key={nodeTypeId}
@@ -133,6 +167,7 @@ export default function NodePicker() {
             breakLabel="..."
             nextLabel="›"
             onPageChange={handlePageClick}
+            forcePage={selectedPage}
             pageRangeDisplayed={5}
             pageCount={pageCount}
             previousLabel="‹"

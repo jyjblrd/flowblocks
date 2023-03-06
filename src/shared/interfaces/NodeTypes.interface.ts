@@ -18,6 +18,7 @@ export enum ConnectionType {
 }
 
 export type NodeTypeData = {
+  group?: NodeGroups,
   description: string,
   attributes: Attributes,
   inputs: Record<number, { name: string, type: ConnectionType }>,
@@ -26,3 +27,13 @@ export type NodeTypeData = {
 };
 
 export type NodeTypes = Record<string, NodeTypeData>;
+
+export enum NodeGroups {
+  Input,
+  Output,
+  Logic,
+  Numerical,
+  Comparison,
+  ControlFlow,
+  Other,
+}
