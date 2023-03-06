@@ -34,8 +34,8 @@ export default function flowchartToJSON(
 }
 
 const availablePins = {
-  dig: [0, 1, 2, 3, 4, 5, 6, 7],
-  an: [8, 9, 10],
+  dig: ['0', '1', '2', '3', '4', '5', '6', '7'],
+  an: ['8', '9', '10'],
 };
 
 let nameNumber: number = 0;
@@ -178,6 +178,7 @@ function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
       out = out.concat(node.data.attributes.blockName);
       out = out.concat(' then to the 3.3v power\n');
     } else if (type == 'LED') {
+      console.log(pins.get("pin_num"))
       if (isUseablePin((pins.get('pin_num')), 'dig') && node.data.attributes.pin_num != '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.attributes.blockName);
