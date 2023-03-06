@@ -140,9 +140,9 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	node_defs->emit_block_definitions(code);
 
 	// add instances of block classes to code
-	for (auto it = graph->argsorted_ids.rbegin(); it != graph->argsorted_ids.rend(); ++it) {
-		auto const &id = *it;
-		node_defs->emit_block_instantiations(code, *graph, id);
+	for (std::size_t i = graph->argsorted_ids.size() - 1; i + 1 != 0; --i) {
+		auto const &id = graph->argsorted_ids[i];
+		node_defs->emit_block_instantiations(i, code, *graph, id);
 	}
 
 	//	code.append("while True:\n");
@@ -166,15 +166,12 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	code.pop_back();
 	code.pop_back();
 
-	code += "]\ninitial_marked = [";
+	code += "]\nquery = [";
 	for (auto const &id : graph->argsorted_ids) {
 		if (auto const &node_type = node_defs->get_node_type(graph->id_to_node.at(id)); node_type.get_is_query()) {
 			code += "a";
 			code += id;
 			code += ", ";
-			if (node_type.expected_in_degree() != 0) {
-				return {CompileResult::Err, "Query node with inputs not yet supported"};
-			}
 		}
 	}
 	if (code.ends_with(", ")) {
@@ -183,15 +180,22 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	}
 
 	code +=
-		"]\n\n"
-		"for a in a_list:\n    a.update([])"
-		"\n\n"
+		"]\n"
+		"\n"
+		"for a in a_list:\n"
+		"    a.update([])\n"
+		"\n"
 		"while True:\n"
-		"    marked = initial_marked.copy()\n"
+		"    marked = []\n"
 		"    i = 0\n"
-		"    while i < len(marked):\n"
-		"        marked[i].update(marked)\n"
-		"        i += 1";
+		"    j = 0\n"
+		"    while i < len(marked) or j < len(query):\n"
+		"        if i < len(marked) and (j == len(query) or marked[i]._index < query[j]._index):\n"
+		"            marked[i].update(marked)\n"
+		"            i += 1\n"
+		"        else:\n"
+		"            query[j].update(marked)\n"
+		"            j += 1";
 
 	return {CompileResult::Ok, code};
 }

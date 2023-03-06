@@ -249,7 +249,7 @@ class NodeDefinitions;
 class NodeType {
 public:
 	auto emit_block_definition(std::string &code) const -> void;
-	auto emit_block_instantiation(std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void;
+	auto emit_block_instantiation(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void;
 
 	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
 		generated_name += std::to_string(collision_no);
@@ -381,8 +381,8 @@ public:
 			def.emit_block_definition(code);
 	}
 
-	auto emit_block_instantiations(std::string &code, SortedGraph const &graph, std::string const &id) const -> void {
-		get_node_type(graph.id_to_node.at(id)).emit_block_instantiation(code, graph, id, *this);
+	auto emit_block_instantiations(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id) const -> void {
+		get_node_type(graph.id_to_node.at(id)).emit_block_instantiation(index, code, graph, id, *this);
 	}
 
 	auto insert_type(NodeType &&nt) -> void {
@@ -636,7 +636,7 @@ inline auto make_init_attribute_pair(std::string_view const name, std::map<std::
 	std::string attribute_init {};
 
 	function_name += name;
-	function_name += "(self, successors";
+	function_name += "(self, __index, successors";
 
 	for (auto const &[_, entry] : attrs) {
 		function_name += ", ";
@@ -740,16 +740,17 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 				inputs, [](ioi_t ioi) { return ioi.self_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
 			auto const output_init {make_var_init(
 				outputs, [](ioi_t ioi) { return ioi.self_u_name(); }, [](ioi_t ioi) { return ioi.get_default_value(); })};
+			std::string_view const index_init = "self._index = __index";
 			auto const output_tmp_init {make_var_init(
 				outputs, [](ioi_t ioi) { return ioi.temp_name(); }, [](ioi_t ioi) { return ioi.self_u_name(); })};
-			std::string_view const unmark_self = expected_in_degree() == 0 ? "" : "\nself._marked = False";
+			std::string_view const unmark_self = expected_in_degree() == 0 || is_query ? "" : "self._marked = False";
 			auto update_end {make_update_successors(outputs)};
 
 			code.append("class " + get_generated_name() + ":");
 
 			// TODO: rewrite to produce code that obeys the correct model of execution
 
-			generate_function(code, 1, init_func, successor_init, marked_init, attr_init, output_init, input_init, init_code);
+			generate_function(code, 1, init_func, index_init, successor_init, marked_init, attr_init, output_init, input_init, init_code);
 			generate_function(code, 1, update_func, output_tmp_init, update_code, unmark_self, update_end);
 
 			code.append("\n");
@@ -757,10 +758,10 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 	}
 }
 
-inline auto NodeType::emit_block_instantiation(std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void {
+inline auto NodeType::emit_block_instantiation(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void {
 	auto node {graph.id_to_node.at(id)};
 
-	code += "a" + id + " = " + get_generated_name() + "(successors = {";
+	code += "a" + id + " = " + get_generated_name() + "(__index = " + std::to_string(index) + ", successors = {";
 	for (auto const &[output_id, successors] : node.output_to_successors) {
 		code += "'" + outputs.at(output_ids.at(output_id)).name() + "' : [";
 

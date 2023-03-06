@@ -144,7 +144,7 @@ const defaultNodeTypes: NodeTypes = {
   BoolConstant: {
     description: 'Provides an boolean constant. Used for testing attributes',
     attributes: {
-      'Constant Value': {type: AttributeTypes.Bool},
+      'Constant Value': { type: AttributeTypes.Bool },
     },
     code: {
       init: '',
@@ -198,8 +198,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Increments a counter when triggered, resetting when reset is triggered',
     attributes: {},
     code: {
-      init: 'self.edge = False\n{{ output }} = 0',
-      update: 'if self.edge == False and {{ incr }} == 1:\n\tself.edge = True\n\t{{ output }} = {{ output }} + 1\nelif self.edge == True and {{ incr }} == 0:\n\tself.edge = False\nif {{ reset }} == 1:\n\t{{ output }} = 0',
+      init: '{{ output }} = 0',
+      update: 'if {{ reset }}:\n\t{{ output }} = 0\nelif {{ incr }}:\n\t{{ output }} += 1',
       isQuery: false,
     },
     inputs: {
@@ -568,9 +568,10 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Output True for a single frame when input is True.',
     attributes: {},
     code: {
-      init: 'self.edge = False',
-      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = 1\nelif self.edge == True:\n\tself.edge = False\n\t{{ output }} = 0',
-      isQuery: false,
+      init: 'self.prev_input = False',
+      update: '{{ output }} = {{ input }} and not self.prev_input\nself.prev_input = {{ input }}',
+      // TODO: fix execution model so this isn't always updated?
+      isQuery: true,
     },
     inputs: {
       0: {
@@ -589,8 +590,8 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Flips output value whenever input becomes True.',
     attributes: {},
     code: {
-      init: 'self.edge = False',
-      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = not {{ output }}\nelif self.edge == True:\n\tself.edge = False',
+      init: '',
+      update: 'if {{ input }} == 1:\n\t{{ output }} = not {{ output }}',
       isQuery: false,
     },
     inputs: {
@@ -667,8 +668,9 @@ const defaultNodeTypes: NodeTypes = {
       higher: { type: AttributeTypes.Number },
     },
     code: {
-      init: 'self.edge = False\n',
-      update: 'if self.edge == False and {{ input }} == 1:\n\tself.edge = True\n\t{{ output }} = random.randint({{ lower }}, {{ higher }})\nelif self.edge == True:\n\tself.edge = False\n',
+      // TODO make this output a sane value before first signal
+      init: 'import random\nself.random = random',
+      update: 'if {{ input }}:\n\t{{ output }} = self.random.randint({{ lower }}, {{ higher }})',
       isQuery: false,
     },
     inputs: {
@@ -690,8 +692,8 @@ const defaultNodeTypes: NodeTypes = {
       delay_ms: { type: AttributeTypes.Number },
     },
     code: {
-      init: 'import time\nself.time = time\nself.prev_pulse = time.ticks_ms()\n',
-      update: 'if self.time.ticks_diff(self.time.ticks_ms(), self.prev_pulse) >= {{ delay_ms }}:\n\t{{ output }} = True\n\tself.prev_pulse = self.time.ticks_add(self.prev_pulse, {{ delay_ms }})\nelse:\n\t{{ output }} = False\n',
+      init: 'import time\nself.time = time\nself.prev_pulse = time.ticks_ms()',
+      update: 'if self.time.ticks_diff(self.time.ticks_ms(), self.prev_pulse) >= {{ delay_ms }}:\n\t{{ output }} = True\n\tself.prev_pulse = self.time.ticks_add(self.prev_pulse, {{ delay_ms }})\nelse:\n\t{{ output }} = False',
       isQuery: true,
     },
     inputs: {},
