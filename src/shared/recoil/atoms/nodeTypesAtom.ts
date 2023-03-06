@@ -273,11 +273,11 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Divide: {
-    description: 'Divide left input by second input TODO: Div by zero.',
+    description: 'Divide left input by right input TODO: Div by zero.',
     attributes: {},
     code: {
       init: '',
-      update: '{{ output }} = {{ left }} / {{ right }}',
+      update: '{{ output }} = {{ left }} // {{ right }}',
       isQuery: false,
     },
     inputs: {
