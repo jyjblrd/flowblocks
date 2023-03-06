@@ -13,6 +13,8 @@ import DefaultNode from './DefaultNode';
 import Draggable from './Draggable';
 import ScaleToFit from './ScaleToFit';
 
+import './NodePicker.scss';
+
 function genDummyNodeInstance(nodeTypeId: string, nodeType: NodeTypeData): NodeInstance {
   return {
     nodeTypeId,
@@ -93,7 +95,7 @@ export default function NodePicker() {
         >
           {Object.keys(NodeGroups)
             .filter((key: any) => !Number.isNaN(Number(NodeGroups[key]))).map((name) => (
-              <Tab key={name} eventKey={name} title={name} className="mb-3" />
+              <Tab key={name} eventKey={name} title={name} className="mb-3" tabClassName="border border-primary" />
             ))}
         </Tabs>
       </div>
