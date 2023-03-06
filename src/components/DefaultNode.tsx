@@ -15,7 +15,7 @@ interface DummyNodeProps {
 }
 
 function calcHandleTop(index: number, numHandles: number) {
-  return `${(100 / (numHandles + 1)) * (index + 1)}%`;
+  return (100 / (numHandles + 1)) * (index + 1);
 }
 
 const useConnectionValidator = () => {
@@ -66,70 +66,127 @@ export default function DefaultNode(
   };
 
   return (
-    <>
+    <div
+      className="node-wrapper"
+      style={{
+        height: `${Math.max(numInputs, numOutputs) * 30 + 40}px`, minHeight: '80px', padding: '10px 0 10px 0',
+      }}
+    >
+      <div
+        className="node text-center h-100 px-2"
+      >
+        <h5
+          style={{
+            position: 'relative',
+            top: '50%',
+            transform: 'translateY(-50%)',
+          }}
+        >
+          {data.nodeTypeId}
+
+        </h5>
+
+      </div>
       {
-        Object.entries(nodeType.inputs).map(([key], index) => {
+        Object.entries(nodeType.inputs).map(([key, value], index) => {
+          const res = [
+            <span
+              key={1}
+              className="small handle-label left"
+              style={{
+                top: `calc(${calcHandleTop(index, numInputs)}% - 11px)`,
+                borderColor: typeToColor[nodeType.inputs[index].type],
+              }}
+            >
+              {value.name}
+            </span>,
+          ];
+
           if (isDummyNode) {
-            return (
+            res.push(
               <div
-                key={key}
+                key={2}
                 className="react-flow__handle react-flow__handle-left"
-                style={{ top: calcHandleTop(index, numInputs) }}
-              />
+                style={{
+                  top: `${calcHandleTop(index, numInputs)}%`,
+                  backgroundColor: 'var(--bs-white)',
+                  borderColor: typeToColor[nodeType.inputs[index].type],
+                }}
+              />,
             );
           } else {
-            return (
+            res.push(
               <Handle
+                key={3}
                 type="target"
                 position={Position.Left}
                 id={key}
-                key={key}
                 style={{
-                  top: calcHandleTop(index, numInputs),
+                  top: `${calcHandleTop(index, numInputs)}%`,
                   backgroundColor: data.isInputConnected[index] ? typeToColor[nodeType.inputs[index].type] : 'var(--bs-white)',
                   borderColor: typeToColor[nodeType.inputs[index].type],
                 }}
                 className={data.isInputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
-              />
+              />,
             );
           }
+
+          return <div key={key}>{res}</div>;
         })
       }
-      <div
-        className="node"
-      >
-        <h5 className="m-0">{data.nodeTypeId}</h5>
-      </div>
       {
-        Object.entries(nodeType.outputs).map(([key], index) => {
+        Object.entries(nodeType.outputs).map(([key, value], index) => {
+          const res = [
+            <span
+              key={1}
+              className="small handle-label right"
+              style={{
+                top: `calc(${calcHandleTop(index, numOutputs)}% - 11px)`,
+                borderColor: typeToColor[nodeType.outputs[index].type],
+              }}
+            >
+              {value.name}
+            </span>,
+          ];
+
           if (isDummyNode) {
-            return (
+            res.push(
               <div
-                key={key}
+                key={2}
                 className="react-flow__handle react-flow__handle-right"
-                style={{ top: calcHandleTop(index, numOutputs) }}
-              />
+                style={{
+                  top: `${calcHandleTop(index, numOutputs)}%`,
+                  backgroundColor: 'var(--bs-white)',
+                  borderColor: typeToColor[nodeType.outputs[index].type],
+                }}
+              />,
             );
           } else {
-            return (
+            res.push(
               <Handle
+                key={3}
                 type="source"
                 position={Position.Right}
                 id={key}
-                key={key}
                 style={{
-                  top: calcHandleTop(index, numOutputs),
+                  top: `${calcHandleTop(index, numOutputs)}%`,
                   backgroundColor: data.isOutputConnected[index] ? typeToColor[nodeType.outputs[index].type] : 'var(--bs-white)',
                   borderColor: typeToColor[nodeType.outputs[index].type],
                 }}
                 className={data.isOutputConnected[index] ? 'connected' : ''}
                 isValidConnection={useConnectionValidator()}
-              />
+              />,
             );
           }
+
+          return (
+            <div key={key}>
+              {res}
+            </div>
+          );
         })
       }
-    </>
+    </div>
   );
 }

@@ -76,7 +76,7 @@ export function attributeGenerator(attributeType: AttributeTypes, nodeType:strin
       name = name.concat(nameNumber as string);
       return name;
     case AttributeTypes.Bool:
-      return 'true';
+      return 'True';
     case AttributeTypes.Number:
       return '0';
     default:
@@ -92,29 +92,32 @@ function saveToLocal(exportObj: Object, exportName: string | null) {
 function loadFromLocal(exportName: string) {
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
-  if (load) {
-    return JSON.parse(load);
-  } else {
-    alert('No saved flowchart found of this name');
-    return null;
+  if (!load) {
+    alert('File loading error occured');
+    return;
   }
-}
 
-export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
+  export function saveFlowInstance(reactFlowInstance: ReactFlowInstance, name: string): void {
   /* var obj = reactFlowInstance.toObject();
   var json = JSON.stringify(obj);
   var exportData = "data:text/json;charset=utf-8," + json;
   var blob = new Blob([json], {type: "application/json"});
   var newWindow = window.open(encodeURI(exportData));
   */
-  // downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
-  saveToLocal(reactFlowInstance.toObject(), name);
-}
+    // downloadObjectAsJson(reactFlowInstance.toObject(), 'flowchart');
+    saveToLocal(reactFlowInstance.toObject(), name);
+  }
 
-export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
-  const loaded = loadFromLocal(exportName);
-  reactFlowInstance.setNodes(loaded.nodes);
-  reactFlowInstance.setEdges(loaded.edges);
+  export function loadFlowInstance(reactFlowInstance: ReactFlowInstance, exportName: string): void {
+    const loaded = loadFromLocal(exportName);
+    reactFlowInstance.setNodes(loaded.nodes);
+    reactFlowInstance.setEdges(loaded.edges);
+  }
+
+  reactFlowInstance.setNodes(flow.nodes);
+  reactFlowInstance.setEdges(flow.edges);
+
+  setNodeTypes(nodes);
 }
 
 function knownLocalCharts(): string[] {
@@ -125,9 +128,9 @@ function knownLocalCharts(): string[] {
   return keys;
 }
 
-export function ppKnownCharts(): string {
-  const charts = knownLocalCharts();
-  return charts.join('\n');
+export function ppKnownCharts(): string[] {
+  const charts = knownLocalCharts().sort();
+  return charts;// .join('\n');
 }
 
 function downloadObjectAsJson(exportObj: Object, exportName: string) {

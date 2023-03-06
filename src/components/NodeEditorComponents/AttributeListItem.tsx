@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { ChangeEventHandler, RefObject, useRef } from 'react';
+import React, { ChangeEventHandler } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 import { AttributeTypes } from '../../shared/interfaces/NodeTypes.interface';
 

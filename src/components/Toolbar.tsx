@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import { cxx } from '../cxx';
 import { runOnDevice, stopRunning, disconnectSerial } from '../shared/helpers/serial';
 import flowchartToJSON, {
@@ -51,12 +51,12 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          const knownNames = ppKnownCharts();
+          const knownnames = ppKnownCharts();
           setLoadModal((prevLoadModal) => ({
             ...prevLoadModal,
             isOpen: true,
             loadChart: (name) => { loadFlowInstance(reactFlowInstance, setNodeTypes, name); },
-            knownNames,
+            knownNames: knownnames,
           }));
           // loadFlowInstance(reactFlowInstance, name);
         }}
