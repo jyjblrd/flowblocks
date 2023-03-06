@@ -11,8 +11,7 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
-import { useRecoilValue } from 'recoil';
-
+import { NotificationKind, notificationListAtom } from '../shared/recoil/atoms/notificationListAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
@@ -21,6 +20,18 @@ export default function Toolbar() {
   const setCodeModal = useSetRecoilState(codeModalAtom);
   const setSaveModal = useSetRecoilState(saveModalAtom);
   const setLoadModal = useSetRecoilState(loadModalAtom);
+
+  const setNotificationList = useSetRecoilState(notificationListAtom);
+
+  const pushErrorNotification = (message: string) => {
+    setNotificationList(
+      (notificationListOld) => {
+        const notifications = [...notificationListOld.notifications];
+        notifications.push({ kind: NotificationKind.Error, message });
+        return { ...notificationListOld, notifications };
+      },
+    );
+  };
 
   return (
     <div style={{ float: 'right' }}>
@@ -77,8 +88,7 @@ export default function Toolbar() {
               code: result.code(),
             }));
           } else {
-            // TODO: replace console log errors with error box / other system at a later date
-            console.log(`Error: ${result.error()}`);
+            pushErrorNotification(result.error());
           }
           result.delete();
         }}
@@ -93,8 +103,7 @@ export default function Toolbar() {
           if (result.ok()) {
             await runOnDevice(result.code());
           } else {
-            // TODO: replace console log errors with error box / other system at a later date
-            console.log(`Error: ${result.error()}`);
+            pushErrorNotification(result.error());
           }
           result.delete();
         }}
@@ -123,7 +132,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          compileCircuit(reactFlowInstance.getNodes(),nodeTypes);
+          compileCircuit(reactFlowInstance.getNodes(), nodeTypes);
         }}
       >
         Generate Circuit

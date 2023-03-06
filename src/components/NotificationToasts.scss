@@ -1,0 +1,7 @@
+.notification-toasts {
+    margin: 16px;
+}
+
+.toast-container.notification-toasts > :not(:last-child) {
+    margin-bottom: 16px;
+}

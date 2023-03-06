@@ -10,6 +10,7 @@ import Toolbar from './components/Toolbar';
 import NodeEditorModal from './components/NodeEditorComponents/NodeEditorModal';
 import SaveModal from './components/SaveModal';
 import LoadModal from './components/LoadModal';
+import NotificationToasts from './components/NotificationToasts';
 // TODO: make these imports a bit nicer
 
 library.add(fas, fab);
@@ -17,6 +18,7 @@ library.add(fas, fab);
 export default function App() {
   return (
     <>
+      <NotificationToasts />
       <Container fluid className="main-container">
         <Row className="mt-4 mb-2 flex-nowrap">
           <Col className="ms-4" style={{ width: 'fit-content' }} md="auto">
