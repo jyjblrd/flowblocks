@@ -12,8 +12,8 @@ const defaultNodeTypes: NodeTypes = {
       blockName: { type: AttributeTypes.BlockName },
     },
     code: {
-      init: 'self.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
-      update: '{{output}} = self.led.value()',
+      init: 'import time\nself.time = time\nself.prev_change_time = 0\nself.led = machine.Pin({{ pin_num }}, machine.Pin.IN, machine.Pin.PULL_DOWN)',
+      update: 'if (self.time.ticks_ms() - self.prev_change_time > 100):\n\t{{output}} = self.led.value()\n\tself.prev_change_time = self.time.ticks_ms(){{output}} = self.led.value()',
       isQuery: true,
     },
     inputs: {},
