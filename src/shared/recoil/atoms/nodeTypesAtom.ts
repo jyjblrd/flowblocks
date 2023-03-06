@@ -742,6 +742,24 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
+  Buzzer: {
+    description: 'Passive buzzer',
+    attributes: {
+      pin_num: { type: AttributeTypes.DigitalOut },
+    },
+    code: {
+      init: 'self.buzzer = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
+      update: 'self.buzzer.value({{ input }})',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'input',
+        type: ConnectionType.Bool,
+      },
+    },
+    outputs: {},
+  },
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
