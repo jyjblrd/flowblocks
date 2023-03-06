@@ -54,11 +54,23 @@ export default function NodeEditorModal() {
 
   const saveNode = () => {
     const newNodeTypes = { ...nodeTypes };
-
     if (nodeTypeId !== undefined && newNodeTypeId !== nodeTypeId) {
       delete newNodeTypes[nodeTypeId];
     }
-
+    let nameRequired=false;
+    let nameExists=false;
+    let attributes=nodeType["attributes"]
+    //check if a name is needed. It is only needed if it is a circuit omponent and no name exists
+    for (const attribute in attributes){
+      const type=(attributes[attribute]["type"])
+      if (type==6){nameExists=true;}
+      if(type==0 ||type==1||type==2||type==3){nameRequired=true;}
+    }
+    //add name 
+    if (nameRequired&&!nameExists){
+      nodeType["attributes"]["name"]={type:6};
+    }
+    //nodeType
     newNodeTypes[newNodeTypeId] = nodeType;
 
     setNodeTypes(newNodeTypes);

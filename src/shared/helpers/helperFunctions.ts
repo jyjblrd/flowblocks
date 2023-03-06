@@ -59,7 +59,7 @@ function nextUnused(toUse:number[], used:number[]) {
 }
 
 export function attributeGenerator(attributeType: AttributeTypes, nodeType:string): string {
-  //console.log(attributeType);
+  console.log(attributeType);
   switch (attributeType) {
     case 0:// AttributeTypes.digitalIn:
       var out:number = 0;
@@ -159,7 +159,7 @@ function compileCircuitHelper(nodesList,setNodeData) {
     const type = (node.data.nodeTypeId);
     let pins=new Map<String,String>;
     let attributes=(node.data.attributes);
-    for (const attribute in attributes){//first go through all attributes and collect dictionary of ones whichare pins to check
+    for (const attribute in attributes){//first go through all attributes and collect dictionary of ones which are pins to check
       let attributeType=setNodeData[type].attributes[attribute].type;
       if (attributeType===0 || attributeType===1) {
         const pin=node.data.attributes[attribute];
