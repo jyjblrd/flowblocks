@@ -644,7 +644,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     code: {
       init: 'self.led_a = machine.Pin({{ pin_num_a }}, machine.Pin.OUT)\nself.led_b = machine.Pin({{ pin_num_b }}, machine.Pin.OUT)\nself.led_c = machine.Pin({{ pin_num_c }}, machine.Pin.OUT)\nself.led_d = machine.Pin({{ pin_num_d }}, machine.Pin.OUT)\nself.led_e = machine.Pin({{ pin_num_e }}, machine.Pin.OUT)\nself.led_f = machine.Pin({{ pin_num_f }}, machine.Pin.OUT)\nself.led_g = machine.Pin({{ pin_num_g }}, machine.Pin.OUT)\n\nself.leds = [self.led_a, self.led_b, self.led_c, self.led_d, self.led_e, self.led_f, self.led_g]\n\nself.outs=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]]',
-      update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n\tself.leds[i].value(int(self.out[i]))',
+      update: 'self.out = self.outs[{{ input }} % 10]\nfor i in range(7):\n\tself.leds[i].value(int(not self.out[i]))',
       isQuery: false,
     },
     inputs: {
@@ -653,36 +653,7 @@ const defaultNodeTypes: NodeTypes = {
         type: ConnectionType.Number,
       },
     },
-    outputs: {
-      0: {
-        name: 'a',
-        type: ConnectionType.Bool,
-      },
-      1: {
-        name: 'b',
-        type: ConnectionType.Bool,
-      },
-      2: {
-        name: 'c',
-        type: ConnectionType.Bool,
-      },
-      3: {
-        name: 'd',
-        type: ConnectionType.Bool,
-      },
-      4: {
-        name: 'e',
-        type: ConnectionType.Bool,
-      },
-      5: {
-        name: 'f',
-        type: ConnectionType.Bool,
-      },
-      6: {
-        name: 'g',
-        type: ConnectionType.Bool,
-      },
-    },
+    outputs: {},
   },
   RandomNumber: {
     group: NodeGroups.Input,
@@ -755,7 +726,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {
       trigger_pin: { type: AttributeTypes.DigitalOut },
       echo_pin: { type: AttributeTypes.DigitalIn },
-      name:{type:AttributeTypes.BlockName}
+      name: { type: AttributeTypes.BlockName },
     },
     code: {
       init: 'import time\n\n__version__ = "0.2.0"\n__author__ = "Roberto S鐠嬶箯chez"\n__license__ = "Apache License 2.0. https://www.apache.org/licenses/LICENSE-2.0"\n\nclass HCSR04:\n\t"""\n\tDriver to use the untrasonic sensor HC-SR04.\n\tThe sensor range is between 2cm and 4m.\n\tThe timeouts received listening to echo pin are converted to OSError("Out of range")\n\t"""\n\t# echo_timeout_us is based in chip range limit (400cm)\n\tdef __init__(self, trigger_pin, echo_pin, echo_timeout_us=500*2*30):\n\t\t"""\n\t\ttrigger_pin: Output pin to send pulses\n\t\techo_pin: Readonly pin to measure the distance. The pin should be protected with 1k resistor\n\t\techo_timeout_us: Timeout in microseconds to listen to echo pin. \n\t\tBy default is based in sensor limit range (4m)\n\t\t"""\n\t\tself.echo_timeout_us = echo_timeout_us\n\t\t# Init trigger pin (out)\n\t\tself.trigger = machine.Pin(trigger_pin, mode=machine.Pin.OUT, pull=None)\n\t\tself.trigger.value(0)\n\n\t\t# Init echo pin (in)\n\t\tself.echo = machine.Pin(echo_pin, mode=machine.Pin.IN, pull=None)\n\n\tdef _send_pulse_and_wait(self):\n\t\t"""\n\t\tSend the pulse to trigger and listen on echo pin.\n\t\tWe use the method `machine.time_pulse_us()` to get the microseconds until the echo is received.\n\t\t"""\n\t\tself.trigger.value(0) # Stabilize the sensor\n\t\ttime.sleep_us(5)\n\t\tself.trigger.value(1)\n\t\t# Send a 10us pulse.\n\t\ttime.sleep_us(10)\n\t\tself.trigger.value(0)\n\t\ttry:\n\t\t\tpulse_time = machine.time_pulse_us(self.echo, 1, self.echo_timeout_us)\n\t\t\treturn pulse_time\n\t\texcept OSError as ex:\n\t\t\tif ex.args[0] == 110: # 110 = ETIMEDOUT\n\t\t\t\traise OSError("Out of range")\n\t\t\traise ex\n\n\tdef distance_mm(self):\n\t\t"""\n\t\tGet the distance in milimeters without floating point operations.\n\t\t"""\n\t\tpulse_time = self._send_pulse_and_wait()\n\n\t\t# To calculate the distance we get the pulse_time and divide it by 2 \n\t\t# (the pulse walk the distance twice) and by 29.1 becasue\n\t\t# the sound speed on air (343.2 m/s), that It"s equivalent to\n\t\t# 0.34320 mm/us that is 1mm each 2.91us\n\t\t# pulse_time // 2 // 2.91 -> pulse_time // 5.82 -> pulse_time * 100 // 582 \n\t\tmm = pulse_time * 100 // 582\n\t\treturn mm\n\n\tdef distance_cm(self):\n\t\t"""\n\t\tGet the distance in centimeters with floating point operations.\n\t\tIt returns a float\n\t\t"""\n\t\tpulse_time = self._send_pulse_and_wait()\n\n\t\t# To calculate the distance we get the pulse_time and divide it by 2 \n\t\t# (the pulse walk the distance twice) and by 29.1 becasue\n\t\t# the sound speed on air (343.2 m/s), that It"s equivalent to\n\t\t# 0.034320 cm/us that is 1cm each 29.1us\n\t\tcms = (pulse_time / 2) / 29.1\n\t\treturn cms\n\nself.sensor = HCSR04(trigger_pin={{trigger_pin}}, echo_pin={{echo_pin}}, echo_timeout_us=10000)',
@@ -775,7 +746,7 @@ const defaultNodeTypes: NodeTypes = {
     description: 'Passive buzzer',
     attributes: {
       pin_num: { type: AttributeTypes.DigitalOut },
-      name:{type:AttributeTypes.BlockName}
+      name: { type: AttributeTypes.BlockName },
     },
     code: {
       init: 'self.buzzer = machine.Pin({{ pin_num }}, machine.Pin.OUT)',
@@ -786,6 +757,54 @@ const defaultNodeTypes: NodeTypes = {
       0: {
         name: 'input',
         type: ConnectionType.Bool,
+      },
+    },
+    outputs: {},
+  },
+  AnalogOutput: {
+    group: NodeGroups.Output,
+    description: 'Takes input values from 0 – 100',
+    attributes: {
+      pin_num: { type: AttributeTypes.AnalogOut },
+    },
+    code: {
+      init: 'self.pwm0 = machine.PWM(machine.Pin({{pin_num}}))\nself.pwm0.freq(1000)',
+      update: 'self.pwm0.duty_u16( round( ( {{value}} / 100 ) * 65535 ) )',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'value',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {},
+  },
+  RgbLed: {
+    group: NodeGroups.Output,
+    description: 'Red Green and Blue inputs take values from 0 – 100',
+    attributes: {
+      red_pin: { type: AttributeTypes.AnalogOut },
+      green_pin: { type: AttributeTypes.AnalogOut },
+      blue_pin: { type: AttributeTypes.AnalogOut },
+    },
+    code: {
+      init: 'self.red_led = machine.PWM(machine.Pin({{red_pin}}))\nself.green_led = machine.PWM(machine.Pin({{green_pin}}))\nself.blue_led = machine.PWM(machine.Pin({{blue_pin}}))\n\nself.red_led.freq(1000)\nself.green_led.freq(1000)\nself.blue_led.freq(1000)',
+      update: 'self.red_led.duty_u16( round( ( 1 - {{red}}/100 ) * 65535 ) )\nself.green_led.duty_u16( round( ( 1 - {{green}}/100 ) * 65535 ) )\nself.blue_led.duty_u16( round( ( 1 - {{blue}}/100 ) * 65535 ) )',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'red',
+        type: ConnectionType.Number,
+      },
+      1: {
+        name: 'green',
+        type: ConnectionType.Number,
+      },
+      2: {
+        name: 'blue',
+        type: ConnectionType.Number,
       },
     },
     outputs: {},
