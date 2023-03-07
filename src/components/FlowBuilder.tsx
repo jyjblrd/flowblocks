@@ -24,7 +24,7 @@ import Droppable from './Droppable';
 import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import ContextMenu from './ContextMenu';
 import { NodeInstance } from '../shared/interfaces/NodeInstance.interface';
-import { attributeGenerator } from '../shared/helpers/helperFunctions';
+import { blockNameGenerator, attributeGenerator } from '../shared/helpers/helperFunctions';
 
 const initialNodes: Node<NodeInstance>[] = [];
 const initialEdges: Edge[] = [];
@@ -183,7 +183,8 @@ function FlowBuilder() {
         // Populate node attributes
         Object.entries(nodeType.attributes)
           .forEach(([attributeId, { type }]) => {
-            nodeInstance.attributes[attributeId] = attributeGenerator(type, nodeTypeId);
+            nodeInstance.attributes[attributeId] = attributeGenerator(type);
+            nodeInstance.blockName = blockNameGenerator(nodeTypeId);
           });
         const nextNodeInstanceId = nodes.length === 0
           ? '0'

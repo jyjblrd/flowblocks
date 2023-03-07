@@ -6,8 +6,6 @@ export enum AttributeTypes {
   AnalogOut,
   Bool,
   Number,
-  BlockName, // pls remove
-
 }
 export type Attributes = Record<string, { type: AttributeTypes }>;
 
@@ -21,6 +19,7 @@ export type NodeTypeData = {
   group?: NodeGroups,
   description: string,
   attributes: Attributes,
+  hasBlockName: boolean,
   inputs: Record<number, { name: string, type: ConnectionType }>,
   outputs: Record<number, { name: string, type: ConnectionType }>,
   code: { init: string, update: string, isQuery: boolean }
