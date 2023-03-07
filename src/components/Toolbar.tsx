@@ -29,15 +29,6 @@ export default function Toolbar() {
         variant="outline-dark"
         className="mx-1"
         onClick={() => {
-          // startTutorial();
-        }}
-      >
-        Tutorial
-      </Button>
-      <Button
-        variant="outline-dark"
-        className="mx-1"
-        onClick={() => {
           // console.log("Save")
           setSaveModal((prevSaveModal) => ({
             ...prevSaveModal,
