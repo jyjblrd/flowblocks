@@ -18,7 +18,7 @@ export default function ScaleToFit(
       setChildHeight(`${componentRef.current.offsetHeight}px`);
       const xScale = (maxWidth / componentRef.current.offsetWidth) * 100;
       const yScale = (maxHeight / componentRef.current.offsetHeight) * 100;
-      console.log(componentRef.current);
+      //console.log(componentRef.current);
       setScale(Math.min(xScale, yScale, 100));
     }
   }, []);

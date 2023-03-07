@@ -807,7 +807,7 @@ const defaultNodeTypes: NodeTypes = {
     },
     outputs: {},
   },
-  RgbLed: {
+  RGB_LED: {
     group: NodeGroups.Output,
     description: 'Red Green and Blue inputs take values from 0 – 100',
     attributes: {

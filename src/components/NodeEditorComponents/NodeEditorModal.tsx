@@ -62,15 +62,6 @@ export default function NodeEditorModal() {
     const { attributes } = nodeType;
     // check if a name is needed. It is only needed if it is a circuit component and no name exists
     // TODO update this to reflect changes to block names
-    for (const attribute in attributes) {
-      const { type } = attributes[attribute];
-      if (type == 6) { nameExists = true; }
-      if (type == 0 || type == 1 || type == 2 || type == 3) { nameRequired = true; }
-    }
-    // add name
-    if (nameRequired && !nameExists) {
-      nodeType.attributes.name = { type: 6 };
-    }
     // nodeType
     newNodeTypes[newNodeTypeId] = nodeType;
 
