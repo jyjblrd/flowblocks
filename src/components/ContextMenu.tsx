@@ -29,7 +29,7 @@ export default function ContextMenu(
 
   const deleteItem = () => {
     if (clickedNode) {
-      const oldPin: string = clickedNode.data.attributes.pin_num;
+      const oldPin: string = clickedNode.data.attributes['Pin number'];
       used.splice(used.indexOf(oldPin), 1);
       reactFlowInstance.deleteElements({ nodes: [clickedNode] });
       hideMenu();
@@ -47,7 +47,7 @@ export default function ContextMenu(
     reactFlowInstance.setNodes((nodes) =>
 
       nodes.map((node) => {
-        const oldPin: string = node.data.attributes.pin_num;
+        const oldPin: string = node.data.attributes['Pin number'];
 
         if (clickedNode && node.id === clickedNode.id) {
           const newNode = node;
@@ -57,8 +57,8 @@ export default function ContextMenu(
           };
           newNode.data = { ...newNode.data };
           // console.log(newNode.data);
-          console.log(node.data.attributes.pin_num);
-          const newPin: string = newNode.data.attributes.pin_num;
+          console.log(node.data.attributes['Pin number']);
+          const newPin: string = newNode.data.attributes['Pin number'];
           used.push(newPin);
           used.splice(used.indexOf(oldPin), 1);
           return newNode;
