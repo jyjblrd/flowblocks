@@ -27,6 +27,7 @@ export default function NodeEditorModal() {
   const [nodeType, setNodeType] = useState<NodeTypeData>({
     description: '',
     attributes: {},
+    hasBlockName: false,
     inputs: {},
     outputs: {},
     code: { init: '', update: '', isQuery: false },
@@ -37,7 +38,7 @@ export default function NodeEditorModal() {
 
   // Update state on nodeEditorModalAtom change
   useEffect(() => {
-    setNodeType(nodeTypeId !== undefined
+    setNodeType(nodeTypeId !== undefined && nodeTypes[nodeTypeId] !== undefined
       ? structuredClone(nodeTypes[nodeTypeId])
       : {
         description: '',
@@ -48,12 +49,15 @@ export default function NodeEditorModal() {
       });
     setNewNodeTypeId(nodeTypeId ?? defaultNodeName);
     setActiveAttribute(undefined);
-  }, [nodeEditorModal]);
+  }, [nodeEditorModal, nodeTypes]);
 
-  const handleClose = () => setNodeEditorModal((prev) => ({ ...prev, isOpen: false }));
+  const handleClose = (someNodeTypeID: string | null) => setNodeEditorModal({
+    isOpen: false, nodeTypeId: someNodeTypeID ?? nodeTypeId,
+  });
 
   const saveNode = () => {
     const newNodeTypes = { ...nodeTypes };
+    newNodeTypes[newNodeTypeId] = structuredClone(nodeType);
     if (nodeTypeId !== undefined && newNodeTypeId !== nodeTypeId) {
       delete newNodeTypes[nodeTypeId];
     }
@@ -71,12 +75,9 @@ export default function NodeEditorModal() {
     if (nameRequired && !nameExists) {
       nodeType.attributes.name = { type: 6 };
     }
-    // nodeType
-    newNodeTypes[newNodeTypeId] = nodeType;
-
     setNodeTypes(newNodeTypes);
 
-    handleClose();
+    handleClose(newNodeTypeId);
   };
 
   const addAttribute = () => {
@@ -151,7 +152,7 @@ export default function NodeEditorModal() {
 
   const handleChange = (event: any) => {
     const target = event.target as HTMLInputElement;
-    const newNodeType = { ...nodeType };
+    const newNodeType = structuredClone(nodeType);
 
     switch (target.name) {
       case 'nodeTypeId':
@@ -202,7 +203,7 @@ export default function NodeEditorModal() {
     <Modal
       animation={false}
       show={nodeEditorModal.isOpen}
-      onHide={handleClose}
+      onHide={() => handleClose(null)}
       dialogClassName="code-modal"
     >
       <Modal.Header closeButton>
@@ -219,6 +220,16 @@ export default function NodeEditorModal() {
                   <h5>Name & Description</h5>
                   <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} placeholder="Name" />
                   <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" />
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Has named instances"
+                    className="mt-2"
+                    checked={nodeType.hasBlockName}
+                    onChange={
+                      () => setNodeType({ ...nodeType, hasBlockName: !nodeType.hasBlockName })
+                    }
+                  />
                 </Card>
               </Col>
             </Row>
