@@ -3,9 +3,10 @@ import { useRecoilState } from 'recoil';
 // import Modal from 'react-modal';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { Form } from 'react-bootstrap';
-import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import './CodeModal.scss';
+import Prism from 'prismjs';
+import Editor from 'react-simple-code-editor';
+import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 
 export default function CodeModal() {
   const [codeModal, setCodeModal] = useRecoilState(codeModalAtom);
@@ -19,8 +20,21 @@ export default function CodeModal() {
           Copy to clipboard
         </Button>
       </Modal.Header>
-      <Modal.Body>
-        <Form.Control as="textarea" className="font-monospace" value={codeModal.code} style={{ width: '100%', height: '70vh', resize: 'none' }} readOnly />
+      <Modal.Body style={{ height: '70vh', overflowY: 'scroll' }}>
+        <Editor
+          value={codeModal.code}
+          onValueChange={() => {}}
+          highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+          padding={10}
+          insertSpaces={false}
+          className="code-editor"
+          style={{
+            fontFamily: 'monospace',
+            fontSize: 16,
+            width: '100%',
+            resize: 'none',
+          }}
+        />
       </Modal.Body>
     </Modal>
   );
