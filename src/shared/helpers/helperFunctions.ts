@@ -38,9 +38,9 @@ const availablePins = {
   an: ['8', '9', '10'],
 };
 
-export const used: number[] = [];
+export const used: string[] = [];
 
-function nextUnused(toUse: number[]) {
+function nextUnused(toUse: string[]) {
   return toUse.find((pin) => !used.includes(pin));
 }
 
@@ -48,12 +48,12 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
   switch (attributeType) {
     case AttributeTypes.DigitalIn:
     case AttributeTypes.DigitalOut: {
-      const out: number | undefined = nextUnused(availablePins.dig.map((digit) => +digit));
+      const out: string | undefined = nextUnused(availablePins.dig);
       if (out === undefined) {
         return 'error';
       }
       used.push(out);
-      return String(out);
+      return out;
     }
     case AttributeTypes.Bool:
       return 'True';
@@ -93,7 +93,7 @@ export function loadFlowInstance(
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
   if (!load) {
-    alert('File loading error occured');
+    alert('File loading error occurred');
     return;
   }
 
@@ -136,26 +136,29 @@ function downloadObjectAsJson(exportObj: Object, exportName: string) {
 }
 */
 
-function isUseablePin(pin: number, type: keyof typeof availablePins): boolean {
+function isUseablePin(pin: string, type: keyof typeof availablePins): boolean {
   return !availablePins[type].includes(pin);
 }
 
-function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
-  const usedPins = new Map<String, String>();
+function compileCircuitHelper(
+  nodesList: Node<NodeInstance>[],
+  setNodeData: Record<string, NodeTypeData>,
+) {
+  const usedPins = new Map<string, string>();
   let out = '';
-
-  // nodesList.keys().foreach((key) => {
   for (const key of nodesList.keys()) {
     const node = nodesList[key];
     const type = (node.data.nodeTypeId);
-    const pins = new Map<String, String>();
+    const pins = new Map<string, string>();
     const { attributes } = node.data;
-    for (const attribute in attributes) { // first go through all attributes and collect dictionary of ones which are pins to check
+    for (const attribute of Object.keys(attributes)) {
+      // first go through all attributes and collect dictionary of ones which are pins to check
       const attributeType = setNodeData[type].attributes[attribute].type;
       if (attributeType === 0 || attributeType === 1) {
         const pin = node.data.attributes[attribute];
         pins.set(attribute, pin);
-        if (usedPins.get(pin) != undefined) {
+        const pinUsedBy = usedPins.get(pin);
+        if (pinUsedBy !== undefined) {
           out = 'It looks like ';
           out = out.concat(pinUsedBy);
           out = out.concat(' and ');
@@ -166,35 +169,35 @@ function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
         usedPins.set(pin, node.data.blockName ?? '');
       }
     }
-    if (type == 'Button') {
-      if (isUseablePin((pins.get('pin_num')), 'dig')) {
+    if (type === 'Button') {
+      if (isUseablePin(pins.get('pin_num')!, 'dig')) {
         out = 'failed on button ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num'));
+      out = out.concat(pins.get('pin_num')!);
       out = out.concat(' to the button, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to the 3.3v power\n');
-    } else if (type == 'LED') {
-      console.log(pins.get("pin_num"))
-      if (isUseablePin((pins.get('pin_num')), 'dig') && node.data.attributes.pin_num != '25') {
+    } else if (type === 'LED') {
+      console.log(pins.get('pin_num'));
+      if (isUseablePin(pins.get('pin_num')!, 'dig') && node.data.attributes.pin_num !== '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num'));
+      out = out.concat(pins.get('pin_num')!);
       out = out.concat(' to the LED, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to a resistor, then connect that resistor to ground on the pico.\n');
-    } else if (type == 'SevenSegmentDisplay') {
+    } else if (type === 'SevenSegmentDisplay') {
       console.log(pins);
       for (const pin of pins.keys()) {
-        if (isUseablePin((pins.get(pin)), 'dig') && node.data.attributes.pin_num != '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
           out = 'failed on seven segment display ';
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
@@ -204,50 +207,49 @@ function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
         }
       }
       out = out.concat('\nconnect a wire from pin ');
-      out = out.concat(pins.get('pin_num_a'));
+      out = out.concat(pins.get('pin_num_a')!);
       out = out.concat(' to the top horizontal segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_b'));
+      out = out.concat(pins.get('pin_num_b')!);
       out = out.concat(' to the top right segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_c'));
+      out = out.concat(pins.get('pin_num_c')!);
       out = out.concat(' to the bottom right segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_d'));
+      out = out.concat(pins.get('pin_num_d')!);
       out = out.concat(' to the bottom horizontal segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_e'));
+      out = out.concat(pins.get('pin_num_e')!);
       out = out.concat(' to the bottom left segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_f'));
+      out = out.concat(pins.get('pin_num_f')!);
       out = out.concat(' to the top left segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_g'));
+      out = out.concat(pins.get('pin_num_g')!);
       out = out.concat(' to the middle horizontal segment of the display\n');
       out = out.concat('then connect the ground to a 75-220 ohm resistor then to ground on the pico.\n\n');
-    } else if (type == 'Buzzer') {
-      if (isUseablePin((pins.get('pin_num')), 'dig')) {
+    } else if (type === 'Buzzer') {
+      if (isUseablePin(pins.get('pin_num')!, 'dig')) {
         out = 'failed on buzzer ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num'));
+      out = out.concat(pins.get('pin_num')!);
       out = out.concat(' to the buzzer, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to the ground on the pico\n');
     } else if (pins.size !== 0) {
       for (const pin of pins.keys()) {
-        if (isUseablePin((pins.get(pin)), 'dig') && node.data.attributes.pin_num != '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
           out = 'failed on  ';
-          out = out;
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
           out = out.concat(pin);
@@ -255,7 +257,7 @@ function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
           return out;
         }
         out = out.concat('connect pin ');
-        out = out.concat(pins.get(pin));
+        out = out.concat(pins.get(pin)!);
         out = out.concat(' to ');
         out = out.concat(pin);
         out = out.concat(' on ');
@@ -267,7 +269,10 @@ function compileCircuitHelper(nodesList: Node<NodeInstance>[], setNodeData) {
 
   return out;
 }
-export function compileCircuit(nodesList: Node<NodeInstance>[], setNodeData) {
+export function compileCircuit(
+  nodesList: Node<NodeInstance>[],
+  setNodeData: Record<string, NodeTypeData>,
+) {
   let out: String = (compileCircuitHelper(nodesList, setNodeData));
   out = out.concat('\n find a pin diagram of a pico at :\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf');
   alert(out);

@@ -29,10 +29,8 @@ export default function ContextMenu(
 
   const deleteItem = () => {
     if (clickedNode) {
-      const oldPin: number = parseInt(clickedNode.data.attributes.pin_num, 10);
-      if (!Number.isNaN(oldPin)) {
-        used.splice(used.indexOf(oldPin), 1);
-      }
+      const oldPin: string = clickedNode.data.attributes.pin_num;
+      used.splice(used.indexOf(oldPin), 1);
       reactFlowInstance.deleteElements({ nodes: [clickedNode] });
       hideMenu();
     }
@@ -49,7 +47,7 @@ export default function ContextMenu(
     reactFlowInstance.setNodes((nodes) =>
 
       nodes.map((node) => {
-        const oldPin:number = parseInt(node.data.attributes.pin_num, 10);
+        const oldPin: string = node.data.attributes.pin_num;
 
         if (clickedNode && node.id === clickedNode.id) {
           const newNode = node;
@@ -59,13 +57,9 @@ export default function ContextMenu(
           };
           // console.log(newNode.data);
           console.log(node.data.attributes.pin_num);
-          const newPin:number = parseInt(newNode.data.attributes.pin_num, 10);
-          if (!Number.isNaN(newPin)) {
-            used.push(newPin);
-          }
-          if (!Number.isNaN(oldPin)) {
-            used.splice(used.indexOf(oldPin), 1);
-          }
+          const newPin: string = newNode.data.attributes.pin_num;
+          used.push(newPin);
+          used.splice(used.indexOf(oldPin), 1);
           return newNode;
         }
 

@@ -60,7 +60,8 @@ export default function NodeEditorModal() {
     let nameRequired = false;
     let nameExists = false;
     const { attributes } = nodeType;
-    // check if a name is needed. It is only needed if it is a circuit omponent and no name exists
+    // check if a name is needed. It is only needed if it is a circuit component and no name exists
+    // TODO update this to reflect changes to block names
     for (const attribute in attributes) {
       const { type } = attributes[attribute];
       if (type == 6) { nameExists = true; }
