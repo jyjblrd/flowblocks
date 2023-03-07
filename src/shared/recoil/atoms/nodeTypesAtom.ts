@@ -250,18 +250,18 @@ const defaultNodeTypes: NodeTypes = {
     inputs: {
       0: {
         name: 'left',
-        type: ConnectionType.Number,
+        type: ConnectionType.Bool,
       },
       1: {
         name: 'right',
-        type: ConnectionType.Number,
+        type: ConnectionType.Bool,
 
       },
     },
     outputs: {
       0: {
         name: 'output',
-        type: ConnectionType.Number,
+        type: ConnectionType.Bool,
       },
     },
   },
