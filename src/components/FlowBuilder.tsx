@@ -184,8 +184,10 @@ function FlowBuilder() {
         Object.entries(nodeType.attributes)
           .forEach(([attributeId, { type }]) => {
             nodeInstance.attributes[attributeId] = attributeGenerator(type);
-            nodeInstance.blockName = blockNameGenerator(nodeTypeId);
           });
+        if (nodeType.hasBlockName) {
+          nodeInstance.blockName = blockNameGenerator(nodeTypeId);
+        }
         const nextNodeInstanceId = nodes.length === 0
           ? '0'
           : (Math.max(...nodes.map((node: Node) => parseInt(node.id, 10))) + 1).toString();

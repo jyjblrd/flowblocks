@@ -65,6 +65,13 @@ export default function DefaultNode(
     [ConnectionType.Number]: 'var(--bs-orange)',
   };
 
+  let blockName = data.nodeTypeId;
+  if (data.blockName !== undefined) {
+    blockName = data.blockName;
+  } else if (data.attributes['Constant Value'] !== undefined) {
+    blockName = data.attributes['Constant Value'];
+  }
+
   return (
     <div
       className="node-wrapper"
@@ -82,7 +89,7 @@ export default function DefaultNode(
             transform: 'translateY(-50%)',
           }}
         >
-          {data.blockName !== undefined ? data.blockName : data.nodeTypeId}
+          {blockName}
 
         </h5>
 
