@@ -124,7 +124,7 @@ export default function NodePicker() {
               <Col className="my-auto">
                 <div className="mx-auto" style={{ position: 'relative', width: 'fit-content' }}>
                   <Draggable id={nodeTypeId} data={{ nodeTypeId }}>
-                    <ScaleToFit maxHeight={120} maxWidth={100}>
+                    <ScaleToFit maxHeight={120} maxWidth={130}>
                       <DefaultNode
                         isDummyNode
                         data={genDummyNodeInstance(nodeTypeId, nodeType)}
