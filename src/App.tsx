@@ -22,7 +22,7 @@ export default function App() {
       <Container fluid className="main-container">
         <Row className="mt-3 mb-3 flex-nowrap" style={{ alignItems: 'center' }}>
           <Col className="ms-4" style={{ width: 'fit-content' }} md="auto">
-            <img src="/public/flowblocks-logo.svg" width="160" alt="FlowBlocks" />
+            <img src="/flowblocks-logo.svg" width="160" alt="FlowBlocks" />
           </Col>
           <Col>
             <Toolbar />

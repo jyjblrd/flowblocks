@@ -83,7 +83,7 @@ export default function NodePicker() {
   };
 
   return (
-    <Card className="h-100 shadow-sm py-2 px-3 d-flex flex-column">
+    <Card className="h-100 shadow-sm pt-2 px-3 d-flex flex-column">
       <div style={{ overflowX: 'scroll' }} className="scrollbar">
         <Tabs
           defaultActiveKey={selectedGroup}
@@ -124,7 +124,7 @@ export default function NodePicker() {
               <Col className="my-auto">
                 <div className="mx-auto" style={{ position: 'relative', width: 'fit-content' }}>
                   <Draggable id={nodeTypeId} data={{ nodeTypeId }}>
-                    <ScaleToFit maxHeight={120} maxWidth={130}>
+                    <ScaleToFit maxHeight={100} maxWidth={130}>
                       <DefaultNode
                         isDummyNode
                         data={genDummyNodeInstance(nodeTypeId, nodeType)}
@@ -148,7 +148,7 @@ export default function NodePicker() {
       </Row>
 
       <Row
-        style={{ cursor: 'pointer', padding: '0 0 40px 0' }}
+        style={{ cursor: 'pointer', padding: '0 0 10px 0' }}
         onClick={createNewNode}
       >
         <Col sm="auto">
