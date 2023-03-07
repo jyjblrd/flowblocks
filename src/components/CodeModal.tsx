@@ -20,7 +20,7 @@ export default function CodeModal() {
           Copy to clipboard
         </Button>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body style={{ height: '70vh', overflowY: 'scroll' }}>
         <Editor
           value={codeModal.code}
           onValueChange={() => {}}
@@ -32,7 +32,6 @@ export default function CodeModal() {
             fontFamily: 'monospace',
             fontSize: 16,
             width: '100%',
-            height: '70vh',
             resize: 'none',
           }}
         />
