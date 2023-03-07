@@ -57,6 +57,23 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
     }
     case AttributeTypes.Bool:
       return 'True';
+    case AttributeTypes.AnalogIn:{
+      const out: string | undefined = nextUnused(availablePins.an);
+      if (out === undefined) {
+        return 'error';
+      }
+      used.push(out);
+      return out;
+    }
+    case AttributeTypes.AnalogOut:{
+      const out: string | undefined = nextUnused(availablePins.an);
+      if (out === undefined) {
+        return 'error';
+      }
+      used.push(out);
+      return out;
+    }
+
     case AttributeTypes.Number:
       return '0';
     default:
