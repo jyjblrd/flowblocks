@@ -238,7 +238,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Xor: {
-    group: NodeGroups.Numerical,
+    group: NodeGroups.Logic,
     description: 'Xor 2 numbers together.',
     attributes: {},
     hasBlockName: false,
