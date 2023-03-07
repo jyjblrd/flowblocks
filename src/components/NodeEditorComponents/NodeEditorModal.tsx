@@ -68,8 +68,8 @@ export default function NodeEditorModal() {
     // TODO update this to reflect changes to block names
     for (const attribute in attributes) {
       const { type } = attributes[attribute];
-      if (type == 6) { nameExists = true; }
-      if (type == 0 || type == 1 || type == 2 || type == 3) { nameRequired = true; }
+      if (type === 6) { nameExists = true; }
+      if (type === 0 || type === 1 || type === 2 || type === 3) { nameRequired = true; }
     }
     // add name
     if (nameRequired && !nameExists) {
@@ -220,6 +220,7 @@ export default function NodeEditorModal() {
                   <h5>Name & Description</h5>
                   <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} placeholder="Name" />
                   <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" />
+                  {/*
                   <Form.Check
                     type="switch"
                     id="custom-switch"
@@ -230,6 +231,7 @@ export default function NodeEditorModal() {
                       () => setNodeType({ ...nodeType, hasBlockName: !nodeType.hasBlockName })
                     }
                   />
+                  */}
                 </Card>
               </Col>
             </Row>
@@ -360,7 +362,7 @@ export default function NodeEditorModal() {
                   <Editor
                     value={nodeType.code.init}
                     onValueChange={(code) => { handleChange({ target: { name: 'initCode', value: code } }); }}
-                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python, 'python')}
                     padding={10}
                     insertSpaces={false}
                     className="code-editor"
@@ -381,7 +383,7 @@ export default function NodeEditorModal() {
                   <Editor
                     value={nodeType.code.update}
                     onValueChange={(code) => { handleChange({ target: { name: 'updateCode', value: code } }); }}
-                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python, 'python')}
                     padding={10}
                     insertSpaces={false}
                     className="code-editor h-100"
@@ -398,7 +400,7 @@ export default function NodeEditorModal() {
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="outline-secondary" onClick={handleClose}>Cancel</Button>
+        <Button variant="outline-secondary" onClick={() => handleClose(null)}>Cancel</Button>
         <Button variant="outline-primary" onClick={saveNode}>Save</Button>
       </Modal.Footer>
     </Modal>

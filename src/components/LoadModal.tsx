@@ -3,10 +3,12 @@ import { useRecoilState } from 'recoil';
 // import Modal from 'react-modal';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { Form, Card, Col, Row } from 'react-bootstrap';
+import {
+  Form, Card, Col, Row,
+} from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
 import './LoadModal.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDeleteFlowInstance } from '../shared/helpers/helperFunctions';
 
 export default function LoadModal() {
@@ -32,8 +34,8 @@ export default function LoadModal() {
     }
   };
 
-  const deleteSavedChart = (name: string) => {
-    const gotNames = getDeleteFlowInstance(name);
+  const deleteSavedChart = (givenName: string) => {
+    const gotNames = getDeleteFlowInstance(givenName);
     setLoadModal((prevLoadModal) => ({
       ...prevLoadModal,
       knownNames: gotNames,
@@ -61,39 +63,39 @@ export default function LoadModal() {
         <h5>File name to load in</h5>
         <Form.Control name="nodeTypeId" className="mb-3" onChange={updateName} value={name} placeholder="Name" onKeyDown={handleKeyDown} />
         <div>
-          <h5 style={{ color : 'red', marginTop : '5px', display : 'block' }}>
-            {showError ? ((showError-1) ? 'No saved flowchart found of this name' : 'Please enter a name') : ''}
+          <h5 style={{ color: 'red', marginTop: '5px', display: 'block' }}>
+            {showError ? ((showError - 1) ? 'No saved flowchart found of this name' : 'Please enter a name') : ''}
           </h5>
         </div>
         <h5>Existing files</h5>
         <Card className="shadow p-3 pe-1">
           <div style={{ overflowY: 'scroll', overflowX: 'hidden', minHeight: '120px' }}>
             {
-                        loadModal.knownNames.map((l: string) => (
-                          <div key={l}>
-                          <Row>
-                          
-                            <Col>
-                              <div style={{ cursor: 'pointer' }} >
-                                <h5 onClick={() => setName(l)}>{l}</h5>
-                              </div>
-                            </Col>
-                            <Col xs="auto" margin-right="0">
-                              <FontAwesomeIcon
-                                icon="trash-can"
-                                className="text-secondary ps-1 pe-3 my-auto"
-                                style={{ paddingTop: '6px', cursor: 'pointer' }}
-                                onClick={() => deleteSavedChart(l)}
-                              />
-                            </Col>
-                          
-                          </Row>
-                          </div>
-                          
-                        ))
-                    }
+              loadModal.knownNames.map((l: string) => (
+                <div key={l}>
+                  <Row>
+
+                    <Col>
+                      <div style={{ cursor: 'pointer' }}>
+                        <h5 onClick={() => setName(l)}>{l}</h5>
+                      </div>
+                    </Col>
+                    <Col xs="auto" margin-right="0">
+                      <FontAwesomeIcon
+                        icon="trash-can"
+                        className="text-secondary ps-1 pe-3 my-auto"
+                        style={{ paddingTop: '6px', cursor: 'pointer' }}
+                        onClick={() => deleteSavedChart(l)}
+                      />
+                    </Col>
+
+                  </Row>
+                </div>
+
+              ))
+            }
           </div>
-          
+
         </Card>
         {/* <Form.Control name="description" className="mt-2" size="sm" as="textarea" rows={2} value={loadModal.knownNames} placeholder="Description" /> */}
       </Modal.Body>
