@@ -12,12 +12,12 @@ export default function ContextMenu(
   {
     show, position, clickedNode, hideMenu,
   }:
-    {
-      show: boolean,
-      position: { x: number, y: number },
-      clickedNode?: Node<NodeInstance>,
-      hideMenu: any
-    },
+  {
+    show: boolean,
+    position: { x: number, y: number },
+    clickedNode?: Node<NodeInstance>,
+    hideMenu: any
+  },
 ) {
   const reactFlowInstance = useReactFlow();
 
@@ -67,12 +67,15 @@ export default function ContextMenu(
       }));
   };
 
+  const blockName = () => reactFlowInstance.getNode((clickedNode !== undefined) ? clickedNode.id : '')?.data.blockName ?? '';
+
   const handleBlockNameChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     reactFlowInstance.setNodes((nodes) =>
       nodes.map((node) => {
         if (clickedNode && node.id === clickedNode.id) {
           const newNode = node;
           newNode.data.blockName = target.value;
+          newNode.data = { ...newNode.data };
           return newNode;
         }
         return node;
@@ -97,7 +100,7 @@ export default function ContextMenu(
                       <Form.Label className="mt-1">Block Name</Form.Label>
                     </Col>
                     <Col>
-                      <Form.Control size="sm" value={clickedNode?.data.blockName ?? ''} onChange={handleBlockNameChange} />
+                      <Form.Control size="sm" value={blockName()} onChange={handleBlockNameChange} />
                     </Col>
                   </InputGroup>
                 ) : (<div />)
