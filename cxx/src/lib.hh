@@ -482,11 +482,12 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 	// note: result_valid should be false by default
 	std::string result;
 
-	if (original.find("self._") != std::string::npos) {
-		return "user-defined code attempts to access or change a reserved variable name.\n"
-				 "(python class attributes beginning with _ or __ are reserved for the implementation)";
-		// we only throw an error for this class if we try to use an invalid block
-	}
+	// this check has been commented out since we may want to embed whole python classes in our init code
+	//	if (original.find("self._") != std::string::npos) {
+	//		return "user-defined code attempts to access or change a reserved variable name.\n"
+	//				 "(python class attributes beginning with _ or __ are reserved for the implementation)";
+	//		// we only throw an error for this class if we try to use an invalid block
+	//	}
 
 	std::size_t index_lo {0};
 	while (index_lo < original.size()) {
