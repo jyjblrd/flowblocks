@@ -110,7 +110,7 @@ export default function NodePicker() {
               className="py-3 border-bottom gx-0"
             >
               {' '}
-              <Col xs={12} lg={6} className="py-3">
+              <Col className="py-3">
                 <h5>{nodeTypeId}</h5>
                 <h6
                   className="small"
@@ -121,10 +121,10 @@ export default function NodePicker() {
                   {nodeType.description}
                 </h6>
               </Col>
-              <Col className="my-auto mx-2">
+              <Col className="my-auto">
                 <div className="mx-auto" style={{ position: 'relative', width: 'fit-content' }}>
                   <Draggable id={nodeTypeId} data={{ nodeTypeId }}>
-                    <ScaleToFit maxHeight={120} maxWidth={200}>
+                    <ScaleToFit maxHeight={120} maxWidth={100}>
                       <DefaultNode
                         isDummyNode
                         data={genDummyNodeInstance(nodeTypeId, nodeType)}
@@ -133,7 +133,7 @@ export default function NodePicker() {
                   </Draggable>
                 </div>
               </Col>
-              <Col sm="auto" className="pe-1">
+              <Col sm="auto">
                 <FontAwesomeIcon
                   icon="sliders"
                   size="sm"
