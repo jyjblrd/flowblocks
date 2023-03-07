@@ -34,7 +34,7 @@ export default function flowchartToJSON(
 }
 
 const availablePins = {
-  dig: ['0', '1', '2', '3', '4', '5', '6', '7'],
+  dig: ['0', '1', '2', '3', '4', '5', '6', '7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','26','27','28'],
   an: ['8', '9', '10'],
 };
 
@@ -66,7 +66,7 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
       return out;
     }
     case AttributeTypes.AnalogOut:{
-      const out: string | undefined = nextUnused(availablePins.an);
+      const out: string | undefined = nextUnused(availablePins.dig);
       if (out === undefined) {
         return 'error';
       }

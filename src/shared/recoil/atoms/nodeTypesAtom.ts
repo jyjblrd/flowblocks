@@ -837,6 +837,45 @@ const defaultNodeTypes: NodeTypes = {
     },
     outputs: {},
   },
+  chooseOutput: {
+    group: NodeGroups.ControlFlow,
+    description: 'Pick one of two boolean inputs to output (True for left, False for right)',
+    attributes: {},
+    hasBlockName: false,
+    code: {
+      init: '',
+      update: '{{ output_0}} = {{choice}}==0\n{{ output_1}} = {{choice}}==1\n{{ output_2}} = {{choice}}==2\n{{ output_3}} = {{choice}}==3\n{{ output_4}} = {{choice}}==4\n',
+      isQuery: false,
+    },
+    inputs: {
+      0: {
+        name: 'choice',
+        type: ConnectionType.Number,
+      },
+    },
+    outputs: {
+      0: {
+        name: 'output_0',
+        type: ConnectionType.Bool,
+      },
+      1: {
+        name: 'output_1',
+        type: ConnectionType.Bool,
+      },
+      2: {
+        name: 'output_2',
+        type: ConnectionType.Bool,
+      },
+      3: {
+        name: 'output_3',
+        type: ConnectionType.Bool,
+      },
+      4: {
+        name: 'output_4',
+        type: ConnectionType.Bool,
+      },
+    },
+  },
 };
 
 export const nodeTypesAtom = atom<Record<string, NodeTypeData>>({
