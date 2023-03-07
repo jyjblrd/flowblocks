@@ -29,7 +29,7 @@ export default function App() {
           </Col>
         </Row>
         <Row style={{ height: 'calc(100vh - 100px)' }}>
-          <Col xs={6} md={6} xl={5} className="h-100">
+          <Col xs={6} md={6} xl={4} className="h-100">
             <NodePicker />
           </Col>
           <Col>

@@ -5,3 +5,7 @@
         border-width: 0.5px;
     }
 }
+
+.scrollbar::-webkit-scrollbar {
+    display: none;
+}

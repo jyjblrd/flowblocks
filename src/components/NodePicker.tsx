@@ -84,7 +84,7 @@ export default function NodePicker() {
 
   return (
     <Card className="h-100 shadow-sm py-2 px-3 d-flex flex-column">
-      <div style={{ overflowX: 'scroll' }}>
+      <div style={{ overflowX: 'scroll' }} className="scrollbar">
         <Tabs
           defaultActiveKey={selectedGroup}
           justify
@@ -101,7 +101,7 @@ export default function NodePicker() {
       </div>
 
       <Row ref={nodeListRef} style={{ overflowY: 'clip' }} className="flex-grow-1 border-top">
-        <Col className="d-flex flex-column" style={{ marginTop: '-16px' }}>
+        <Col className="d-flex flex-column" style={{ marginTop: '-10px' }}>
           {currentItems.map(([nodeTypeId, nodeType], index) => (
             <Row
               key={nodeTypeId}
