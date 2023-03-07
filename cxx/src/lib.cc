@@ -137,7 +137,9 @@ auto compile(std::map<std::string, marshalling::Node> const &id_to_node,
 	string code {"import machine\n"};
 
 	// add block class definitions to code
-	node_defs->emit_block_definitions(code);
+	if (auto result {node_defs->emit_block_definitions(code)}; !result.empty()) {
+		return {CompileResult::Err, result};
+	}
 
 	// add instances of block classes to code
 	for (std::size_t i = graph->argsorted_ids.size() - 1; i + 1 != 0; --i) {
