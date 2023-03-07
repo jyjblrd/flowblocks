@@ -4,6 +4,7 @@ import { NodeInstance } from '../interfaces/NodeInstance.interface';
 import {
   AttributeTypes, NodeTypeData,
 } from '../interfaces/NodeTypes.interface';
+import { NotificationKind, NotificationList, pushNotification } from '../recoil/atoms/notificationListAtom';
 
 export default function flowchartToJSON(
   reactFlowInstance: ReactFlowInstance,
@@ -34,7 +35,7 @@ export default function flowchartToJSON(
 }
 
 const availablePins = {
-  dig: ['0', '1', '2', '3', '4', '5', '6', '7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','26','27','28'],
+  dig: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '26', '27', '28'],
   an: ['8', '9', '10'],
 };
 
@@ -57,16 +58,9 @@ export function attributeGenerator(attributeType: AttributeTypes): string {
     }
     case AttributeTypes.Bool:
       return 'True';
-    case AttributeTypes.AnalogIn:{
+    case AttributeTypes.AnalogIn:
+    case AttributeTypes.AnalogOut: {
       const out: string | undefined = nextUnused(availablePins.an);
-      if (out === undefined) {
-        return 'error';
-      }
-      used.push(out);
-      return out;
-    }
-    case AttributeTypes.AnalogOut:{
-      const out: string | undefined = nextUnused(availablePins.dig);
       if (out === undefined) {
         return 'error';
       }
@@ -106,11 +100,12 @@ export function loadFlowInstance(
   reactFlowInstance: ReactFlowInstance,
   setNodeTypes: SetterOrUpdater<Record<string, NodeTypeData>>,
   exportName: string,
+  setNotificationList: SetterOrUpdater<NotificationList>,
 ): void {
   console.log('loadFromLocal');
   const load = localStorage.getItem(exportName);
   if (!load) {
-    alert('File loading error occurred');
+    pushNotification(setNotificationList, NotificationKind.Error, 'File loading error occurred');
     return;
   }
 
@@ -289,8 +284,9 @@ function compileCircuitHelper(
 export function compileCircuit(
   nodesList: Node<NodeInstance>[],
   setNodeData: Record<string, NodeTypeData>,
+  setNotificationList: SetterOrUpdater<NotificationList>,
 ) {
-  let out: String = (compileCircuitHelper(nodesList, setNodeData));
+  let out: string = (compileCircuitHelper(nodesList, setNodeData));
   out = out.concat('\n find a pin diagram of a pico at :\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf');
-  alert(out);
+  pushNotification(setNotificationList, NotificationKind.Info, out);
 }

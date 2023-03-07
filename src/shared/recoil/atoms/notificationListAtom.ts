@@ -2,6 +2,7 @@ import { atom, SetterOrUpdater } from 'recoil';
 
 export enum NotificationKind {
   Error,
+  Info,
 }
 
 type Notification = {
@@ -9,7 +10,7 @@ type Notification = {
   message: string,
 };
 
-type NotificationList = {
+export type NotificationList = {
   notifications: Array<Notification>,
 };
 

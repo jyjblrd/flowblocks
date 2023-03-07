@@ -58,7 +58,14 @@ export default function Toolbar() {
           setLoadModal((prevLoadModal) => ({
             ...prevLoadModal,
             isOpen: true,
-            loadChart: (name) => { loadFlowInstance(reactFlowInstance, setNodeTypes, name); },
+            loadChart: (name) => {
+              loadFlowInstance(
+                reactFlowInstance,
+                setNodeTypes,
+                name,
+                setNotificationList,
+              );
+            },
             knownNames: knownnames,
           }));
           // loadFlowInstance(reactFlowInstance, name);
@@ -122,7 +129,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          compileCircuit(reactFlowInstance.getNodes(), nodeTypes);
+          compileCircuit(reactFlowInstance.getNodes(), nodeTypes, setNotificationList);
         }}
       >
         Generate Circuit

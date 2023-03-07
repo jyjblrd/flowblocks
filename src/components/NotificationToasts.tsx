@@ -21,6 +21,7 @@ export default function NotificationToasts() {
 
   const titleByNotificationKind: Record<NotificationKind, string> = {
     [NotificationKind.Error]: 'Error',
+    [NotificationKind.Info]: 'Info',
   };
 
   return (
