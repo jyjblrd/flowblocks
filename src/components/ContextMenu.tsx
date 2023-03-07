@@ -12,12 +12,12 @@ export default function ContextMenu(
   {
     show, position, clickedNode, hideMenu,
   }:
-  {
-    show: boolean,
-    position: { x: number, y: number },
-    clickedNode?: Node<NodeInstance>,
-    hideMenu: any
-  },
+    {
+      show: boolean,
+      position: { x: number, y: number },
+      clickedNode?: Node<NodeInstance>,
+      hideMenu: any
+    },
 ) {
   const reactFlowInstance = useReactFlow();
 
@@ -67,6 +67,18 @@ export default function ContextMenu(
       }));
   };
 
+  const handleBlockNameChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    reactFlowInstance.setNodes((nodes) =>
+      nodes.map((node) => {
+        if (clickedNode && node.id === clickedNode.id) {
+          const newNode = node;
+          newNode.data.blockName = target.value;
+          return newNode;
+        }
+        return node;
+      }));
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
@@ -78,16 +90,30 @@ export default function ContextMenu(
           <>
             <Form className="px-3 pt-2 pb-1" onSubmit={handleSubmit}>
               <h6 style={{ paddingTop: '4px' }}>Attributes</h6>
-              {Object.entries(attributes).map(([attributeId, value]) => (
-                <InputGroup key={attributeId} as={Row} className="g-0">
-                  <Col xs={7}>
-                    <Form.Label className="mt-1">{attributeId}</Form.Label>
-                  </Col>
-                  <Col>
-                    <Form.Control size="sm" value={value} name={attributeId} onChange={handleInputChange} />
-                  </Col>
-                </InputGroup>
-              ))}
+              {
+                (clickedNode?.data.blockName !== undefined || false) ? (
+                  <InputGroup as={Row} className="g-0">
+                    <Col xs={7}>
+                      <Form.Label className="mt-1">Block Name</Form.Label>
+                    </Col>
+                    <Col>
+                      <Form.Control size="sm" value={clickedNode?.data.blockName ?? ''} onChange={handleBlockNameChange} />
+                    </Col>
+                  </InputGroup>
+                ) : (<div />)
+              }
+              {
+                Object.entries(attributes).map(([attributeId, value]) => (
+                  <InputGroup key={attributeId} as={Row} className="g-0">
+                    <Col xs={7}>
+                      <Form.Label className="mt-1">{attributeId}</Form.Label>
+                    </Col>
+                    <Col>
+                      <Form.Control size="sm" value={value} name={attributeId} onChange={handleInputChange} />
+                    </Col>
+                  </InputGroup>
+                ))
+              }
             </Form>
             <Dropdown.Divider />
           </>

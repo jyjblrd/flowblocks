@@ -82,7 +82,7 @@ export default function DefaultNode(
             transform: 'translateY(-50%)',
           }}
         >
-          {data.nodeTypeId}
+          {data.blockName !== undefined ? data.blockName : data.nodeTypeId}
 
         </h5>
 
