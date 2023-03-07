@@ -18,4 +18,4 @@ export interface CxxBindings {
   ): CompileResult;
 }
 
-export const cxx = await load_cxx_module<CxxBindings>();
+export const cxx = load_cxx_module<CxxBindings>();
