@@ -215,7 +215,7 @@ const defaultNodeTypes: NodeTypes = {
     attributes: {},
     hasBlockName: false,
     code: {
-      init: '{{ output }} = 0',
+      init: '',
       update: 'if {{ reset }}:\n\t{{ output }} = 0\nelif {{ incr }}:\n\t{{ output }} += 1',
       isQuery: false,
     },
