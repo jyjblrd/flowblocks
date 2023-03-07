@@ -27,6 +27,7 @@ export default function NodeEditorModal() {
   const [nodeType, setNodeType] = useState<NodeTypeData>({
     description: '',
     attributes: {},
+    hasBlockName: false,
     inputs: {},
     outputs: {},
     code: { init: '', update: '', isQuery: false },
@@ -37,7 +38,7 @@ export default function NodeEditorModal() {
 
   // Update state on nodeEditorModalAtom change
   useEffect(() => {
-    setNodeType(nodeTypeId !== undefined
+    setNodeType(nodeTypeId !== undefined && nodeTypes[nodeTypeId] !== undefined
       ? structuredClone(nodeTypes[nodeTypeId])
       : {
         description: '',
@@ -48,12 +49,15 @@ export default function NodeEditorModal() {
       });
     setNewNodeTypeId(nodeTypeId ?? defaultNodeName);
     setActiveAttribute(undefined);
-  }, [nodeEditorModal]);
+  }, [nodeEditorModal, nodeTypes]);
 
-  const handleClose = () => setNodeEditorModal((prev) => ({ ...prev, isOpen: false }));
+  const handleClose = (someNodeTypeID: string | null) => setNodeEditorModal({
+    isOpen: false, nodeTypeId: someNodeTypeID ?? nodeTypeId,
+  });
 
   const saveNode = () => {
     const newNodeTypes = { ...nodeTypes };
+    newNodeTypes[newNodeTypeId] = structuredClone(nodeType);
     if (nodeTypeId !== undefined && newNodeTypeId !== nodeTypeId) {
       delete newNodeTypes[nodeTypeId];
     }
@@ -62,12 +66,18 @@ export default function NodeEditorModal() {
     const { attributes } = nodeType;
     // check if a name is needed. It is only needed if it is a circuit component and no name exists
     // TODO update this to reflect changes to block names
-    // nodeType
-    newNodeTypes[newNodeTypeId] = nodeType;
-
+    for (const attribute in attributes) {
+      const { type } = attributes[attribute];
+      if (type === 6) { nameExists = true; }
+      if (type === 0 || type === 1 || type === 2 || type === 3) { nameRequired = true; }
+    }
+    // add name
+    if (nameRequired && !nameExists) {
+      nodeType.attributes.name = { type: 6 };
+    }
     setNodeTypes(newNodeTypes);
 
-    handleClose();
+    handleClose(newNodeTypeId);
   };
 
   const addAttribute = () => {
@@ -142,7 +152,7 @@ export default function NodeEditorModal() {
 
   const handleChange = (event: any) => {
     const target = event.target as HTMLInputElement;
-    const newNodeType = { ...nodeType };
+    const newNodeType = structuredClone(nodeType);
 
     switch (target.name) {
       case 'nodeTypeId':
@@ -193,7 +203,7 @@ export default function NodeEditorModal() {
     <Modal
       animation={false}
       show={nodeEditorModal.isOpen}
-      onHide={handleClose}
+      onHide={() => handleClose(null)}
       dialogClassName="code-modal"
     >
       <Modal.Header closeButton>
@@ -210,6 +220,18 @@ export default function NodeEditorModal() {
                   <h5>Name & Description</h5>
                   <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} placeholder="Name" />
                   <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" />
+                  {/*
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Has named instances"
+                    className="mt-2"
+                    checked={nodeType.hasBlockName}
+                    onChange={
+                      () => setNodeType({ ...nodeType, hasBlockName: !nodeType.hasBlockName })
+                    }
+                  />
+                  */}
                 </Card>
               </Col>
             </Row>
@@ -340,7 +362,7 @@ export default function NodeEditorModal() {
                   <Editor
                     value={nodeType.code.init}
                     onValueChange={(code) => { handleChange({ target: { name: 'initCode', value: code } }); }}
-                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python, 'python')}
                     padding={10}
                     insertSpaces={false}
                     className="code-editor"
@@ -361,7 +383,7 @@ export default function NodeEditorModal() {
                   <Editor
                     value={nodeType.code.update}
                     onValueChange={(code) => { handleChange({ target: { name: 'updateCode', value: code } }); }}
-                    highlight={(code) => Prism.highlight(code, Prism.languages.python)}
+                    highlight={(code) => Prism.highlight(code, Prism.languages.python, 'python')}
                     padding={10}
                     insertSpaces={false}
                     className="code-editor h-100"
@@ -378,7 +400,7 @@ export default function NodeEditorModal() {
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="outline-secondary" onClick={handleClose}>Cancel</Button>
+        <Button variant="outline-secondary" onClick={() => handleClose(null)}>Cancel</Button>
         <Button variant="outline-primary" onClick={saveNode}>Save</Button>
       </Modal.Footer>
     </Modal>

@@ -19,7 +19,7 @@ export default function ContextMenu(
     hideMenu: any
   },
 ) {
-  const reactFlowInstance = useReactFlow();
+  const reactFlowInstance = useReactFlow<NodeInstance>();
 
   const [attributes, setAttributes] = useState(clickedNode?.data.attributes ?? {});
   // Update state on prop change
@@ -29,7 +29,7 @@ export default function ContextMenu(
 
   const deleteItem = () => {
     if (clickedNode) {
-      const oldPin: string = clickedNode.data.attributes.pin_num;
+      const oldPin: string = clickedNode.data.attributes['Pin number'];
       used.splice(used.indexOf(oldPin), 1);
       reactFlowInstance.deleteElements({ nodes: [clickedNode] });
       hideMenu();
@@ -47,7 +47,7 @@ export default function ContextMenu(
     reactFlowInstance.setNodes((nodes) =>
 
       nodes.map((node) => {
-        const oldPin: string = node.data.attributes.pin_num;
+        const oldPin: string = node.data.attributes['Pin number'];
 
         if (clickedNode && node.id === clickedNode.id) {
           const newNode = node;
@@ -55,9 +55,10 @@ export default function ContextMenu(
             ...node.data.attributes,
             [attributeId]: target.value,
           };
+          newNode.data = { ...newNode.data };
           // console.log(newNode.data);
-          console.log(node.data.attributes.pin_num);
-          const newPin: string = newNode.data.attributes.pin_num;
+          console.log(node.data.attributes['Pin number']);
+          const newPin: string = newNode.data.attributes['Pin number'];
           used.push(newPin);
           used.splice(used.indexOf(oldPin), 1);
           return newNode;
@@ -67,7 +68,8 @@ export default function ContextMenu(
       }));
   };
 
-  const blockName = () => reactFlowInstance.getNode((clickedNode !== undefined) ? clickedNode.id : '')?.data.blockName ?? '';
+  const blockName = reactFlowInstance.getNode((clickedNode !== undefined) ? clickedNode.id : '')?.data.blockName ?? '';
+  const blockAttributes = reactFlowInstance.getNode((clickedNode !== undefined) ? clickedNode.id : '')?.data.attributes;
 
   const handleBlockNameChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     reactFlowInstance.setNodes((nodes) =>
@@ -100,19 +102,19 @@ export default function ContextMenu(
                       <Form.Label className="mt-1">Block Name</Form.Label>
                     </Col>
                     <Col>
-                      <Form.Control size="sm" value={blockName()} onChange={handleBlockNameChange} />
+                      <Form.Control size="sm" value={blockName} onChange={handleBlockNameChange} />
                     </Col>
                   </InputGroup>
                 ) : (<div />)
               }
               {
-                Object.entries(attributes).map(([attributeId, value]) => (
+                Object.entries(attributes).map(([attributeId]) => (
                   <InputGroup key={attributeId} as={Row} className="g-0">
                     <Col xs={7}>
                       <Form.Label className="mt-1">{attributeId}</Form.Label>
                     </Col>
                     <Col>
-                      <Form.Control size="sm" value={value} name={attributeId} onChange={handleInputChange} />
+                      <Form.Control size="sm" value={blockAttributes !== undefined ? blockAttributes[attributeId] : ''} name={attributeId} onChange={handleInputChange} />
                     </Col>
                   </InputGroup>
                 ))

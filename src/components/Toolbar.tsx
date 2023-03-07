@@ -67,8 +67,8 @@ export default function Toolbar() {
       <Button
         className="mx-1"
         variant="outline-dark"
-        onClick={() => {
-          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+        onClick={async () => {
+          const result = (await cxx).compile(flowchartToJSON(reactFlowInstance), nodeTypes);
           if (result.ok()) {
             setCodeModal((prevCodeModal) => ({
               ...prevCodeModal,
@@ -87,7 +87,7 @@ export default function Toolbar() {
         className="mx-1"
         variant="outline-dark"
         onClick={async () => {
-          const result = cxx.compile(flowchartToJSON(reactFlowInstance), nodeTypes);
+          const result = (await cxx).compile(flowchartToJSON(reactFlowInstance), nodeTypes);
           if (result.ok()) {
             await runOnDevice(result.code());
           } else {

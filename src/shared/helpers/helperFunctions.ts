@@ -183,20 +183,20 @@ function compileCircuitHelper(
       }
     }
     if (type === 'Button') {
-      if (isUseablePin(pins.get('pin_num')!, 'dig')) {
+      if (isUseablePin(pins.get('Pin number')!, 'dig')) {
         out = 'failed on button ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num')!);
+      out = out.concat(pins.get('Pin number')!);
       out = out.concat(' to the button, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to the 3.3v power\n');
     } else if (type === 'LED') {
-      console.log(pins.get('pin_num'));
-      if (isUseablePin(pins.get('pin_num')!, 'dig') && node.data.attributes.pin_num !== '25') {
+      console.log(pins.get('Pin number'));
+      if (isUseablePin(pins.get('Pin number')!, 'dig') && node.data.attributes['Pin number'] !== '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
@@ -210,7 +210,7 @@ function compileCircuitHelper(
     } else if (type === 'SevenSegmentDisplay') {
       console.log(pins);
       for (const pin of pins.keys()) {
-        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
           out = 'failed on seven segment display ';
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
@@ -220,42 +220,42 @@ function compileCircuitHelper(
         }
       }
       out = out.concat('\nconnect a wire from pin ');
-      out = out.concat(pins.get('pin_num_a')!);
+      out = out.concat(pins.get('Pin number a')!);
       out = out.concat(' to the top horizontal segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_b')!);
+      out = out.concat(pins.get('Pin number b')!);
       out = out.concat(' to the top right segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_c')!);
+      out = out.concat(pins.get('Pin number c')!);
       out = out.concat(' to the bottom right segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_d')!);
+      out = out.concat(pins.get('Pin number d')!);
       out = out.concat(' to the bottom horizontal segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_e')!);
+      out = out.concat(pins.get('Pin number e')!);
       out = out.concat(' to the bottom left segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_f')!);
+      out = out.concat(pins.get('Pin number f')!);
       out = out.concat(' to the top left segment of the display\n');
 
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num_g')!);
+      out = out.concat(pins.get('Pin number g')!);
       out = out.concat(' to the middle horizontal segment of the display\n');
       out = out.concat('then connect the ground to a 75-220 ohm resistor then to ground on the pico.\n\n');
     } else if (type === 'Buzzer') {
-      if (isUseablePin(pins.get('pin_num')!, 'dig')) {
+      if (isUseablePin(pins.get('Pin number')!, 'dig')) {
         out = 'failed on buzzer ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
       out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num')!);
+      out = out.concat(pins.get('Pin number')!);
       out = out.concat(' to the buzzer, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to the ground on the pico\n');
@@ -283,7 +283,7 @@ function compileCircuitHelper(
       out=out.concat(" to the pin blue on the LED (The short pin next to the green)\n")
     }else if (pins.size !== 0) {
       for (const pin of pins.keys()) {
-        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
           out = 'failed on  ';
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');

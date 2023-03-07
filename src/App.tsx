@@ -20,9 +20,9 @@ export default function App() {
     <>
       <NotificationToasts />
       <Container fluid className="main-container">
-        <Row className="mt-4 mb-2 flex-nowrap">
+        <Row className="mt-3 mb-3 flex-nowrap" style={{ alignItems: 'center' }}>
           <Col className="ms-4" style={{ width: 'fit-content' }} md="auto">
-            <h2>Flow Blocks</h2>
+            <img src="/flowblocks-logo.svg" width="160" alt="FlowBlocks" />
           </Col>
           <Col>
             <Toolbar />

@@ -248,7 +248,7 @@ class NodeDefinitions;
 
 class NodeType {
 public:
-	auto emit_block_definition(std::string &code) const -> void;
+	auto emit_block_definition(std::string &code) const -> std::string;
 	auto emit_block_instantiation(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void;
 
 	auto alpha_convert_generated_class_name(std::size_t collision_no) -> void {
@@ -376,9 +376,11 @@ private:
 
 class NodeDefinitions {
 public:
-	auto emit_block_definitions(std::string &code) const -> void {
+	auto emit_block_definitions(std::string &code) const -> std::string {
 		for (auto const &def : definitions)
-			def.emit_block_definition(code);
+			if (auto result {def.emit_block_definition(code)}; !result.empty())
+				return result;
+		return "";
 	}
 
 	auto emit_block_instantiations(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id) const -> void {
@@ -480,12 +482,12 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 	// note: result_valid should be false by default
 	std::string result;
 
-	if (original.find("self._") != std::string::npos) {
-		return ""; // ERROR: user-specified code attempts to access or change a reserved variable name
-					  // (we reserve all python class attributes beginning with _ or __)
-		// TODO: return error message in the string
-		// of course, we only throw an error if this class if we try to use an invalid block
-	}
+	// this check has been commented out since we may want to embed whole python classes in our init code
+	//	if (original.find("self._") != std::string::npos) {
+	//		return "user-defined code attempts to access or change a reserved variable name.\n"
+	//				 "(python class attributes beginning with _ or __ are reserved for the implementation)";
+	//		// we only throw an error for this class if we try to use an invalid block
+	//	}
 
 	std::size_t index_lo {0};
 	while (index_lo < original.size()) {
@@ -500,9 +502,8 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 			index_hi = original.find("}}", index_lo);
 
 			if (index_hi == std::string::npos) {
-				return ""; // ERROR: unclosed attribute/input/output in string
-				// TODO: return error message in the string
-				// we only throw an error if this class if we try to use an invalid block
+				return "Unclosed {{ in user-defined code (missing '}}').";
+				// we only throw an error for this class if we try to use an invalid block
 			}
 
 			while ((index_lo < index_hi) && original[index_lo] == ' ') {
@@ -523,7 +524,6 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 			}
 
 			// BIG NOTE: substitution for attributes, inputs, and outputs happens HERE:
-			// TODO: replace (inputs, outputs) replacements with necessary replacements for our execution model
 			if (attributes.contains(key)) {
 				if (is_update) {
 					result += attributes.at(key).self_name();
@@ -538,11 +538,7 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 					inputs.at(key).set_used_in_update();
 				} else {
 					result += inputs.at(key).self_name();
-
 					// change of plan: we allow init_statement to interact with inputs
-					//					result_valid = false;
-					//					return ""; // ERROR: input mentioned in init code
-					//					// MAYBE: return error string
 				}
 
 			} else if (outputs.contains(key)) {
@@ -551,16 +547,12 @@ inline auto NodeType::substitute_identifiers(std::string const &original, bool &
 					outputs.at(key).set_used_in_update();
 				} else {
 					result += outputs.at(key).self_u_name();
-
 					// change of plan: we allow init_statement to interact with output
-					//					result_valid = false;
-					//					return ""; // ERROR: output mentioned in init code
-					//					// MAYBE: return error string
 				}
 
 			} else {
-				return ""; // ERROR: identifier not found
-				// TODO: return error string
+				return "attribute/input/output \'" + key + "\' is not defined.";
+				// we only throw an error for this class if we try to use an invalid block
 			}
 
 			index_hi += 2;
@@ -722,16 +714,18 @@ inline auto make_update_successors(std::map<std::string, InputOutputInfo> const 
 	return update_successors;
 }
 
-inline auto NodeType::emit_block_definition(std::string &code) const -> void {
+inline auto NodeType::emit_block_definition(std::string &code) const -> std::string {
 	static constexpr std::string_view successor_init {"self._successors = successors"};
 	static constexpr std::string_view marked_init {"self._marked = True"};
 	static constexpr std::string_view update_func {"def update(self, __marked):"};
 
 	if (used) {
 		if (!init_code_valid) {
-			// TODO: throw error
+			// throw error
+			return "Error in Init Code for block \'" + name + "\':\n" + init_code;
 		} else if (!update_code_valid) {
-			// TODO: throw error
+			// throw error
+			return "Error in Code for block \'" + name + "\':\n" + update_code;
 		} else {
 			using ioi_t = InputOutputInfo const &;
 
@@ -748,14 +742,13 @@ inline auto NodeType::emit_block_definition(std::string &code) const -> void {
 
 			code.append("class " + get_generated_name() + ":");
 
-			// TODO: rewrite to produce code that obeys the correct model of execution
-
 			generate_function(code, 1, init_func, index_init, successor_init, marked_init, attr_init, output_init, input_init, init_code);
 			generate_function(code, 1, update_func, output_tmp_init, update_code, unmark_self, update_end);
 
 			code.append("\n");
 		}
 	}
+	return "";
 }
 
 inline auto NodeType::emit_block_instantiation(std::size_t index, std::string &code, SortedGraph const &graph, std::string const &id, NodeDefinitions const &defs) const -> void {
