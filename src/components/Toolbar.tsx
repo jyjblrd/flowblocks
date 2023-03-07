@@ -11,7 +11,7 @@ import { nodeTypesAtom } from '../shared/recoil/atoms/nodeTypesAtom';
 import { codeModalAtom } from '../shared/recoil/atoms/codeModalAtom';
 import { saveModalAtom } from '../shared/recoil/atoms/saveModalAtom';
 import { loadModalAtom } from '../shared/recoil/atoms/loadModalAtom';
-import { NotificationKind, notificationListAtom } from '../shared/recoil/atoms/notificationListAtom';
+import { pushNotification, NotificationKind, notificationListAtom } from '../shared/recoil/atoms/notificationListAtom';
 
 export default function Toolbar() {
   const reactFlowInstance = useReactFlow();
@@ -22,16 +22,6 @@ export default function Toolbar() {
   const setLoadModal = useSetRecoilState(loadModalAtom);
 
   const setNotificationList = useSetRecoilState(notificationListAtom);
-
-  const pushErrorNotification = (message: string) => {
-    setNotificationList(
-      (notificationListOld) => {
-        const notifications = [...notificationListOld.notifications];
-        notifications.push({ kind: NotificationKind.Error, message });
-        return { ...notificationListOld, notifications };
-      },
-    );
-  };
 
   return (
     <div style={{ float: 'right' }}>
@@ -88,7 +78,7 @@ export default function Toolbar() {
               code: result.code(),
             }));
           } else {
-            pushErrorNotification(result.error());
+            pushNotification(setNotificationList, NotificationKind.Error, result.error());
           }
           result.delete();
         }}
@@ -103,7 +93,7 @@ export default function Toolbar() {
           if (result.ok()) {
             await runOnDevice(result.code());
           } else {
-            pushErrorNotification(result.error());
+            pushNotification(setNotificationList, NotificationKind.Error, result.error());
           }
           result.delete();
         }}
