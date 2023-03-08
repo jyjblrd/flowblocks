@@ -163,11 +163,12 @@ function compileCircuitHelper(
     const type = (node.data.nodeTypeId);
     const pins = new Map<string, string>();
     const { attributes } = node.data;
-    console.log(nodeData[type].attributes)
+    console.log(nodeData[type].attributes);
     for (const attribute of Object.keys(attributes)) {
       // first go through all attributes and collect dictionary of ones which are pins to check
       const attributeType = nodeData[type].attributes[attribute].type;
-      if (attributeType === 0||attributeType === 1||attributeType===2||attributeType===3) {
+      if (attributeType === 0 || attributeType === 1
+          || attributeType === 2 || attributeType === 3) {
         const pin = node.data.attributes[attribute];
         pins.set(attribute, pin);
         const pinUsedBy = usedPins.get(pin);
@@ -195,19 +196,19 @@ function compileCircuitHelper(
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then from the other pin to the 3.3v power\n');
     } else if (type === 'LED') {
-      console.log(pins.get('pin_num'));
-      if (isUseablePin(pins.get('pin_num')!, 'dig') && pins.get('pin_num') !== '25') {
+      console.log(pins.get('Pin number'));
+      if (isUseablePin(pins.get('Pin number')!, 'dig') && pins.get('Pin number') !== '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
         return out;
       }
-      if (pins.get('pin_num')!=='25'){
-      out = out.concat('connect a wire from pin ');
-      out = out.concat(pins.get('pin_num')!);
-      out = out.concat(' to the positive lead of LED, ');
-      out = out.concat(node.data.blockName ?? '');
-      out = out.concat(' (It should be the longer one) then from the other lead to a resistor, then connect that resistor to ground on the pico.\n');
+      if (pins.get('Pin number') !== '25') {
+        out = out.concat('connect a wire from pin ');
+        out = out.concat(pins.get('Pin number')!);
+        out = out.concat(' to the positive lead of LED, ');
+        out = out.concat(node.data.blockName ?? '');
+        out = out.concat(' (It should be the longer one) then from the other lead to a resistor, then connect that resistor to ground on the pico.\n');
       }
     } else if (type === 'SevenSegmentDisplay') {
       console.log(pins);
@@ -261,9 +262,9 @@ function compileCircuitHelper(
       out = out.concat(' to the buzzer, ');
       out = out.concat(node.data.blockName ?? '');
       out = out.concat(' then to the ground on the pico\n');
-    } else if (type=="RGB_LED"){
+    } else if (type === 'RGB_LED') {
       for (const pin of pins.keys()) {
-        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
           out = 'failed on  ';
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
@@ -272,21 +273,21 @@ function compileCircuitHelper(
           return out;
         }
       }
-      out=out.concat("attach a wire from the ground of ")
-      out=out.concat(node.data.blockName ?? '')
-      out=out.concat(' (the longest pin) through a 75-220 ohm resistor to the pico ground pin\n')
-      out=out.concat("connect pin ")
-      out=out.concat(pins.get("Red pin"))
-      out=out.concat(" to the pin red on the LED (The short pin next to the ground)\n")
-      out=out.concat("connect pin ")
-      out=out.concat(pins.get("Green pin"))
-      out=out.concat(" to the pin green on the LED (The long pin next to the ground)\n")
-      out=out.concat("connect pin ")
-      out=out.concat(pins.get("Blue pin"))
-      out=out.concat(" to the pin blue on the LED (The short pin next to the green)\n")
-    }else if(type=="DistanceSensor"){
+      out = out.concat('attach a wire from the ground of ');
+      out = out.concat(node.data.blockName ?? '');
+      out = out.concat(' (the longest pin) through a 75-220 ohm resistor to the pico ground pin\n');
+      out = out.concat('connect pin ');
+      out = out.concat(pins.get('Red pin')!);
+      out = out.concat(' to the pin red on the LED (The short pin next to the ground)\n');
+      out = out.concat('connect pin ');
+      out = out.concat(pins.get('Green pin')!);
+      out = out.concat(' to the pin green on the LED (The long pin next to the ground)\n');
+      out = out.concat('connect pin ');
+      out = out.concat(pins.get('Blue pin')!);
+      out = out.concat(' to the pin blue on the LED (The short pin next to the green)\n');
+    } else if (type === 'DistanceSensor') {
       for (const pin of pins.keys()) {
-        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes.pin_num !== '25') {
+        if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
           out = 'failed on  ';
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
@@ -294,18 +295,17 @@ function compileCircuitHelper(
           out = out.concat('. It looks like you are using an unknown pin.');
           return out;
         }
-
       }
-      out=out.concat("connect the power and ground on ") 
-      out=out.concat(node.data.blockName ?? '')
-      out=out.concat(" to the power and ground on the pico\n")
-      out=out.concat("then connect the  Trigger pin to pin ")
-      out=out.concat(pins.get("trigger pin"))
-      out=out.concat(" on the pico\n")
-      out=out.concat("connect the echo pin through a 330 ohm resistor to pin ")
-      out=out.concat(pins.get("echo pin"))
-      out=out.concat(" then connect the echo pin to ground on the pico  through a 470 ohm resistor.\n")
-    }else if (pins.size !== 0) {
+      out = out.concat('connect the power and ground on ');
+      out = out.concat(node.data.blockName ?? '');
+      out = out.concat(' to the power and ground on the pico\n');
+      out = out.concat('then connect the  Trigger pin to pin ');
+      out = out.concat(pins.get('Trigger pin')!);
+      out = out.concat(' on the pico\n');
+      out = out.concat('connect the echo pin through a 330 ohm resistor to pin ');
+      out = out.concat(pins.get('Echo pin')!);
+      out = out.concat(' then connect the echo pin to ground on the pico  through a 470 ohm resistor.\n');
+    } else if (pins.size !== 0) {
       for (const pin of pins.keys()) {
         if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
           out = 'failed on  ';
@@ -320,7 +320,7 @@ function compileCircuitHelper(
         out = out.concat(' to ');
         out = out.concat(pin);
         out = out.concat(' on ');
-        out = out.concat(node.data.blockName ??'');
+        out = out.concat(node.data.blockName ?? '');
         out = out.concat('\n');
       }
     }
@@ -331,10 +331,10 @@ function compileCircuitHelper(
 export function compileCircuit(
   nodesList: Node<NodeInstance>[],
   setNodeData: Record<string, NodeTypeData>,
-  setNotificationList: SetterOrUpdater<NotificationList>,
+  // setNotificationList: SetterOrUpdater<NotificationList>,
 ) {
   let out: string = (compileCircuitHelper(nodesList, setNodeData));
   out = out.concat('\n find a pin diagram of a pico at :\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf  (use the numbers in the light green boxes)');
-  //pushNotification(setNotificationList, NotificationKind.Info, out);
+  // pushNotification(setNotificationList, NotificationKind.Info, out);
   alert(out);
 }
