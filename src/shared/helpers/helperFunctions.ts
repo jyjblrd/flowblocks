@@ -210,7 +210,7 @@ function compileCircuitHelper(
         out = out.concat(node.data.blockName ?? '');
         out = out.concat('" (the longer one); then, connect the other lead to a resistor; finally, connect that resistor to ground on the Pico.\n');
       }
-    } else if (type === 'SevenSegmentDisplay') {
+    } else if (type === 'SevenSegDisplay') {
       console.log(pins);
       for (const pin of pins.keys()) {
         if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {

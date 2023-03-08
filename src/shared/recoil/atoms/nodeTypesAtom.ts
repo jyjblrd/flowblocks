@@ -652,7 +652,7 @@ const defaultNodeTypes: NodeTypes = {
       },
     },
   },
-  SevenSegmentDisplay: {
+  SevenSegDisplay: {
     group: NodeGroups.Output,
     description: 'Convert a numeric input into seven outputs for a 7-segment display.',
     attributes: {
