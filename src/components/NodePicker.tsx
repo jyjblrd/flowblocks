@@ -91,7 +91,7 @@ export default function NodePicker() {
           className="mt-2"
           onSelect={onTabSelect}
           variant="pills"
-          style={{ minWidth: '800px' }}
+          style={{ minWidth: '650px' }}
         >
           {Object.keys(NodeGroups)
             .filter((key: any) => !Number.isNaN(Number(NodeGroups[key]))).map((name) => (
