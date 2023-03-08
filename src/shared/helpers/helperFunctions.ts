@@ -177,7 +177,7 @@ function compileCircuitHelper(
           out = out.concat(pinUsedBy);
           out = out.concat(' and ');
           out = out.concat(node.data.blockName ?? '');
-          out = out.concat(' use the same pin this is not allowed.');
+          out = out.concat(' use the same pin; this is not allowed.\n');
           return out;
         }
         usedPins.set(pin, node.data.blockName ?? '');
@@ -185,30 +185,30 @@ function compileCircuitHelper(
     }
     if (type === 'Button') {
       if (isUseablePin(pins.get('Pin number')!, 'dig')) {
-        out = 'failed on button ';
+        out = 'Failed on button "';
         out = out.concat(node.data.blockName ?? '');
-        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+        out = out.concat('": it looks like you are using the wrong type of pin. You should use a digital in/out pin.\n');
         return out;
       }
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number')!);
-      out = out.concat(' to the button, ');
+      out = out.concat(' to button "');
       out = out.concat(node.data.blockName ?? '');
-      out = out.concat(' then from the other pin to the 3.3v power\n');
+      out = out.concat('"; then, connect the other pin to the 3.3v power.\n');
     } else if (type === 'LED') {
       console.log(pins.get('Pin number'));
       if (isUseablePin(pins.get('Pin number')!, 'dig') && pins.get('Pin number') !== '25') {
         out = 'failed on LED ';
         out = out.concat(node.data.blockName ?? '');
-        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+        out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin.\n');
         return out;
       }
       if (pins.get('Pin number') !== '25') {
-        out = out.concat('connect a wire from pin ');
+        out = out.concat('Connect a wire from pin ');
         out = out.concat(pins.get('Pin number')!);
-        out = out.concat(' to the positive lead of LED, ');
+        out = out.concat(' to the positive lead of LED "');
         out = out.concat(node.data.blockName ?? '');
-        out = out.concat(' (It should be the longer one) then from the other lead to a resistor, then connect that resistor to ground on the pico.\n');
+        out = out.concat('" (the longer one); then, connect the other lead to a resistor; finally, connect that resistor to ground on the Pico.\n');
       }
     } else if (type === 'SevenSegmentDisplay') {
       console.log(pins);
@@ -218,50 +218,50 @@ function compileCircuitHelper(
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
           out = out.concat(pin);
-          out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin');
+          out = out.concat('. It looks like you are using the wrong type of pin. You should use a digital in/out pin.\n');
           return out;
         }
       }
-      out = out.concat('\nconnect a wire from pin ');
+      out = out.concat('\nConnect a wire from pin ');
       out = out.concat(pins.get('Pin number a')!);
-      out = out.concat(' to the top horizontal segment of the display\n');
+      out = out.concat(' to the top horizontal segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number b')!);
-      out = out.concat(' to the top right segment of the display\n');
+      out = out.concat(' to the top right segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number c')!);
-      out = out.concat(' to the bottom right segment of the display\n');
+      out = out.concat(' to the bottom right segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number d')!);
-      out = out.concat(' to the bottom horizontal segment of the display\n');
+      out = out.concat(' to the bottom horizontal segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number e')!);
-      out = out.concat(' to the bottom left segment of the display\n');
+      out = out.concat(' to the bottom left segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number f')!);
-      out = out.concat(' to the top left segment of the display\n');
+      out = out.concat(' to the top left segment of the display.\n');
 
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number g')!);
-      out = out.concat(' to the middle horizontal segment of the display\n');
-      out = out.concat('then connect the ground to a 75-220 ohm resistor then to ground on the pico.\n\n');
+      out = out.concat(' to the middle horizontal segment of the display.\n');
+      out = out.concat('Then, connect the ground to a 75-220 ohm resistor then to ground on the Pico.\n');
     } else if (type === 'Buzzer') {
       if (isUseablePin(pins.get('Pin number')!, 'dig')) {
         out = 'failed on buzzer ';
         out = out.concat(node.data.blockName ?? '');
-        out = out.concat('. It looks like you are using an unknown pin.');
+        out = out.concat('. It looks like you are using an unknown pin.\n');
         return out;
       }
-      out = out.concat('connect a wire from pin ');
+      out = out.concat('Connect a wire from pin ');
       out = out.concat(pins.get('Pin number')!);
-      out = out.concat(' to the buzzer, ');
+      out = out.concat(' to the buzzer "');
       out = out.concat(node.data.blockName ?? '');
-      out = out.concat(' then to the ground on the pico\n');
+      out = out.concat('"; then, connect it to the ground on the Pico.\n');
     } else if (type === 'RGB_LED') {
       for (const pin of pins.keys()) {
         if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
@@ -269,22 +269,22 @@ function compileCircuitHelper(
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
           out = out.concat(pin);
-          out = out.concat('. It looks like you are using an unknown pin.');
+          out = out.concat('. It looks like you are using an unknown pin.\n');
           return out;
         }
       }
-      out = out.concat('attach a wire from the ground of ');
+      out = out.concat('Attach a wire from the ground of ');
       out = out.concat(node.data.blockName ?? '');
-      out = out.concat(' (the longest pin) through a 75-220 ohm resistor to the pico ground pin\n');
-      out = out.concat('connect pin ');
+      out = out.concat(' (the longest pin) through a 75-220 ohm resistor to the Pico ground pin.\n');
+      out = out.concat('Connect pin ');
       out = out.concat(pins.get('Red pin')!);
-      out = out.concat(' to the pin red on the LED (The short pin next to the ground)\n');
-      out = out.concat('connect pin ');
+      out = out.concat(' to the pin red on the LED (the short pin next to the ground).\n');
+      out = out.concat('Connect pin ');
       out = out.concat(pins.get('Green pin')!);
-      out = out.concat(' to the pin green on the LED (The long pin next to the ground)\n');
-      out = out.concat('connect pin ');
+      out = out.concat(' to the pin green on the LED (the long pin next to the ground).\n');
+      out = out.concat('Connect pin ');
       out = out.concat(pins.get('Blue pin')!);
-      out = out.concat(' to the pin blue on the LED (The short pin next to the green)\n');
+      out = out.concat(' to the pin blue on the LED (the short pin next to the green).\n');
     } else if (type === 'DistanceSensor') {
       for (const pin of pins.keys()) {
         if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
@@ -292,19 +292,19 @@ function compileCircuitHelper(
           out = out.concat(node.data.blockName ?? '');
           out = out.concat(' on pin ');
           out = out.concat(pin);
-          out = out.concat('. It looks like you are using an unknown pin.');
+          out = out.concat('. It looks like you are using an unknown pin.\n');
           return out;
         }
       }
-      out = out.concat('connect the power and ground on ');
+      out = out.concat('Connect the power and ground on ');
       out = out.concat(node.data.blockName ?? '');
-      out = out.concat(' to the power and ground on the pico\n');
-      out = out.concat('then connect the  Trigger pin to pin ');
+      out = out.concat(' to the power and ground on the Pico;\n');
+      out = out.concat('then, connect the trigger pin to pin ');
       out = out.concat(pins.get('Trigger pin')!);
-      out = out.concat(' on the pico\n');
-      out = out.concat('connect the echo pin through a 330 ohm resistor to pin ');
+      out = out.concat(' on the Pico.\n');
+      out = out.concat('Connect the echo pin through a 330 ohm resistor to pin ');
       out = out.concat(pins.get('Echo pin')!);
-      out = out.concat(' then connect the echo pin to ground on the pico  through a 470 ohm resistor.\n');
+      out = out.concat('; then, connect the echo pin to ground on the Pico  through a 470 ohm resistor.\n');
     } else if (pins.size !== 0) {
       for (const pin of pins.keys()) {
         if (isUseablePin(pins.get(pin)!, 'dig') && node.data.attributes['Pin number'] !== '25') {
@@ -315,13 +315,13 @@ function compileCircuitHelper(
           out = out.concat('. It looks like you are using an unknown pin.');
           return out;
         }
-        out = out.concat('connect pin ');
+        out = out.concat('Connect pin ');
         out = out.concat(pins.get(pin)!);
         out = out.concat(' to ');
         out = out.concat(pin);
         out = out.concat(' on ');
         out = out.concat(node.data.blockName ?? '');
-        out = out.concat('\n');
+        out = out.concat('.\n');
       }
     }
   }
@@ -334,6 +334,6 @@ export function compileCircuit(
   setNotificationList: SetterOrUpdater<NotificationList>,
 ) {
   let out: string = (compileCircuitHelper(nodesList, setNodeData));
-  out = out.concat('\n find a pin diagram of a pico at :\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf  (use the numbers in the light green boxes)');
+  out = out.concat('\nYou can find a pin diagram of a Pico here:\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf.');
   pushNotification(setNotificationList, NotificationKind.Info, out);
 }
