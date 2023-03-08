@@ -6,7 +6,7 @@ import {
 const defaultNodeTypes: NodeTypes = {
   Button: {
     group: NodeGroups.Input,
-    description: 'Physical button input',
+    description: 'A physical button.',
     attributes: {
       'Pin number': { type: AttributeTypes.DigitalIn },
     },
@@ -26,7 +26,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   And: {
     group: NodeGroups.Logic,
-    description: 'Logical AND requires all inputs to be true to output true',
+    description: 'Outputs True if all of its inputs are True.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -54,7 +54,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Not: {
     group: NodeGroups.Logic,
-    description: 'Logical NOT inverts input (true becomes false, false becomes true)',
+    description: 'Outputs True if input is False and outputs False if input is True.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -77,7 +77,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Or: {
     group: NodeGroups.Logic,
-    description: 'Logical OR, requires one of the inputs to be true.',
+    description: 'Outputs True if at least one input is True.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -105,7 +105,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Add: {
     group: NodeGroups.Numerical,
-    description: 'Add 2 numbers together.',
+    description: 'Adds two numbers together.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -133,7 +133,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   IntegerConstant: {
     group: NodeGroups.Input,
-    description: 'Provides an integer constant. Used for testing attributes',
+    description: 'A constant integer.', // Used for testing attributes
     attributes: {
       'Constant Value': { type: AttributeTypes.Number },
     },
@@ -153,7 +153,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   BoolConstant: {
     group: NodeGroups.Input,
-    description: 'Provides an boolean constant. (true or False) Used for testing attributes',
+    description: 'A boolean constant (True/False).',
     attributes: {
       'Constant Value': { type: AttributeTypes.Bool },
     },
@@ -173,7 +173,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   PrintNumber: {
     group: NodeGroups.Output,
-    description: 'Prints an int. Used for test model of execution',
+    description: 'Prints an integer.', // Used for testing execution model.
     attributes: {},
     hasBlockName: false,
     code: {
@@ -191,7 +191,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   LED: {
     group: NodeGroups.Output,
-    description: 'LED output',
+    description: 'An LED.',
     attributes: {
       'Pin number': { type: AttributeTypes.DigitalOut },
     },
@@ -239,7 +239,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Xor: {
     group: NodeGroups.Logic,
-    description: 'Xor 2 numbers together.',
+    description: 'Outputs True if both inputs are unequal.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -267,7 +267,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Multiply: {
     group: NodeGroups.Numerical,
-    description: 'Multiply 2 numbers together.',
+    description: 'Multiplies two numbers together.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -295,7 +295,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Divide: {
     group: NodeGroups.Numerical,
-    description: 'Divide left input by right input TODO: Div by zero.',
+    description: 'Divides the left input by the right.', // TODO: Divide by zero!
     attributes: {},
     hasBlockName: false,
     code: {
@@ -323,7 +323,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Subtract: {
     group: NodeGroups.Numerical,
-    description: 'Subtract right number from left.',
+    description: 'Subtracts the right input from the left.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -351,7 +351,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Remainder: {
     group: NodeGroups.Numerical,
-    description: 'remainder of left input divided by right input.',
+    description: 'Gives the remainder of the left input when divided by the right.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -379,7 +379,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Equals: {
     group: NodeGroups.Comparison,
-    description: 'Check if 2 numbers are equal.',
+    description: 'Checks if two numbers are equal.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -407,7 +407,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   GreaterThan: {
     group: NodeGroups.Comparison,
-    description: 'Check if left input is greater than right input.',
+    description: 'Checks if the left input is greater than the right.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -435,7 +435,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   LessThan: {
     group: NodeGroups.Comparison,
-    description: 'Check if left input is less than right input.',
+    description: 'Checks if the left input is less than the right.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -463,7 +463,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   GreaterThanEquals: {
     group: NodeGroups.Comparison,
-    description: 'Check if left input is greater than or equal to right input.',
+    description: 'Checks if the left input is greater than or equal to the right.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -491,7 +491,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   LessThanEquals: {
     group: NodeGroups.Comparison,
-    description: 'Check if left input is less than or equal to right input.',
+    description: 'Checks if the left input is less than or equal to the.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -519,7 +519,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   NotEquals: {
     group: NodeGroups.Comparison,
-    description: 'Check if 2 numbers are not equal.',
+    description: 'Checks if 2 numbers are not equal.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -547,7 +547,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   PickInputBool: {
     group: NodeGroups.ControlFlow,
-    description: 'Pick one of two boolean inputs to output (True for left, False for right)',
+    description: 'Picks one of two boolean inputs to output (True for left, False for right).',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -578,7 +578,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   PickInputNum: {
     group: NodeGroups.ControlFlow,
-    description: 'Pick one of two numerical inputs to output (True for left, False for right)',
+    description: 'Picks one of two numeric inputs to output (True for left, False for right).',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -608,7 +608,7 @@ const defaultNodeTypes: NodeTypes = {
     },
   },
   Monostable: {
-    description: 'Output True for a single frame when input is True.',
+    description: 'Outputs True for a single frame when input is True.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -654,7 +654,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   SevenSegmentDisplay: {
     group: NodeGroups.Output,
-    description: 'Convert number inpu into 7 outputs for a 7 segment display.',
+    description: 'Convert a numeric input into seven outputs for a 7-segment display.',
     attributes: {
       'Pin number a': { type: AttributeTypes.DigitalOut },
       'Pin number b': { type: AttributeTypes.DigitalOut },
@@ -680,7 +680,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   RandomNumber: {
     group: NodeGroups.Input,
-    description: 'Output a random number in the given (in attributes) inclusive range when given a signal',
+    description: 'Outputs a random number in an inclusive range when given a signal.',
     attributes: {
       Minimum: { type: AttributeTypes.Number },
       Maximum: { type: AttributeTypes.Number },
@@ -707,7 +707,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   PulseGenerator: {
     group: NodeGroups.Input,
-    description: 'Generate a pulse with a fixed delay in milliseconds',
+    description: 'Generates a pulse with a fixed delay in milliseconds.',
     attributes: {
       'Delay (ms)': { type: AttributeTypes.Number },
     },
@@ -727,7 +727,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   LCDDisplay: {
     group: NodeGroups.Output,
-    description: 'I2C LCD Display',
+    description: 'An I2C LCD Display.',
     attributes: {
       'SCL pin': { type: AttributeTypes.DigitalOut },
       'SDA pin': { type: AttributeTypes.DigitalOut },
@@ -748,7 +748,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   DistanceSensor: {
     group: NodeGroups.Input,
-    description: 'HC-SR04 Distance Sensor',
+    description: 'An HC-SR04 Distance Sensor.',
     attributes: {
       'Trigger pin': { type: AttributeTypes.DigitalOut },
       'Echo pin': { type: AttributeTypes.DigitalIn },
@@ -769,7 +769,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Buzzer: {
     group: NodeGroups.Output,
-    description: 'Passive buzzer',
+    description: 'A passive buzzer.',
     attributes: {
       'Pin number': { type: AttributeTypes.DigitalOut },
     },
@@ -839,7 +839,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   chooseOutput: {
     group: NodeGroups.ControlFlow,
-    description: 'Pick one of two boolean inputs to output (True for left, False for right)',
+    description: 'Picks one of two boolean inputs to output (True for left, False for right).',
     attributes: {},
     hasBlockName: false,
     code: {
