@@ -5,3 +5,11 @@
 .toast-container.notification-toasts > :not(:last-child) {
     margin-bottom: 16px;
 }
+
+.toast-body {
+    br {
+        content: " ";
+        display: block;
+        margin: 8px 0;
+    }
+}
