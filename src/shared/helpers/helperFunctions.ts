@@ -331,10 +331,9 @@ function compileCircuitHelper(
 export function compileCircuit(
   nodesList: Node<NodeInstance>[],
   setNodeData: Record<string, NodeTypeData>,
-  // setNotificationList: SetterOrUpdater<NotificationList>,
+  setNotificationList: SetterOrUpdater<NotificationList>,
 ) {
   let out: string = (compileCircuitHelper(nodesList, setNodeData));
   out = out.concat('\n find a pin diagram of a pico at :\nhttps://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf  (use the numbers in the light green boxes)');
-  // pushNotification(setNotificationList, NotificationKind.Info, out);
-  alert(out);
+  pushNotification(setNotificationList, NotificationKind.Info, out);
 }

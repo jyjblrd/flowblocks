@@ -18,6 +18,8 @@
     "eslint": "^8.0.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-jsx-a11y": "^6.7.1",
+    "interweave": "^13.0.0",
+    "interweave-autolink": "^5.1.0",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",

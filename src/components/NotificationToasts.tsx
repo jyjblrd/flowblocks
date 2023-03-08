@@ -3,6 +3,8 @@ import { useRecoilState } from 'recoil';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Toast from 'react-bootstrap/Toast';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Interweave } from 'interweave';
+import { UrlMatcher } from 'interweave-autolink';
 import { NotificationKind, notificationListAtom } from '../shared/recoil/atoms/notificationListAtom';
 import './NotificationToasts.scss';
 
@@ -39,7 +41,7 @@ export default function NotificationToasts() {
                 }
                 <strong className="me-auto">{titleByNotificationKind[notification.kind]}</strong>
               </Toast.Header>
-              <Toast.Body>{notification.message}</Toast.Body>
+              <Toast.Body><Interweave content={notification.message} matchers={[new UrlMatcher('url')]} /></Toast.Body>
             </Toast>
           ),
         )
