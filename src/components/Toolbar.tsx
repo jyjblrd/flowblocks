@@ -123,7 +123,7 @@ export default function Toolbar() {
           compileCircuit(reactFlowInstance.getNodes(), nodeTypes, setNotificationList);
         }}
       >
-        Generate Circuit
+        Generate circuit
       </Button>
     </div>
   );

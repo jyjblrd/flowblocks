@@ -217,7 +217,7 @@ export default function NodeEditorModal() {
             <Row>
               <Col xs={12}>
                 <Card className="shadow p-3">
-                  <h5>Name & Description</h5>
+                  <h5>Name and Description</h5>
                   <Form.Control name="nodeTypeId" onChange={handleChange} value={newNodeTypeId} placeholder="Name" />
                   <Form.Control name="description" className="mt-2" size="sm" onChange={handleChange} as="textarea" rows={2} value={nodeType.description} placeholder="Description" />
                   {/*

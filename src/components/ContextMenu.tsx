@@ -99,7 +99,7 @@ export default function ContextMenu(
                 (clickedNode?.data.blockName !== undefined || false) ? (
                   <InputGroup as={Row} className="g-0">
                     <Col xs={7}>
-                      <Form.Label className="mt-1">Block Name</Form.Label>
+                      <Form.Label className="mt-1">Block name</Form.Label>
                     </Col>
                     <Col>
                       <Form.Control size="sm" value={blockName} onChange={handleBlockNameChange} />

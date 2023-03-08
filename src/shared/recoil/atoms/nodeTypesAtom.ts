@@ -54,7 +54,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Not: {
     group: NodeGroups.Logic,
-    description: 'Outputs True if input is False and outputs False if input is True.',
+    description: 'Outputs True if its input is False or outputs False if its input is True.',
     attributes: {},
     hasBlockName: false,
     code: {

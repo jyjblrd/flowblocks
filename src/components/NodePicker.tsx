@@ -159,7 +159,7 @@ export default function NodePicker() {
           />
         </Col>
         <Col>
-          <h5 className="text-secondary">Create New Node</h5>
+          <h5 className="text-secondary">Create a new node</h5>
         </Col>
       </Row>
 
