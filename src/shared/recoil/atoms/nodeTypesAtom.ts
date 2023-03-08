@@ -211,7 +211,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   Counter: {
     group: NodeGroups.Numerical,
-    description: 'Increments a counter when triggered, resetting when reset is triggered',
+    description: 'Increments a counter when triggered, resetting when reset is triggered.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -491,7 +491,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   LessThanEquals: {
     group: NodeGroups.Comparison,
-    description: 'Checks if the left input is less than or equal to the.',
+    description: 'Checks if the left input is less than or equal to the right.',
     attributes: {},
     hasBlockName: false,
     code: {
@@ -789,7 +789,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   AnalogOutput: {
     group: NodeGroups.Output,
-    description: 'Takes input values from 0 – 100',
+    description: 'An analog output which takes input values from 0–100.',
     attributes: {
       'Pin number': { type: AttributeTypes.AnalogOut },
     },
@@ -809,7 +809,7 @@ const defaultNodeTypes: NodeTypes = {
   },
   RGB_LED: {
     group: NodeGroups.Output,
-    description: 'Red Green and Blue inputs take values from 0 – 100',
+    description: 'An LED with red, green, and blue inputs taking values from 0–100.',
     attributes: {
       'Red pin': { type: AttributeTypes.AnalogOut },
       'Green pin': { type: AttributeTypes.AnalogOut },
