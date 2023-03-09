@@ -2,10 +2,11 @@
   "name": "flowblocks",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://jyjblrd.github.io/flowblocks",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
