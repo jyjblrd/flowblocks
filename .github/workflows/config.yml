@@ -37,6 +37,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install
+      - name: Setup Emscripten
+        uses: lovasoa/setup-emscripten@v1
       - name: Build C++ backend
         run: cd cxx/; make all
       - name: Build
