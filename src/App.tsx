@@ -24,6 +24,13 @@ export default function App() {
           <Col className="ms-4" style={{ width: 'fit-content' }} md="auto">
             <img src="flowblocks-logo.svg" width="160" alt="FlowBlocks" />
           </Col>
+          <Col xs="auto">
+            <h3 className="pt-2 text-danger">
+              Experimental!
+              {' '}
+              <span style={{ fontSize: '22px' }}>(proof of concept)</span>
+            </h3>
+          </Col>
           <Col>
             <Toolbar />
           </Col>
