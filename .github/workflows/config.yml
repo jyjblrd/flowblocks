@@ -37,8 +37,9 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install
-      - name: Setup Emscripten
-        uses: lovasoa/setup-emscripten@v1
+      - uses: mymindstorm/setup-emsdk@v11
+      - name: Verify Emscripten Install
+        run: emcc -v
       - name: Build C++ backend
         run: cd cxx/; make all
       - name: Build
