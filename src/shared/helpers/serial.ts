@@ -52,15 +52,15 @@ async function sendToDevice(content: string) {
   writer.releaseLock();
 }
 
-export async function runOnDevice(code: string) {
-  if (running) {
-    return; // TODO tell user already running (frontend)
-  }
-  running = true;
-  await sendToDevice(`${Control.reset}${Control.enterPasteMode}${code}${Control.reset}`);
-}
-
 export async function stopRunning() {
   await sendToDevice(Control.interrupt);
   running = false;
+}
+
+export async function runOnDevice(code: string) {
+  if (running) {
+    stopRunning();
+  }
+  running = true;
+  sendToDevice(`${Control.interrupt}${Control.reset}${Control.enterPasteMode}${code}${Control.reset}`);
 }
