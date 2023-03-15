@@ -1,5 +1,12 @@
 # FlowBlocks
-FlowBlocks is a visual interface for programming microcontrollers, geared towards beginners.
+FlowBlocks is a visual interface for programming pi picos, geared towards beginners.
+
+It is a flow chart based languge. A program is made up of blocks that can read from an input, perform logic or control an output. This makes programming simple as the code necesary to interact with a sensor is hidden behind the blocks so the user does not have to interact with it.
+The blocks are all written in python that can be edited by users. This allows more powerful programs to be written. It also allows users to learn the basics of more traditional programmming styles.
+
+The system is capable of auto generating circuits and telling the user how to assemble them.
+
+It is designed to be simple. A project such as turning on an LED when one of 2 buttons is pressed is as simple as placing 2 button blocks and an LED then connecting the buttons to an or block then to the LED. The program can then be compiled and downloaded to the pi. The circuit can be assembled from the instructions. The pins are chosen automatically.
 
 ## Development
 
