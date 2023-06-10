@@ -1,4 +1,7 @@
 # FlowBlocks
+
+https://github.com/jyjblrd/flowblocks/assets/40762456/7a325601-bccf-446e-9ee1-af0131be81ab
+
 FlowBlocks is a visual interface for programming pi picos, geared towards beginners.
 
 It is a flow chart based languge. A program is made up of blocks that can read from an input, perform logic or control an output. This makes programming simple as the code necesary to interact with a sensor is hidden behind the blocks so the user does not have to interact with it.
