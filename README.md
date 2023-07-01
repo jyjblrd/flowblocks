@@ -2,17 +2,13 @@
 
 https://github.com/jyjblrd/flowblocks/assets/40762456/7a325601-bccf-446e-9ee1-af0131be81ab
 
-FlowBlocks is a visual interface for programming pi picos, geared towards beginners.
+## Introduction
 
-It is a flow chart based languge. A program is made up of blocks that can read from an input, perform logic or control an output. This makes programming simple as the code necesary to interact with a sensor is hidden behind the blocks so the user does not have to interact with it.
-The blocks are all written in python that can be edited by users. This allows more powerful programs to be written. It also allows users to learn the basics of more traditional programmming styles.
+FlowBlocks is a visual interface for programming the Raspberry Pi Pico, geared towards beginners.
 
-The system is capable of auto generating circuits and telling the user how to assemble them.
-
-It is designed to be simple. A project such as turning on an LED when one of 2 buttons is pressed is as simple as placing 2 button blocks and an LED then connecting the buttons to an or block then to the LED. The program can then be compiled and downloaded to the pi. The circuit can be assembled from the instructions. The pins are chosen automatically.
+With FlowBlocks, users can build programs by dragging and dropping blocks from a comprehensive standard library of inputs, operators, and outputs, and connecting them into flowcharts, which describe the flow of data throughout a program. In addition, experienced users also have the option of creating custom blocks—written with a templating dialect of MicroPython—which provide a greater level of expressive freedom for the projects that need it.
 
 ## Development
-
 ### Installing dependencies
 
 Install [Node.js](https://nodejs.org/) and the project manager [Yarn](https://classic.yarnpkg.com/en/docs/install).
